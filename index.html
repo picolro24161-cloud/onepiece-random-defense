@@ -223,6 +223,26 @@
         <div id="loaderTxt" style="font-size:26px; font-weight:bold; color:#fff; text-shadow:0 2px 8px #000;">0%</div>
         <div id="loaderSub" style="font-size:12px; color:#9fb0c8;">준비 중…</div>
       </div>
+      <div id="startGate" style="position:fixed; inset:0; z-index:70; display:none; opacity:0;
+           transition:opacity .5s ease; flex-direction:column; align-items:center; justify-content:center;
+           gap:22px; text-align:center; padding:28px; background:#050a12; background-size:cover;
+           background-position:center; image-rendering:pixelated;">
+        <!-- 배경 위에 어둡게 깔아서 글자/버튼이 묻히지 않게 -->
+        <div style="position:absolute; inset:0; background:radial-gradient(ellipse at center, rgba(4,10,20,.45) 0%, rgba(4,8,16,.88) 100%);"></div>
+        <div style="position:relative; display:flex; flex-direction:column; align-items:center; gap:20px;">
+          <div style="font-size:13px; letter-spacing:6px; color:#8fd8ff; text-shadow:0 2px 8px #000;">GRAND LINE</div>
+          <div style="font-size:min(9vw,42px); font-weight:bold; color:#ffe066; letter-spacing:3px;
+                      text-shadow:0 3px 0 #a35a00, 0 6px 18px rgba(0,0,0,.9);">⚓ 원피스 랜덤 디펜스</div>
+          <div style="font-size:13px; color:#cfd6e4; line-height:1.7;">
+            난이도별 총 라운드 · 5라운드마다 보스<br>최종 라운드에서 <b style="color:#fff;">이무</b>를 잡으면 클리어
+          </div>
+          <button id="startGateBtn" style="margin-top:8px; padding:20px 56px; font-size:22px; font-weight:bold;
+                  font-family:inherit; color:#2a1500; cursor:pointer; border:2px solid #ffe9a8; border-radius:14px;
+                  background:linear-gradient(180deg,#ffd75e,#ff9f1c); box-shadow:0 6px 0 #a35a00, 0 10px 24px rgba(0,0,0,.6);
+                  letter-spacing:2px;">▶ 게임 시작</button>
+          <div style="font-size:12px; color:#9fb0c8;">클릭하면 소리와 함께 오프닝이 재생됩니다 🔊</div>
+        </div>
+      </div>
       </div>
 <script>
 /* v15dq: [인앱 브라우저 감지 안내]
@@ -374,6 +394,10 @@
   //        중복 호출돼도 started 플래그 때문에 무해하다.
   function onTap(e){
     if(e && e.target && e.target.id === "introSoundBtn") return;   // 소리 켜기 버튼은 제외
+    // v15dw: 로딩 화면(#assetLoader)과 시작 화면(#startGate)은 #videoIntro 안쪽에 있어서
+    //   그 내부 클릭이 여기까지 버블링된다. 그대로 두면 로딩 중 클릭이나 '게임 시작' 클릭이
+    //   인트로 탭으로 잡혀 __introWantStart 가 켜지고, 준비되는 순간 인트로가 스킵된다.
+    if(e && e.target && e.target.closest && e.target.closest("#assetLoader, #startGate")) return;
     if(e && e.cancelable) e.preventDefault();   // touch→click 중복 및 스크롤/더블탭 확대 방지
     doStart();
   }
@@ -7159,6 +7183,88 @@ requestAnimationFrame(loop);
 //   에셋을 외부 파일로 분리했으므로 병렬 다운로드가 되고, 브라우저/CDN 캐시도 정상 동작한다.
 //   로딩이 끝날 때까지 __gameReady를 false로 유지하므로 인트로 터치는 "예약"만 되고,
 //   완료 순간 v15dm 로직이 자동으로 게임을 시작한다.
+// v15dv: 풀스크린 시작 화면. 브라우저 자동재생 정책 우회용.
+//   영상/WebAudio 는 "사용자 제스처" 안에서 시작해야 소리가 허용되므로,
+//   로딩 완료 후 이 화면을 띄우고 버튼 클릭 시점에 오디오를 깨운다.
+function showStartGate(){
+  const gate = document.getElementById("startGate");
+  const btn  = document.getElementById("startGateBtn");
+  if(!gate || !btn){                       // 게이트가 없으면 기존 동작으로 폴백
+    window.__gameReady = true;
+    if(window.__introStart && window.__introWantStart) window.__introStart();
+    return;
+  }
+  // 배경: 이스트 블루 배경 이미지를 재사용 (파일명이 바뀌어도 AI_BG 를 따라가도록 런타임에 주입)
+  try{
+    const bg = AI_BG["이스트 블루"];
+    const url = typeof bg === "string" ? bg : (bg && bg.url);
+    if(url) gate.style.backgroundImage = `url("${url}")`;
+  }catch(e){}
+
+  // v15dw: 게이트가 #videoIntro 의 자식이라 클릭이 인트로로 버블링된다.
+  //   position:fixed 라 레이아웃에 영향이 없으므로 body 직속으로 옮겨 구조적으로 차단한다.
+  if(gate.parentElement !== document.body) document.body.appendChild(gate);
+
+  gate.style.display = "flex";
+  requestAnimationFrame(()=>{ gate.style.opacity = "1"; });
+
+  let entered = false;
+  function enterGame(){
+    if(entered) return;
+    entered = true;
+
+    // ① WebAudio 잠금 해제 — 반드시 이 클릭 핸들러(사용자 제스처) 안에서 호출
+    try{ SFX.click(); }catch(e){}
+
+    // ② 인트로 영상을 소리 켜서 재생
+    //   v15dw: 예전엔 unmute 직후 currentTime=0 으로 시크했는데, 재생 중 시크가 play() 를
+    //   AbortError 로 중단시켜서 폴백이 다시 muted 로 되돌려 버렸다. 시크를 하지 않는다.
+    const vid = document.getElementById("introVideo");
+    const sb  = document.getElementById("introSoundBtn");
+    if(sb) sb.style.display = "none";      // 소리가 켜질 예정이므로 수동 버튼은 숨김
+    function revealSoundBtn(why){
+      console.log("[원랜디] 인트로 소리 자동 재생 실패 - 수동 버튼 노출: " + why);
+      if(sb) sb.style.display = "block";
+    }
+    if(vid){
+      vid.muted = false;
+      vid.volume = 1.0;
+      if(vid.paused){
+        const p = vid.play();
+        if(p && p.catch) p.catch(err=>{
+          vid.muted = true;                // 소리 재생이 거부되면 최소한 화면은 나오게
+          vid.play().catch(()=>{});
+          revealSoundBtn(err && err.name ? err.name : "play() 거부");
+        });
+      }
+      // 브라우저가 조용히 음소거로 되돌리거나 멈추는 경우가 있어 실제 상태로 최종 판정
+      setTimeout(()=>{ if(vid.muted || vid.paused) revealSoundBtn("재생 후 상태 확인"); }, 600);
+    }
+
+    // ④ 게이트 페이드아웃 → 인트로 영상 노출
+    gate.style.opacity = "0";
+    setTimeout(()=>{ gate.style.display = "none"; }, 500);
+
+    // ⑤ 이제부터 인트로 터치가 난이도 선택으로 넘긴다
+    window.__gameReady = true;
+    addLog(`🔊 <b class="win-c">오프닝 재생</b> — 화면을 터치하면 난이도 선택으로 넘어갑니다`);
+  }
+  // 모바일 대응: click 외 터치/포인터 이벤트도 등록 (중복 호출은 entered 플래그로 무해)
+  ["click","touchend","pointerup"].forEach(ev=>{
+    btn.addEventListener(ev, e=>{
+      e.stopPropagation();                 // v15dw: 인트로로 버블링되어 스킵되는 것 방지
+      if(e.cancelable) e.preventDefault();
+      enterGame();
+    }, { passive:false });
+  });
+  // 게이트 배경 아무 곳이나 눌러도 시작 (버튼을 못 찾는 상황 대비)
+  ["click","touchend","pointerup"].forEach(ev=>{
+    gate.addEventListener(ev, e=>{ e.stopPropagation(); enterGame(); }, { passive:false });
+  });
+  document.addEventListener("keydown", e=>{
+    if(gate.style.display !== "none" && (e.key === "Enter" || e.key === " ")) enterGame();
+  });
+}
 function startAssetPreload(){
   const urls = new Set(PRELOAD_ASSETS);
   // 목록에 없는 이미지(외부 CloudFront 등)도 런타임 구조에서 수집해 빠짐없이 받는다
@@ -7201,9 +7307,10 @@ function startAssetPreload(){
       loader.style.opacity = "0";
       setTimeout(()=>{ loader.style.display = "none"; }, 450);
     }
-    // 여기서부터 인트로 터치가 실제로 게임을 시작시킨다 (v15dm 연동)
-    window.__gameReady = true;
-    if(window.__introStart && window.__introWantStart) window.__introStart();
+    // v15dv: 로딩이 끝나면 곧바로 인트로로 넘기지 않고 "게임 시작" 화면을 먼저 띄운다.
+    //   버튼 클릭이라는 사용자 제스처 안에서 오디오를 깨워야 인트로부터 소리가 나온다.
+    //   __gameReady 는 게이트를 통과한 뒤에 켜서, 그 전에는 인트로 터치가 먹지 않게 한다.
+    showStartGate();
   }
   function step(){
     paint();
