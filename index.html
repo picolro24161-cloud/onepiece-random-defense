@@ -160,7 +160,7 @@
   #startOverlay{display:none;}
   #startOverlay h1{color:var(--gold); font-size:30px; letter-spacing:3px;}
   #diffBtns{display:flex; gap:12px; flex-wrap:wrap; justify-content:center; max-width:100%;}
-  #diffBtns button{padding:14px 28px; font-size:16px; font-weight:bold; color:#0b1626;}
+  #diffBtns button{padding:0; font-size:0;}   /* v15dx: 투명 히트박스로 전환 */
   /* v15bw: 좁은 화면(모바일)에서는 버튼/제목 크기를 줄여서 4개 버튼이 다 들어오게 */
   @media (max-width: 480px){
     #startOverlay h1{font-size:22px; letter-spacing:1px;}
@@ -207,6 +207,11 @@
         <!-- v15bw: object-fit:cover가 원본 영상을 화면 비율에 맞춰 잘라내서 일부가 잘려 보이던 문제 - contain으로 변경(레터박스 생기지만 전체가 다 보임) -->
         <video id="introVideo" autoplay muted loop playsinline style="position:absolute; inset:0; width:100%; height:100%; object-fit:contain; background:#000; border-radius:10px;"></video>
         <!-- v15bk: 자동재생 정책상 muted로만 재생되던 메인 영상 - 버튼 클릭 시 소리 켜기 -->
+        <!-- v15dx: 인트로 전용 건너뛰기 버튼. 이 버튼으로만 영상을 넘길 수 있다 -->
+        <button id="introSkipBtn" style="position:absolute; bottom:20px; right:20px; z-index:2; padding:12px 24px;
+                font-size:15px; font-weight:bold; font-family:inherit; cursor:pointer; color:#1a1206;
+                background:linear-gradient(180deg,#ffd75e,#ff9f1c); border:2px solid #ffe9a8; border-radius:10px;
+                box-shadow:0 4px 0 #a35a00, 0 6px 16px rgba(0,0,0,.5);">건너뛰기 ▶</button>
         <button id="introSoundBtn" style="position:absolute; bottom:20px; left:20px; z-index:1; padding:10px 18px; font-size:14px; font-weight:bold; background:rgba(20,20,28,.75); color:#fff; border:1px solid rgba(255,255,255,.5); border-radius:8px; cursor:pointer;">🔊 소리 켜기</button>
         <div style="display:none;">
           <h1 style="color:#ffe066; font-size:34px; letter-spacing:4px; text-shadow:0 2px 10px #000;">⚓ 원피스 랜덤 디펜스</h1>
@@ -223,24 +228,37 @@
         <div id="loaderTxt" style="font-size:26px; font-weight:bold; color:#fff; text-shadow:0 2px 8px #000;">0%</div>
         <div id="loaderSub" style="font-size:12px; color:#9fb0c8;">준비 중…</div>
       </div>
+<style>
+/* v15dx: 배경 이미지 위에 얹는 투명 클릭 영역. 평소엔 완전 투명, 상호작용 때만 살짝 반응 */
+/* v15dz: left/top 은 버튼의 '중심' 좌표. translate(-50%,-50%) 로 중심 정렬한 뒤
+   min-width/min-height 로 최소 터치 크기를 보장한다(작은 화면에서 대칭으로 확장). */
+.uiHit{ position:absolute; transform:translate(-50%,-50%);
+        background:transparent; border:0; padding:0; margin:0;
+        min-width:38px; min-height:44px;   /* 인접 버튼과 겹치지 않는 최대 폭 */
+        cursor:pointer; -webkit-tap-highlight-color:transparent; appearance:none;
+        transition:background .12s ease; }
+.uiHit:hover{ background:rgba(255,255,255,.16); }
+.uiHit:active{ background:rgba(0,0,0,.20); }
+.uiHit:focus-visible{ outline:3px solid #ffe066; outline-offset:2px; }
+/* v15dy: cover 로 채우면 세로 화면에서 좌우가 잘려 EASY/HELL 버튼을 누를 수 없었다.
+   contain 으로 바꿔 이미지 전체가 항상 보이게 하고(=버튼도 항상 화면 안),
+   남는 여백은 아래 .uiBackdrop 이 같은 이미지를 블러로 깔아 채운다. */
+.uiStage{ position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+          aspect-ratio:1344 / 752; width:100%; height:auto;
+          max-width:100%; max-height:100%; }
+.uiBackdrop{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
+             filter:blur(22px) brightness(.5) saturate(1.15); transform:scale(1.12);
+             pointer-events:none; }
+.uiStage > img{ position:absolute; inset:0; width:100%; height:100%; display:block; }
+</style>
       <div id="startGate" style="position:fixed; inset:0; z-index:70; display:none; opacity:0;
-           transition:opacity .5s ease; flex-direction:column; align-items:center; justify-content:center;
-           gap:22px; text-align:center; padding:28px; background:#050a12; background-size:cover;
-           background-position:center; image-rendering:pixelated;">
-        <!-- 배경 위에 어둡게 깔아서 글자/버튼이 묻히지 않게 -->
-        <div style="position:absolute; inset:0; background:radial-gradient(ellipse at center, rgba(4,10,20,.45) 0%, rgba(4,8,16,.88) 100%);"></div>
-        <div style="position:relative; display:flex; flex-direction:column; align-items:center; gap:20px;">
-          <div style="font-size:13px; letter-spacing:6px; color:#8fd8ff; text-shadow:0 2px 8px #000;">GRAND LINE</div>
-          <div style="font-size:min(9vw,42px); font-weight:bold; color:#ffe066; letter-spacing:3px;
-                      text-shadow:0 3px 0 #a35a00, 0 6px 18px rgba(0,0,0,.9);">⚓ 원피스 랜덤 디펜스</div>
-          <div style="font-size:13px; color:#cfd6e4; line-height:1.7;">
-            난이도별 총 라운드 · 5라운드마다 보스<br>최종 라운드에서 <b style="color:#fff;">이무</b>를 잡으면 클리어
-          </div>
-          <button id="startGateBtn" style="margin-top:8px; padding:20px 56px; font-size:22px; font-weight:bold;
-                  font-family:inherit; color:#2a1500; cursor:pointer; border:2px solid #ffe9a8; border-radius:14px;
-                  background:linear-gradient(180deg,#ffd75e,#ff9f1c); box-shadow:0 6px 0 #a35a00, 0 10px 24px rgba(0,0,0,.6);
-                  letter-spacing:2px;">▶ 게임 시작</button>
-          <div style="font-size:12px; color:#9fb0c8;">클릭하면 소리와 함께 오프닝이 재생됩니다 🔊</div>
+           transition:opacity .5s ease; background:#0b1626; overflow:hidden;">
+        <img class="uiBackdrop" src="assets/img/a7e8c2f432ef.jpg" alt="" aria-hidden="true">
+        <div class="uiStage" id="startGateStage">
+          <img src="assets/img/a7e8c2f432ef.jpg" alt="원피스 랜덤 디펜스">
+          <!-- '게임 들어가기' 그림 버튼 위치 (이미지에서 실측한 % 좌표) -->
+          <button id="startGateBtn" class="uiHit" aria-label="게임 들어가기"
+                  style="left:50.00%; top:69.09%; width:36.61%; height:21.41%; border-radius:11%/32%;"></button>
         </div>
       </div>
       </div>
@@ -364,7 +382,7 @@
   var t0 = Date.now();
   var tick = setInterval(function(){
     if(window.__gameReady){
-      note.textContent = "화면을 터치하여 시작";
+      note.textContent = "";
       clearInterval(tick);
       if(window.__introWantStart) doStart();
       return;
@@ -401,13 +419,20 @@
     if(e && e.cancelable) e.preventDefault();   // touch→click 중복 및 스크롤/더블탭 확대 방지
     doStart();
   }
-  var EVENTS = ["click", "touchstart", "touchend", "pointerdown", "pointerup"];
-  for(var i = 0; i < EVENTS.length; i++){
-    intro.addEventListener(EVENTS[i], onTap, { passive: false });
+  // v15dx: 예전엔 인트로 화면 아무 곳이나 누르면 넘어가서, 실수로 눌러 영상이 사라지는 일이 잦았다.
+  //   이제는 전용 '건너뛰기' 버튼을 눌러야만 넘어간다. (화면 탭/키보드로는 넘어가지 않음)
+  var skipBtn = document.getElementById("introSkipBtn");
+  if(skipBtn){
+    ["click", "touchend", "pointerup"].forEach(function(t){
+      skipBtn.addEventListener(t, function(e){
+        e.stopPropagation();
+        if(e.cancelable) e.preventDefault();
+        doStart();
+      }, { passive: false });
+    });
   }
-  document.addEventListener("keydown", function(e){
-    if(intro.style.display !== "none" && (e.key === "Enter" || e.key === " ")) doStart();
-  });
+  // 실수 방지를 위해 인트로 본체의 탭은 아무 동작도 하지 않되, 하위로 새어나가지 않게만 막는다
+  intro.addEventListener("click", function(e){ if(e.target === intro) e.stopPropagation(); });
 
   // 대용량 data: URI 영상이 모바일에서 아예 재생 실패하는 경우 대비 -
   // 숨겨둔 타이틀/START 버튼을 노출해서 항상 누를 수 있는 컨트롤을 남긴다.
@@ -430,14 +455,22 @@
 // v15dn: 인트로 영상을 외부 파일로 분리 (인라인 base64 약 14.5MB 제거)
 document.getElementById("introVideo").src = "assets/video/20c96fbfc0f2.mp4";
 </script>
-      <div id="startOverlay" class="overlayBase">
-        <h1>⚓ 원피스 랜덤 디펜스</h1>
-        <p>난이도별 총 라운드(쉬움60·노말65·하드70·지옥75) · 5라운드마다 보스 · 최종 라운드에서 <b>이무</b>를 잡으면 클리어!<br>유닛은 <b>드래그</b>로 자유롭게 재배치 (자리 스왑 가능)<br>난이도를 선택하세요</p>
-        <div id="diffBtns">
-          <button data-diff="easy">EASY</button>
-          <button data-diff="normal">NORMAL</button>
-          <button data-diff="hard">HARD</button>
-          <button data-diff="hell" style="background:linear-gradient(180deg,#7a0d0d,#2b0303);color:#ffb3b3;border:1px solid #ff3030;">HELL</button>
+      <!-- v15dx: 난이도 선택도 배경 이미지 + 투명 버튼으로 교체.
+           data-diff 와 #diffBtns 구조는 그대로 두어 기존 선택 핸들러가 계속 동작한다. -->
+      <div id="startOverlay" class="overlayBase" style="padding:0; overflow:hidden; gap:0;">
+        <img class="uiBackdrop" src="assets/img/cffe6c922cb3.jpg" alt="" aria-hidden="true">
+        <div class="uiStage" id="diffStage">
+          <img src="assets/img/cffe6c922cb3.jpg" alt="난이도 선택">
+          <div id="diffBtns" style="display:block; position:absolute; inset:0; gap:0;">
+            <button class="uiHit" data-diff="easy" aria-label="EASY"
+                    style="left:31.44%; top:70.41%; width:10.94%; height:16.89%; border-radius:20%;"></button>
+            <button class="uiHit" data-diff="normal" aria-label="NORMAL"
+                    style="left:43.79%; top:70.48%; width:11.09%; height:17.02%; border-radius:20%;"></button>
+            <button class="uiHit" data-diff="hard" aria-label="HARD"
+                    style="left:56.40%; top:70.48%; width:11.01%; height:17.02%; border-radius:20%;"></button>
+            <button class="uiHit" data-diff="hell" aria-label="HELL"
+                    style="left:68.64%; top:70.41%; width:10.79%; height:16.89%; border-radius:20%;"></button>
+          </div>
         </div>
       </div>
       <div id="loseOverlay" class="overlayBase">
@@ -1811,7 +1844,7 @@ function drawShadow(c, x, y, w){
 //  등록된 캐릭터는 AI 픽셀아트 원형 토큰으로, 나머지는 코드 치비로 표시
 // =========================================================
 // v15dn: 분리된 이미지 에셋 목록 (패치 시 자동 생성). 게임 시작 전 전량 프리로드한다.
-const PRELOAD_ASSETS = ["assets/img/004e67071e47.png", "assets/img/006f79520842.png", "assets/img/00875d71a494.png", "assets/img/00a97068b6f7.jpg", "assets/img/00c12e2cc7c7.jpg", "assets/img/014b865afa6e.png", "assets/img/015a6525a86c.jpg", "assets/img/01c08357b77e.png", "assets/img/021541eb2763.png", "assets/img/021ef5198f26.jpg", "assets/img/035ca7b3734d.png", "assets/img/045cb17ab57b.jpg", "assets/img/053894260f95.png", "assets/img/057b80ec00cb.jpg", "assets/img/09008c2f430b.png", "assets/img/0bf39f8e7c9b.png", "assets/img/0ce916577126.png", "assets/img/0e4481fd512f.png", "assets/img/0e86c9af1a46.jpg", "assets/img/0eb7823f010f.jpg", "assets/img/0feb135732b8.jpg", "assets/img/117b9414f489.jpg", "assets/img/11898415458d.jpg", "assets/img/118c27c4974e.jpg", "assets/img/12b48f4ddd48.png", "assets/img/15ca5f7daa3d.jpg", "assets/img/17f37adbb638.jpg", "assets/img/183015193538.png", "assets/img/188be6a96ed6.jpg", "assets/img/1a199371cace.png", "assets/img/1dad5bb47b00.jpg", "assets/img/1f9e60ed5fe2.jpg", "assets/img/1fdfe3198781.jpg", "assets/img/2018781b23af.jpg", "assets/img/20a8df8353ff.jpg", "assets/img/243c5f78979e.jpg", "assets/img/24c2af74e5bd.jpg", "assets/img/284619ab69e7.jpg", "assets/img/28bb0e99c897.jpg", "assets/img/2a1b2b410f5c.jpg", "assets/img/2ae10e9607b4.jpg", "assets/img/2b5a3881255d.png", "assets/img/2da789635802.jpg", "assets/img/2f20a2dc5a5a.jpg", "assets/img/2ffc05901356.png", "assets/img/301f2cac6022.jpg", "assets/img/30e0bc34fee2.png", "assets/img/32ac7b864bef.jpg", "assets/img/334dad3150ab.jpg", "assets/img/34f1c66b1d2c.png", "assets/img/369675c6202d.jpg", "assets/img/3a7937400697.jpg", "assets/img/3c5a4476db0e.png", "assets/img/3cabb986641d.jpg", "assets/img/3e2cd69e245e.jpg", "assets/img/3e368c0716ca.jpg", "assets/img/3ef354922ae1.jpg", "assets/img/40dfc9ef3b1e.jpg", "assets/img/4115eb3a7886.jpg", "assets/img/4204803eedf2.png", "assets/img/43f3f9b508d1.png", "assets/img/4514699b7680.jpg", "assets/img/459e334d6b50.jpg", "assets/img/45d1bc218c14.jpg", "assets/img/47440e6ea977.jpg", "assets/img/47c2cdd69449.jpg", "assets/img/480394a2a7b9.jpg", "assets/img/483fb210596b.png", "assets/img/489424610072.png", "assets/img/4c9e81f2c773.jpg", "assets/img/5039f69ffbc4.jpg", "assets/img/5099b4b143ed.jpg", "assets/img/51765cc4c9fb.jpg", "assets/img/526dea67517b.jpg", "assets/img/53d210160900.jpg", "assets/img/546ed47f6153.png", "assets/img/55bf024c031d.jpg", "assets/img/5641361f4e3c.png", "assets/img/592b87e837d2.png", "assets/img/5a53d9bdc30a.png", "assets/img/5a7ea550a7a9.png", "assets/img/5c3a22ff1726.jpg", "assets/img/5cbd55c45c2a.jpg", "assets/img/5da1ce2fd424.png", "assets/img/5e5048c18846.png", "assets/img/5e631b3bfecd.png", "assets/img/6001b506c85f.png", "assets/img/6017da9ca0ef.jpg", "assets/img/61a25415cf10.jpg", "assets/img/663b0e9b87b3.jpg", "assets/img/67608dad3545.png", "assets/img/696cc69a2b64.png", "assets/img/6acffa00c80a.jpg", "assets/img/6bf1da3ad9b8.png", "assets/img/6ce607d25f71.png", "assets/img/6d7b1a8a92d4.jpg", "assets/img/6dd0db2ba5a2.jpg", "assets/img/6ee34f92a3c0.jpg", "assets/img/6f35c3dd11c0.png", "assets/img/6f3eaded7563.png", "assets/img/6f86764d39a7.jpg", "assets/img/6fb8bd4efafa.png", "assets/img/7089b6ff4940.png", "assets/img/70e96312ea40.png", "assets/img/71a333c7f60f.jpg", "assets/img/749daeedc1e9.png", "assets/img/75b48fc0b85a.jpg", "assets/img/786d1e9ad3b6.jpg", "assets/img/78ab15294211.jpg", "assets/img/79e9b8579cb5.jpg", "assets/img/7a3f9cd145a2.jpg", "assets/img/7f218ae9d1f2.jpg", "assets/img/7f62ff60d0cd.jpg", "assets/img/80471628d268.jpg", "assets/img/827781ef8d62.png", "assets/img/8297f4a4ca00.jpg", "assets/img/83d48576ffb7.png", "assets/img/862dc49eefde.png", "assets/img/87adb6b35f6c.png", "assets/img/8826aeba1213.jpg", "assets/img/8b3602b3557b.png", "assets/img/8b3a0cf76973.jpg", "assets/img/8c786832ffbf.jpg", "assets/img/8c95c4dc7693.jpg", "assets/img/8d2a5fadce2c.jpg", "assets/img/8de75d0d1b89.jpg", "assets/img/8f665d0767d1.jpg", "assets/img/92bb828180ea.jpg", "assets/img/9493a5078f97.png", "assets/img/949e2b736e03.jpg", "assets/img/9605267c3ba4.png", "assets/img/96ff7c1e7bda.png", "assets/img/97238020b5d6.png", "assets/img/97a8ed597097.jpg", "assets/img/9ad7ed67d6cc.jpg", "assets/img/9b66c306299e.jpg", "assets/img/9caf5a9833be.png", "assets/img/9d1ce115739d.jpg", "assets/img/9d8cae710e6f.png", "assets/img/9eff4aad67fe.png", "assets/img/a0fd649642c7.png", "assets/img/a2adec13cc42.jpg", "assets/img/a40ef7d0eb6f.jpg", "assets/img/a653466280ae.jpg", "assets/img/a6a843fb2542.jpg", "assets/img/a8ab976aa53b.jpg", "assets/img/ae00327ce32a.jpg", "assets/img/ae5fcc814bbd.png", "assets/img/afffc53b02ee.jpg", "assets/img/b08d304c26cd.jpg", "assets/img/b0d30aa3a942.jpg", "assets/img/b769beab6a48.png", "assets/img/b8d3dbe7109d.png", "assets/img/b996d3576f06.jpg", "assets/img/bc8d39edc803.jpg", "assets/img/be745b4cc3fa.jpg", "assets/img/bf5a77b8958b.jpg", "assets/img/c0a051f50259.jpg", "assets/img/c2b244afd5b6.png", "assets/img/c33165164ae0.jpg", "assets/img/c4a70576ef7f.png", "assets/img/c52fd6cf09d3.jpg", "assets/img/c66d774970c2.jpg", "assets/img/c6d5d857f212.jpg", "assets/img/c89426040269.jpg", "assets/img/cbe276becc13.jpg", "assets/img/cce3a06d60f5.jpg", "assets/img/cf29e044b516.jpg", "assets/img/d0400b6a55de.jpg", "assets/img/d1531da03496.png", "assets/img/d1990fa1efa2.png", "assets/img/d1deb032f91b.jpg", "assets/img/d3540229b27b.jpg", "assets/img/d377ab86e4fc.jpg", "assets/img/d49999875db9.png", "assets/img/d5c9fdf3d721.png", "assets/img/d83aaed0caa7.jpg", "assets/img/d856c69178c8.jpg", "assets/img/d9bedaed4503.jpg", "assets/img/da3d20a492a6.png", "assets/img/db273053feba.jpg", "assets/img/db9bfd649544.jpg", "assets/img/dbbb4eea5352.jpg", "assets/img/dc828893770b.jpg", "assets/img/dc97b8d47688.jpg", "assets/img/dd61fb68100c.jpg", "assets/img/dd97a6b4e1b4.jpg", "assets/img/ddc7f6160cbe.jpg", "assets/img/df301e031128.jpg", "assets/img/dfbfa5e1ec54.jpg", "assets/img/e0a34a6df16a.png", "assets/img/e258f7021c55.png", "assets/img/e2d548c85f58.png", "assets/img/e89a96199856.jpg", "assets/img/e94c22b13fb7.png", "assets/img/eaa406207515.jpg", "assets/img/eba5114e6f09.png", "assets/img/ec118b3aa6e1.jpg", "assets/img/ecb8f50630ec.jpg", "assets/img/ed285a01a19b.jpg", "assets/img/ed34cc9a60ab.jpg", "assets/img/ed8ec6fb4820.jpg", "assets/img/ee62cf9039bf.jpg", "assets/img/f19cf7804bbc.jpg", "assets/img/f1cb64ab46fe.jpg", "assets/img/f2c4c46f0472.jpg", "assets/img/f36c90f4b70f.jpg", "assets/img/f3b1db35d295.png", "assets/img/f5d77d14d77e.jpg", "assets/img/f6519a041835.jpg", "assets/img/f73f19499edc.jpg", "assets/img/f86ec6de6bd5.png", "assets/img/f94bbc83db98.jpg", "assets/img/fa0cb1eab6e0.png", "assets/img/fa374e0d7310.jpg", "assets/img/fa6a2da1c441.jpg", "assets/img/fc884ae8f4be.png", "assets/img/fd0d9392510f.jpg", "assets/img/fdea50835e6b.jpg", "assets/img/fe41849026f7.jpg", "assets/img/ff4586508418.png"];
+const PRELOAD_ASSETS = ["assets/img/004e67071e47.png", "assets/img/006f79520842.png", "assets/img/00875d71a494.png", "assets/img/00a97068b6f7.jpg", "assets/img/00c12e2cc7c7.jpg", "assets/img/014b865afa6e.png", "assets/img/015a6525a86c.jpg", "assets/img/01c08357b77e.png", "assets/img/021541eb2763.png", "assets/img/021ef5198f26.jpg", "assets/img/035ca7b3734d.png", "assets/img/045cb17ab57b.jpg", "assets/img/053894260f95.png", "assets/img/057b80ec00cb.jpg", "assets/img/09008c2f430b.png", "assets/img/0bf39f8e7c9b.png", "assets/img/0ce916577126.png", "assets/img/0e4481fd512f.png", "assets/img/0e86c9af1a46.jpg", "assets/img/0eb7823f010f.jpg", "assets/img/0feb135732b8.jpg", "assets/img/117b9414f489.jpg", "assets/img/11898415458d.jpg", "assets/img/118c27c4974e.jpg", "assets/img/12b48f4ddd48.png", "assets/img/15ca5f7daa3d.jpg", "assets/img/17f37adbb638.jpg", "assets/img/183015193538.png", "assets/img/188be6a96ed6.jpg", "assets/img/1a199371cace.png", "assets/img/1dad5bb47b00.jpg", "assets/img/1f9e60ed5fe2.jpg", "assets/img/1fdfe3198781.jpg", "assets/img/2018781b23af.jpg", "assets/img/20a8df8353ff.jpg", "assets/img/243c5f78979e.jpg", "assets/img/24c2af74e5bd.jpg", "assets/img/284619ab69e7.jpg", "assets/img/28bb0e99c897.jpg", "assets/img/2a1b2b410f5c.jpg", "assets/img/2ae10e9607b4.jpg", "assets/img/2b5a3881255d.png", "assets/img/2da789635802.jpg", "assets/img/2f20a2dc5a5a.jpg", "assets/img/2ffc05901356.png", "assets/img/301f2cac6022.jpg", "assets/img/30e0bc34fee2.png", "assets/img/32ac7b864bef.jpg", "assets/img/334dad3150ab.jpg", "assets/img/34f1c66b1d2c.png", "assets/img/369675c6202d.jpg", "assets/img/3a7937400697.jpg", "assets/img/3c5a4476db0e.png", "assets/img/3cabb986641d.jpg", "assets/img/3e2cd69e245e.jpg", "assets/img/3e368c0716ca.jpg", "assets/img/3ef354922ae1.jpg", "assets/img/40dfc9ef3b1e.jpg", "assets/img/4115eb3a7886.jpg", "assets/img/4204803eedf2.png", "assets/img/43f3f9b508d1.png", "assets/img/4514699b7680.jpg", "assets/img/459e334d6b50.jpg", "assets/img/45d1bc218c14.jpg", "assets/img/47440e6ea977.jpg", "assets/img/47c2cdd69449.jpg", "assets/img/480394a2a7b9.jpg", "assets/img/483fb210596b.png", "assets/img/489424610072.png", "assets/img/4c9e81f2c773.jpg", "assets/img/5039f69ffbc4.jpg", "assets/img/5099b4b143ed.jpg", "assets/img/51765cc4c9fb.jpg", "assets/img/526dea67517b.jpg", "assets/img/53d210160900.jpg", "assets/img/546ed47f6153.png", "assets/img/55bf024c031d.jpg", "assets/img/5641361f4e3c.png", "assets/img/592b87e837d2.png", "assets/img/5a53d9bdc30a.png", "assets/img/5a7ea550a7a9.png", "assets/img/5c3a22ff1726.jpg", "assets/img/5cbd55c45c2a.jpg", "assets/img/5da1ce2fd424.png", "assets/img/5e5048c18846.png", "assets/img/5e631b3bfecd.png", "assets/img/6001b506c85f.png", "assets/img/6017da9ca0ef.jpg", "assets/img/61a25415cf10.jpg", "assets/img/663b0e9b87b3.jpg", "assets/img/67608dad3545.png", "assets/img/696cc69a2b64.png", "assets/img/6acffa00c80a.jpg", "assets/img/6bf1da3ad9b8.png", "assets/img/6ce607d25f71.png", "assets/img/6d7b1a8a92d4.jpg", "assets/img/6dd0db2ba5a2.jpg", "assets/img/6ee34f92a3c0.jpg", "assets/img/6f35c3dd11c0.png", "assets/img/6f3eaded7563.png", "assets/img/6f86764d39a7.jpg", "assets/img/6fb8bd4efafa.png", "assets/img/7089b6ff4940.png", "assets/img/70e96312ea40.png", "assets/img/71a333c7f60f.jpg", "assets/img/749daeedc1e9.png", "assets/img/75b48fc0b85a.jpg", "assets/img/786d1e9ad3b6.jpg", "assets/img/78ab15294211.jpg", "assets/img/79e9b8579cb5.jpg", "assets/img/7a3f9cd145a2.jpg", "assets/img/7f218ae9d1f2.jpg", "assets/img/7f62ff60d0cd.jpg", "assets/img/80471628d268.jpg", "assets/img/827781ef8d62.png", "assets/img/8297f4a4ca00.jpg", "assets/img/83d48576ffb7.png", "assets/img/862dc49eefde.png", "assets/img/87adb6b35f6c.png", "assets/img/8826aeba1213.jpg", "assets/img/8b3602b3557b.png", "assets/img/8b3a0cf76973.jpg", "assets/img/8c786832ffbf.jpg", "assets/img/8c95c4dc7693.jpg", "assets/img/8d2a5fadce2c.jpg", "assets/img/8de75d0d1b89.jpg", "assets/img/8f665d0767d1.jpg", "assets/img/92bb828180ea.jpg", "assets/img/9493a5078f97.png", "assets/img/949e2b736e03.jpg", "assets/img/9605267c3ba4.png", "assets/img/96ff7c1e7bda.png", "assets/img/97238020b5d6.png", "assets/img/97a8ed597097.jpg", "assets/img/9ad7ed67d6cc.jpg", "assets/img/9b66c306299e.jpg", "assets/img/9caf5a9833be.png", "assets/img/9d1ce115739d.jpg", "assets/img/9d8cae710e6f.png", "assets/img/9eff4aad67fe.png", "assets/img/a0fd649642c7.png", "assets/img/a2adec13cc42.jpg", "assets/img/a40ef7d0eb6f.jpg", "assets/img/a653466280ae.jpg", "assets/img/a6a843fb2542.jpg", "assets/img/a7e8c2f432ef.jpg", "assets/img/a8ab976aa53b.jpg", "assets/img/ae00327ce32a.jpg", "assets/img/ae5fcc814bbd.png", "assets/img/afffc53b02ee.jpg", "assets/img/b08d304c26cd.jpg", "assets/img/b0d30aa3a942.jpg", "assets/img/b769beab6a48.png", "assets/img/b8d3dbe7109d.png", "assets/img/b996d3576f06.jpg", "assets/img/bc8d39edc803.jpg", "assets/img/be745b4cc3fa.jpg", "assets/img/bf5a77b8958b.jpg", "assets/img/c0a051f50259.jpg", "assets/img/c2b244afd5b6.png", "assets/img/c33165164ae0.jpg", "assets/img/c4a70576ef7f.png", "assets/img/c52fd6cf09d3.jpg", "assets/img/c66d774970c2.jpg", "assets/img/c6d5d857f212.jpg", "assets/img/c89426040269.jpg", "assets/img/cbe276becc13.jpg", "assets/img/cce3a06d60f5.jpg", "assets/img/cf29e044b516.jpg", "assets/img/cffe6c922cb3.jpg", "assets/img/d0400b6a55de.jpg", "assets/img/d1531da03496.png", "assets/img/d1990fa1efa2.png", "assets/img/d1deb032f91b.jpg", "assets/img/d3540229b27b.jpg", "assets/img/d377ab86e4fc.jpg", "assets/img/d49999875db9.png", "assets/img/d5c9fdf3d721.png", "assets/img/d83aaed0caa7.jpg", "assets/img/d856c69178c8.jpg", "assets/img/d9bedaed4503.jpg", "assets/img/da3d20a492a6.png", "assets/img/db273053feba.jpg", "assets/img/db9bfd649544.jpg", "assets/img/dbbb4eea5352.jpg", "assets/img/dc828893770b.jpg", "assets/img/dc97b8d47688.jpg", "assets/img/dd61fb68100c.jpg", "assets/img/dd97a6b4e1b4.jpg", "assets/img/ddc7f6160cbe.jpg", "assets/img/df301e031128.jpg", "assets/img/dfbfa5e1ec54.jpg", "assets/img/e0a34a6df16a.png", "assets/img/e258f7021c55.png", "assets/img/e2d548c85f58.png", "assets/img/e89a96199856.jpg", "assets/img/e94c22b13fb7.png", "assets/img/eaa406207515.jpg", "assets/img/eba5114e6f09.png", "assets/img/ec118b3aa6e1.jpg", "assets/img/ecb8f50630ec.jpg", "assets/img/ed285a01a19b.jpg", "assets/img/ed34cc9a60ab.jpg", "assets/img/ed8ec6fb4820.jpg", "assets/img/ee62cf9039bf.jpg", "assets/img/f19cf7804bbc.jpg", "assets/img/f1cb64ab46fe.jpg", "assets/img/f2c4c46f0472.jpg", "assets/img/f36c90f4b70f.jpg", "assets/img/f3b1db35d295.png", "assets/img/f5d77d14d77e.jpg", "assets/img/f6519a041835.jpg", "assets/img/f73f19499edc.jpg", "assets/img/f86ec6de6bd5.png", "assets/img/f94bbc83db98.jpg", "assets/img/fa0cb1eab6e0.png", "assets/img/fa374e0d7310.jpg", "assets/img/fa6a2da1c441.jpg", "assets/img/fc884ae8f4be.png", "assets/img/fd0d9392510f.jpg", "assets/img/fdea50835e6b.jpg", "assets/img/fe41849026f7.jpg", "assets/img/ff4586508418.png"];
 const AI_SPRITES = {
   "mythic|스크래치맨 아푸": "assets/img/a8ab976aa53b.jpg",
   "origin|백수해적단 잭": "assets/img/32ac7b864bef.jpg",
@@ -7092,9 +7125,10 @@ if(window.__introStart){
     try{ SFX.click(); }catch(e){}
   };
   document.getElementById("introStartBtn").addEventListener("click", _introGo);
-  ["click","touchstart","touchend","pointerdown","pointerup"].forEach(t=>{
-    document.getElementById("videoIntro").addEventListener(t, e=>{
-      if(e.target && e.target.id === "introSoundBtn") return;
+  // v15dx: 예비 경로도 '건너뛰기' 버튼 전용 (화면 탭으로는 넘어가지 않음)
+  ["click","touchend","pointerup"].forEach(t=>{
+    document.getElementById("introSkipBtn")?.addEventListener(t, e=>{
+      e.stopPropagation();
       if(e.cancelable) e.preventDefault();
       _introGo();
     }, { passive:false });
@@ -7194,13 +7228,6 @@ function showStartGate(){
     if(window.__introStart && window.__introWantStart) window.__introStart();
     return;
   }
-  // 배경: 이스트 블루 배경 이미지를 재사용 (파일명이 바뀌어도 AI_BG 를 따라가도록 런타임에 주입)
-  try{
-    const bg = AI_BG["이스트 블루"];
-    const url = typeof bg === "string" ? bg : (bg && bg.url);
-    if(url) gate.style.backgroundImage = `url("${url}")`;
-  }catch(e){}
-
   // v15dw: 게이트가 #videoIntro 의 자식이라 클릭이 인트로로 버블링된다.
   //   position:fixed 라 레이아웃에 영향이 없으므로 body 직속으로 옮겨 구조적으로 차단한다.
   if(gate.parentElement !== document.body) document.body.appendChild(gate);
@@ -7257,9 +7284,10 @@ function showStartGate(){
       enterGame();
     }, { passive:false });
   });
-  // 게이트 배경 아무 곳이나 눌러도 시작 (버튼을 못 찾는 상황 대비)
+  // v15dx: 배경 아무 곳이나 눌리면 실수로 넘어가므로, '게임 들어가기' 버튼만 반응하게 한다.
+  //   (배경 클릭은 인트로로 버블링되지 않도록 막기만 한다)
   ["click","touchend","pointerup"].forEach(ev=>{
-    gate.addEventListener(ev, e=>{ e.stopPropagation(); enterGame(); }, { passive:false });
+    gate.addEventListener(ev, e=>{ e.stopPropagation(); }, { passive:false });
   });
   document.addEventListener("keydown", e=>{
     if(gate.style.display !== "none" && (e.key === "Enter" || e.key === " ")) enterGame();
