@@ -524,7 +524,7 @@ document.getElementById("introVideo").src = "assets/video/20c96fbfc0f2.mp4";
         <button id="bulk500Btn" class="bulkBtn" title="가진 골드로 연속 뽑기">⚡일괄</button>
       </div>
       <div class="gRow" style="margin-top:7px">
-        <button class="gambleBtn" id="gambleTransBtn" style="margin:0;background:linear-gradient(180deg,#a03c78,#6e2454);border-color:#d05a9e">💰 3,500골드 → <b>초월</b> 62% / 실패 시 <b>전설</b><br><span style="font-size:11px;opacity:.85">(절대 등급 재료 수급 루트! 확률 우대)</span></button>
+        <button class="gambleBtn" id="gambleTransBtn" style="margin:0;background:linear-gradient(180deg,#a03c78,#6e2454);border-color:#d05a9e">💰 3,500골드 → <b style="color:#ffd24d">신화</b> 4% / <b>초월</b> 62% / 실패 시 <b>전설</b><br><span style="font-size:11px;opacity:.85">(절대 등급 재료 수급 루트! 신화 대박 확률 포함)</span></button>
         <button id="bulk3500Btn" class="bulkBtn" title="가진 골드로 연속 뽑기">⚡일괄</button>
       </div>
       </div>
@@ -660,7 +660,7 @@ const GRADES = {
   mythic:    { name:"신화",   color:"#ff5ce6", aura:"rgba(255,92,230,.7)" },
   origin:    { name:"태초",   color:"#ffffff", aura:"rgba(255,255,255,.8)" },
   absolute:   { name:"절대",   color:"#ff004d", aura:"rgba(255,0,77,.85)" },
-  hidden:     { name:"히든",   color:"#c400ff", aura:"rgba(196,0,255,.9)" },
+  hidden:     { name:"히든(스턴)",   color:"#c400ff", aura:"rgba(196,0,255,.9)" },   // v15f1: 표시명만 변경 (내부 키는 hidden 유지)
   // v15bq: 시안색(#00e0ff)이 영원(eternal #5ee0ff)과 색상이 겹친다는 피드백 - 다른 등급과 안 겹치는 에메랄드 틸 색으로 변경
   supremal:   { name:"절대자", color:"#00e6a0", aura:"rgba(0,230,160,.9)" },
   // v15ay: 최고 티어답게 더 화려한 순금색으로 상향
@@ -4284,17 +4284,21 @@ function bulkSummon(){
   refreshUI();
 }
 // ---------- 일괄 도박: 가진 골드로 한 번에 연속 뽑기 (최대 200회) ----------
-function bulkGamble(cost, grade, failGrade, winRate){
+function bulkGamble(cost, grade, failGrade, winRate, jackpot){
   if(!state.started || state.over) return;
   if(state.gold < cost){ addLog("골드가 부족합니다."); return; }
   const wr = (typeof winRate === "number") ? winRate : 0.5;
+  // v15f1: 단일 도박과 같은 구간 분배를 쓴다 (신화 4% / 성공 62% / 실패 34%)
+  const jr = (jackpot && GRADE_POOL[jackpot.grade] && GRADE_POOL[jackpot.grade].length) ? jackpot.rate : 0;
   let n = 0, win = 0, stored = 0;
   const gained = {};
   while(state.gold >= cost && n < 200){
     state.gold -= cost;
-    const ok = Math.random() < wr;
+    const roll = Math.random();
+    const jack = jr > 0 && roll < jr;
+    const ok = jack || roll < jr + wr;
     if(ok) win++;
-    const g = ok ? grade : failGrade;
+    const g = jack ? jackpot.grade : (ok ? grade : failGrade);
     const pool = GRADE_POOL[g];
     const id = pool[Math.floor(Math.random()*pool.length)];
     if(placeResult(id, null) === "storage") stored++;
@@ -4327,13 +4331,18 @@ function buyTicket(silent){
 }
 
 // ---------- 고급(도박) 소환 ----------
-function premiumSummon(grade, cost, failGrade, silent, winRate){
+// v15f1: jackpot = { grade, rate } 를 넘기면 그 확률로 상위 등급이 나온다.
+//   난수는 한 번만 굴려서 구간을 나눈다 → [0, rate) 잭팟 / [rate, rate+wr) 성공 / 나머지 실패
+function premiumSummon(grade, cost, failGrade, silent, winRate, jackpot){
   if(!state.started || state.over) return;
   if(state.gold < cost){ if(!silent) addLog("골드가 부족합니다."); return; }
   state.gold -= cost;
   const wr = (typeof winRate === "number") ? winRate : 0.5;
-  let finalGrade = grade, success = true;
-  if(failGrade && Math.random() >= wr){ finalGrade = failGrade; success = false; }
+  const jr = (jackpot && GRADE_POOL[jackpot.grade] && GRADE_POOL[jackpot.grade].length) ? jackpot.rate : 0;
+  const roll = Math.random();
+  let finalGrade = grade, success = true, isJackpot = false;
+  if(jr > 0 && roll < jr){ finalGrade = jackpot.grade; isJackpot = true; }
+  else if(failGrade && roll >= jr + wr){ finalGrade = failGrade; success = false; }
   const pool = GRADE_POOL[finalGrade];
   const defId = pool[Math.floor(Math.random()*pool.length)];
   const def = UNIT_DEFS[defId], g = GRADES[finalGrade];
@@ -4341,7 +4350,7 @@ function premiumSummon(grade, cost, failGrade, silent, winRate){
   const isBig = GRADE_ORDER.indexOf(finalGrade) >= GRADE_ORDER.indexOf("mythic");
   if(!silent || isBig){
     if(failGrade){
-      addLog(`🎲 [${cost}G 도박] ${success ? "🎉 <b>성공!</b>" : "꽝..."} <b style="color:${g.color}">${def.name} (${g.name})</b>${where==="storage"?" → 📦":""}`);
+      addLog(`🎲 [${cost}G 도박] ${isJackpot ? "💫 <b>대박!!</b>" : (success ? "🎉 <b>성공!</b>" : "꽝...")} <b style="color:${g.color}">${def.name} (${g.name})</b>${where==="storage"?" → 📦":""}`);
     }else{
       addLog(`✨ [고급 소환] <b style="color:${g.color}">${def.name} (${g.name})</b> 획득!${where==="storage" ? " → 📦 보관함" : ""}`);
     }
@@ -5240,7 +5249,7 @@ function craftHidden(recipe){
   const where = slot ? (placeUnit(resultId, slot), "field") : (addToStorage(resultId), "storage");
   const def = UNIT_DEFS[resultId];
   state.banner = { text:`🔮 히든 ${def.name} 강림!! (${recipe.m1}+${recipe.m2}+${recipe.o})`, t:6 };
-  addLog(`🔮 <b style="color:${GRADES.hidden.color}">히든 ${def.name}</b> 강림!! ${recipe.m1}+${recipe.m2}+${recipe.o}+전설5${where==="storage"?" 📦":""}`);
+  addLog(`🔮 <b style="color:${GRADES.hidden.color}">${GRADES.hidden.name} ${def.name}</b> 강림!! ${recipe.m1}+${recipe.m2}+${recipe.o}+전설5${where==="storage"?" 📦":""}`);
   SFX.win(); SFX.transcend();
   refreshUI(); return true;
 }
@@ -7452,7 +7461,7 @@ function refreshUI(){
       card.style.borderLeft = `3px solid ${GRADES.hidden.color}`;
       card.innerHTML = `
         <div class="info">
-          <b style="color:${GRADES.hidden.color}">🔮 히든 ${recipe.result}</b>
+          <b style="color:${GRADES.hidden.color}">🔮 ${GRADES.hidden.name} ${recipe.result}</b>
           <div class="formula">
             전설 x5 : <b class="${legN>=5?'matOk':'matNo'}">${legN}/5</b><br>
             신화 ${recipe.m1} : <b class="${hasM1?'matOk':'matNo'}">${hasM1?'✓':'✗'}</b><br>
@@ -7689,10 +7698,10 @@ document.getElementById("buyTicketBtn").addEventListener("click", buyTicket);
 document.getElementById("bulkLowBtn").addEventListener("click", ()=>bulkGamble(35, "uncommon", "common"));
 document.getElementById("bulk100Btn").addEventListener("click", ()=>bulkGamble(100, "rare", "special", 0.38));
 document.getElementById("bulk500Btn").addEventListener("click", ()=>bulkGamble(500, "legend", "rare", 0.5));
-document.getElementById("bulk3500Btn").addEventListener("click", ()=>bulkGamble(3500, "transcend", "legend", 0.62));
+document.getElementById("bulk3500Btn").addEventListener("click", ()=>bulkGamble(3500, "transcend", "legend", 0.62, { grade:"mythic", rate:0.04 }));
 document.getElementById("gamble100Btn").addEventListener("click", ()=>premiumSummon("rare", 100, "special", false, 0.38));
 document.getElementById("gambleLegendBtn").addEventListener("click", ()=>premiumSummon("legend", 500, "rare", false, 0.5));
-document.getElementById("gambleTransBtn").addEventListener("click", ()=>premiumSummon("transcend", 3500, "legend", false, 0.62));
+document.getElementById("gambleTransBtn").addEventListener("click", ()=>premiumSummon("transcend", 3500, "legend", false, 0.62, { grade:"mythic", rate:0.04 }));
 document.getElementById("comboBurstBtn").addEventListener("click", ()=>combineBurst());
 document.getElementById("rearrangeBtn").addEventListener("click", ()=>manualRearrangeField());   // v15aa: 함수를 리스너로 직접 넘기면 click 이벤트 객체가 silent 인자로 들어가버려 로그/경고음이 항상 씹히던 버그 수정
 document.getElementById("muteBtn").addEventListener("click", function(){
