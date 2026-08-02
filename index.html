@@ -1885,6 +1885,27 @@ function drawShadow(c, x, y, w){
 // v15dn: 분리된 이미지 에셋 목록 (패치 시 자동 생성). 게임 시작 전 전량 프리로드한다.
 const PRELOAD_ASSETS = ["assets/img/004e67071e47.png", "assets/img/006f79520842.png", "assets/img/00875d71a494.png", "assets/img/00a97068b6f7.jpg", "assets/img/00c12e2cc7c7.jpg", "assets/img/014b865afa6e.png", "assets/img/015a6525a86c.jpg", "assets/img/01c08357b77e.png", "assets/img/021541eb2763.png", "assets/img/021ef5198f26.jpg", "assets/img/035ca7b3734d.png", "assets/img/045cb17ab57b.jpg", "assets/img/053894260f95.png", "assets/img/057b80ec00cb.jpg", "assets/img/09008c2f430b.png", "assets/img/0bf39f8e7c9b.png", "assets/img/0ce916577126.png", "assets/img/0e4481fd512f.png", "assets/img/0e86c9af1a46.jpg", "assets/img/0eb7823f010f.jpg", "assets/img/0feb135732b8.jpg", "assets/img/117b9414f489.jpg", "assets/img/11898415458d.jpg", "assets/img/118c27c4974e.jpg", "assets/img/12b48f4ddd48.png", "assets/img/15ca5f7daa3d.jpg", "assets/img/17f37adbb638.jpg", "assets/img/183015193538.png", "assets/img/188be6a96ed6.jpg", "assets/img/1a199371cace.png", "assets/img/1dad5bb47b00.jpg", "assets/img/1f9e60ed5fe2.jpg", "assets/img/1fdfe3198781.jpg", "assets/img/2018781b23af.jpg", "assets/img/20a8df8353ff.jpg", "assets/img/243c5f78979e.jpg", "assets/img/24c2af74e5bd.jpg", "assets/img/284619ab69e7.jpg", "assets/img/28bb0e99c897.jpg", "assets/img/28dafe336c05.jpg", "assets/img/2a1b2b410f5c.jpg", "assets/img/2ae10e9607b4.jpg", "assets/img/2b5a3881255d.png", "assets/img/2b9657f51881.jpg", "assets/img/2da789635802.jpg", "assets/img/2f20a2dc5a5a.jpg", "assets/img/2ffc05901356.png", "assets/img/301f2cac6022.jpg", "assets/img/30e0bc34fee2.png", "assets/img/32ac7b864bef.jpg", "assets/img/334dad3150ab.jpg", "assets/img/34f1c66b1d2c.png", "assets/img/369675c6202d.jpg", "assets/img/3a7937400697.jpg", "assets/img/3c5a4476db0e.png", "assets/img/3cabb986641d.jpg", "assets/img/3e2cd69e245e.jpg", "assets/img/3e368c0716ca.jpg", "assets/img/3ef354922ae1.jpg", "assets/img/40dfc9ef3b1e.jpg", "assets/img/4115eb3a7886.jpg", "assets/img/4204803eedf2.png", "assets/img/43f3f9b508d1.png", "assets/img/4514699b7680.jpg", "assets/img/459e334d6b50.jpg", "assets/img/45d1bc218c14.jpg", "assets/img/47440e6ea977.jpg", "assets/img/47c2cdd69449.jpg", "assets/img/480394a2a7b9.jpg", "assets/img/483fb210596b.png", "assets/img/489424610072.png", "assets/img/4c9e81f2c773.jpg", "assets/img/5039f69ffbc4.jpg", "assets/img/5099b4b143ed.jpg", "assets/img/51765cc4c9fb.jpg", "assets/img/526dea67517b.jpg", "assets/img/52a228ab2da2.jpg", "assets/img/53d210160900.jpg", "assets/img/546ed47f6153.png", "assets/img/55bf024c031d.jpg", "assets/img/5641361f4e3c.png", "assets/img/592b87e837d2.png", "assets/img/5a53d9bdc30a.png", "assets/img/5a7ea550a7a9.png", "assets/img/5c3a22ff1726.jpg", "assets/img/5cbd55c45c2a.jpg", "assets/img/5da1ce2fd424.png", "assets/img/5e5048c18846.png", "assets/img/5e631b3bfecd.png", "assets/img/6001b506c85f.png", "assets/img/6017da9ca0ef.jpg", "assets/img/61a25415cf10.jpg", "assets/img/663b0e9b87b3.jpg", "assets/img/67608dad3545.png", "assets/img/696cc69a2b64.png", "assets/img/6acffa00c80a.jpg", "assets/img/6bf1da3ad9b8.png", "assets/img/6ce607d25f71.png", "assets/img/6d7b1a8a92d4.jpg", "assets/img/6dd0db2ba5a2.jpg", "assets/img/6ee34f92a3c0.jpg", "assets/img/6f35c3dd11c0.png", "assets/img/6f3eaded7563.png", "assets/img/6f86764d39a7.jpg", "assets/img/6fb8bd4efafa.png", "assets/img/7089b6ff4940.png", "assets/img/70e96312ea40.png", "assets/img/71a333c7f60f.jpg", "assets/img/749daeedc1e9.png", "assets/img/75b48fc0b85a.jpg", "assets/img/786d1e9ad3b6.jpg", "assets/img/78ab15294211.jpg", "assets/img/79e9b8579cb5.jpg", "assets/img/7a3f9cd145a2.jpg", "assets/img/7f218ae9d1f2.jpg", "assets/img/7f62ff60d0cd.jpg", "assets/img/80471628d268.jpg", "assets/img/815443799ac2.jpg", "assets/img/827781ef8d62.png", "assets/img/8297f4a4ca00.jpg", "assets/img/83d48576ffb7.png", "assets/img/862dc49eefde.png", "assets/img/87adb6b35f6c.png", "assets/img/8826aeba1213.jpg", "assets/img/8b3602b3557b.png", "assets/img/8b3a0cf76973.jpg", "assets/img/8c786832ffbf.jpg", "assets/img/8c95c4dc7693.jpg", "assets/img/8d2a5fadce2c.jpg", "assets/img/8de75d0d1b89.jpg", "assets/img/8f665d0767d1.jpg", "assets/img/92bb828180ea.jpg", "assets/img/9493a5078f97.png", "assets/img/949e2b736e03.jpg", "assets/img/9605267c3ba4.png", "assets/img/96ff7c1e7bda.png", "assets/img/97238020b5d6.png", "assets/img/97a8ed597097.jpg", "assets/img/9ad7ed67d6cc.jpg", "assets/img/9b66c306299e.jpg", "assets/img/9caf5a9833be.png", "assets/img/9d1ce115739d.jpg", "assets/img/9d8cae710e6f.png", "assets/img/9eff4aad67fe.png", "assets/img/a0a77f7d49f4.jpg", "assets/img/a0fd649642c7.png", "assets/img/a2adec13cc42.jpg", "assets/img/a40ef7d0eb6f.jpg", "assets/img/a5fec4dcc9c0.jpg", "assets/img/a653466280ae.jpg", "assets/img/a6a843fb2542.jpg", "assets/img/a7e8c2f432ef.jpg", "assets/img/a8ab976aa53b.jpg", "assets/img/ae00327ce32a.jpg", "assets/img/ae5fcc814bbd.png", "assets/img/afffc53b02ee.jpg", "assets/img/b08d304c26cd.jpg", "assets/img/b0d30aa3a942.jpg", "assets/img/b769beab6a48.png", "assets/img/b8d3dbe7109d.png", "assets/img/b90620b64bdf.jpg", "assets/img/b996d3576f06.jpg", "assets/img/bc8d39edc803.jpg", "assets/img/be745b4cc3fa.jpg", "assets/img/bf5a77b8958b.jpg", "assets/img/c0a051f50259.jpg", "assets/img/c2b244afd5b6.png", "assets/img/c33165164ae0.jpg", "assets/img/c4a70576ef7f.png", "assets/img/c52fd6cf09d3.jpg", "assets/img/c66d774970c2.jpg", "assets/img/c6d5d857f212.jpg", "assets/img/c89426040269.jpg", "assets/img/cbe276becc13.jpg", "assets/img/cce3a06d60f5.jpg", "assets/img/cf29e044b516.jpg", "assets/img/cffe6c922cb3.jpg", "assets/img/d0400b6a55de.jpg", "assets/img/d1531da03496.png", "assets/img/d1990fa1efa2.png", "assets/img/d1deb032f91b.jpg", "assets/img/d3540229b27b.jpg", "assets/img/d377ab86e4fc.jpg", "assets/img/d49999875db9.png", "assets/img/d5c9fdf3d721.png", "assets/img/d83aaed0caa7.jpg", "assets/img/d856c69178c8.jpg", "assets/img/d9bedaed4503.jpg", "assets/img/da3d20a492a6.png", "assets/img/db273053feba.jpg", "assets/img/db9bfd649544.jpg", "assets/img/dbbb4eea5352.jpg", "assets/img/dc828893770b.jpg", "assets/img/dc97b8d47688.jpg", "assets/img/dd61fb68100c.jpg", "assets/img/dd97a6b4e1b4.jpg", "assets/img/ddc7f6160cbe.jpg", "assets/img/df301e031128.jpg", "assets/img/dfbfa5e1ec54.jpg", "assets/img/e0a34a6df16a.png", "assets/img/e258f7021c55.png", "assets/img/e2d548c85f58.png", "assets/img/e5eccf8182ba.jpg", "assets/img/e89a96199856.jpg", "assets/img/e94c22b13fb7.png", "assets/img/eaa406207515.jpg", "assets/img/eba5114e6f09.png", "assets/img/ec118b3aa6e1.jpg", "assets/img/ecb8f50630ec.jpg", "assets/img/ed285a01a19b.jpg", "assets/img/ed34cc9a60ab.jpg", "assets/img/ed8ec6fb4820.jpg", "assets/img/ee62cf9039bf.jpg", "assets/img/f19cf7804bbc.jpg", "assets/img/f1cb64ab46fe.jpg", "assets/img/f2c4c46f0472.jpg", "assets/img/f36c90f4b70f.jpg", "assets/img/f3b1db35d295.png", "assets/img/f5d77d14d77e.jpg", "assets/img/f6519a041835.jpg", "assets/img/f73f19499edc.jpg", "assets/img/f86ec6de6bd5.png", "assets/img/f94bbc83db98.jpg", "assets/img/fa0cb1eab6e0.png", "assets/img/fa374e0d7310.jpg", "assets/img/fa6a2da1c441.jpg", "assets/img/fc884ae8f4be.png", "assets/img/fd0d9392510f.jpg", "assets/img/fdea50835e6b.jpg", "assets/img/fe41849026f7.jpg", "assets/img/ff4586508418.png"];
 const AI_SPRITES = {
+  // v15e6: 필드 위 보스 토큰용 스프라이트. drawMarine/drawPirate 가 AI_SPRITES["boss|"+m.name] 으로 찾는다.
+  //   보스 18명을 새 이름으로 교체하면서 기존 boss| 키와 전부 어긋나 절차적 렌더로 폴백되고 있었다.
+  //   보스 연출(초상화)과 같은 이미지를 써서 인트로와 필드가 일치하게 한다.
+  "boss|게코 모리아": "assets/img/5a7ea550a7a9.png",
+  "boss|어인 아론": "assets/img/a5fec4dcc9c0.jpg",
+  "boss|칠무해 크로커다일": "assets/img/a0a77f7d49f4.jpg",
+  "boss|갓 에넬": "assets/img/00875d71a494.png",
+  "boss|로브 루치": "assets/img/815443799ac2.jpg",
+  "boss|독독 마젤란": "assets/img/9ad7ed67d6cc.jpg",
+  "boss|해군원수 아카이누": "assets/img/75b48fc0b85a.jpg",
+  "boss|호디 존스": "assets/img/3c5a4476db0e.png",
+  "boss|천야왕 도플라밍고": "assets/img/e5eccf8182ba.jpg",
+  "boss|천 팔 크래커": "assets/img/28dafe336c05.jpg",
+  "boss|샬롯 카타쿠리": "assets/img/52a228ab2da2.jpg",
+  "boss|사황 빅맘": "assets/img/2b9657f51881.jpg",
+  "boss|백수 카이도": "assets/img/014b865afa6e.png",
+  "boss|해군대장 키자루": "assets/img/b90620b64bdf.jpg",
+  "boss|오로성 새턴": "assets/img/4514699b7680.jpg",
+  "boss|거인왕자 로키": "assets/img/c0a051f50259.jpg",
+  "boss|세계군주 이무": "assets/img/fc884ae8f4be.png",
+  "boss|암흑황제 검은수염": "assets/img/11898415458d.jpg",
   "mythic|스크래치맨 아푸": "assets/img/a8ab976aa53b.jpg",
   "origin|백수해적단 잭": "assets/img/32ac7b864bef.jpg",
   "origin|주술사 바질 호킨스": "assets/img/045cb17ab57b.jpg",
@@ -2195,7 +2216,6 @@ const AI_SPRITES = {
   "boss|버기 더 피에로": {url:"assets/img/592b87e837d2.png",cols:3,rows:2,c:0,r:0},
   "boss|크로커다일(바로크 워크스)": {url:"assets/img/696cc69a2b64.png",cols:3,rows:2,c:0,r:0},
   "boss|에넬(하늘의 신)":           {url:"assets/img/9caf5a9833be.png",cols:3,rows:2,c:2,r:1},
-  "boss|게코 모리아":               {url:"assets/img/5a53d9bdc30a.png",cols:3,rows:2,c:2,r:1},
   "boss|아카이누(마그마 원소)":     {url:"assets/img/862dc49eefde.png",cols:3,rows:2,c:0,r:0},
   "boss|호디 존스(신어인)":         {url:"assets/img/862dc49eefde.png",cols:3,rows:2,c:1,r:0},
   "boss|도플라밍고(조커)":          {url:"assets/img/862dc49eefde.png",cols:3,rows:2,c:2,r:0},
@@ -5451,7 +5471,8 @@ const STUN_FREEZE_THRESHOLD = 3;
 function applyStunAOE(cx, cy, value, duration){
   state.monsters.forEach(m=>{
     const p = pathPos(m.d);
-    if(Math.hypot(p.x-cx, p.y-cy) <= STUN_FREEZE_RADIUS){
+    const _dx = p.x-cx, _dy = p.y-cy;
+    if(_dx*_dx + _dy*_dy <= STUN_FREEZE_RADIUS*STUN_FREEZE_RADIUS){
       if(!m.stunPulses) m.stunPulses = [];
       m.stunPulses.push({ value, until: state.time + duration });
     }
@@ -5698,7 +5719,8 @@ function fireSkill(u, def, sk){
   }
   const inRange = state.monsters.filter(m=>{
     const p = pathPos(m.d);
-    return Math.hypot(p.x-u.x, p.y-u.y) <= def.range;
+    const _dx = p.x-u.x, _dy = p.y-u.y;
+    return _dx*_dx + _dy*_dy <= def.range*def.range;
   });
   if(inRange.length === 0) return false;
   // v15av: 단일딜 특화 역할(근접단일딜/원거리단일딜)은 스킬 데미지 20% 증가 (평타는 그대로)
@@ -5715,7 +5737,8 @@ function fireSkill(u, def, sk){
     // 패왕색: 광역 스턴 + %딜, 화면 흔들림
     inRange.forEach(m=>{
       const p = pathPos(m.d);
-      if(Math.hypot(p.x-u.x, p.y-u.y) <= sk.radius + 20){
+      const _dx = p.x-u.x, _dy = p.y-u.y, _rr = sk.radius + 20;
+      if(_dx*_dx + _dy*_dy <= _rr*_rr){
         const dealt = Math.round((skillDmgBase * state.synDmg * (1+state.aura.atk) * (1+state.aura.skillDmg) * sk.mult + pctMaxHpDmg(m, pctOf(m))) * (1+state.aura.dmgTaken) * combatDmgMult(def, m));
         applyCombatDmg(def, m, dealt);
         m.stun = sk.stun;
@@ -5729,8 +5752,8 @@ function fireSkill(u, def, sk){
     let bz = null, bzDist = Infinity;
     inRange.forEach(m=>{
       const p = pathPos(m.d);
-      const dist = Math.hypot(p.x-u.x, p.y-u.y);
-      if(dist < bzDist){ bzDist = dist; bz = m; }
+      const _dx = p.x-u.x, _dy = p.y-u.y, dist2 = _dx*_dx + _dy*_dy;
+      if(dist2 < bzDist){ bzDist = dist2; bz = m; }
     });
     const bp = bz ? pathPos(bz.d) : { x:u.x, y:u.y };
     fx.x = bp.x; fx.y = bp.y;
@@ -5743,15 +5766,16 @@ function fireSkill(u, def, sk){
     let epi = null, epiDist = Infinity;
     inRange.forEach(m=>{
       const p = pathPos(m.d);
-      const dist = Math.hypot(p.x-u.x, p.y-u.y);
-      if(dist < epiDist){ epiDist = dist; epi = m; }
+      const _dx = p.x-u.x, _dy = p.y-u.y, dist2 = _dx*_dx + _dy*_dy;
+      if(dist2 < epiDist){ epiDist = dist2; epi = m; }
     });
     if(epi){
       const ep = pathPos(epi.d);
       fx.x = ep.x; fx.y = ep.y;   // 폭발 이펙트도 명중 지점에서 터지게
       state.monsters.forEach(m=>{
         const p = pathPos(m.d);
-        if(Math.hypot(p.x-ep.x, p.y-ep.y) <= sk.radius){
+        const _dx = p.x-ep.x, _dy = p.y-ep.y;
+        if(_dx*_dx + _dy*_dy <= sk.radius*sk.radius){
           const dealt = Math.round((skillDmgBase * state.synDmg * (1+state.aura.atk) * (1+state.aura.skillDmg) * sk.mult + pctMaxHpDmg(m, pctOf(m))) * (1+state.aura.dmgTaken) * combatDmgMult(def, m));
           applyCombatDmg(def, m, dealt);
           if(sk.slow) m.slow = Math.max(m.slow||0, sk.slow);   // v15bf: 이속감소는 중첩 대신 최고값 적용
@@ -5765,8 +5789,8 @@ function fireSkill(u, def, sk){
     let ndTarget = null, ndBestDist = Infinity;
     inRange.forEach(m=>{
       const p = pathPos(m.d);
-      const dist = Math.hypot(p.x-u.x, p.y-u.y);
-      if(dist <= sk.radius + 20 && dist < ndBestDist){ ndBestDist = dist; ndTarget = m; }
+      const _dx = p.x-u.x, _dy = p.y-u.y, dist2 = _dx*_dx + _dy*_dy, _rr = sk.radius + 20;
+      if(dist2 <= _rr*_rr && dist2 < ndBestDist){ ndBestDist = dist2; ndTarget = m; }
     });
     if(ndTarget){
       const dealt = Math.round((skillDmgBase * state.synDmg * (1+state.aura.atk) * (1+state.aura.skillDmg) * sk.mult + pctMaxHpDmg(ndTarget, pctOf(ndTarget))) * (1+state.aura.dmgTaken) * combatDmgMult(def, ndTarget));
@@ -5826,7 +5850,8 @@ function fireSkill(u, def, sk){
     const targets = inRange
       .sort((a,b)=>{
         const pa=pathPos(a.d), pb=pathPos(b.d);
-        return Math.hypot(pa.x-u.x,pa.y-u.y)-Math.hypot(pb.x-u.x,pb.y-u.y);
+        const ax=pa.x-u.x, ay=pa.y-u.y, bx=pb.x-u.x, by=pb.y-u.y;
+        return (ax*ax+ay*ay) - (bx*bx+by*by);   // v15e6: 비교만 하므로 제곱근 불필요
       })
       .slice(0, sk.hits);
     fx.lines = targets.map(m=>{
@@ -6221,7 +6246,8 @@ function update(dt){
     z.t -= dt;
     state.monsters.forEach(m=>{
       const p = pathPos(m.d);
-      if(Math.hypot(p.x-z.x, p.y-z.y) <= z.r){
+      const _dx = p.x-z.x, _dy = p.y-z.y;
+      if(_dx*_dx + _dy*_dy <= z.r*z.r){
         m.hp -= z.dps * dt + pctMaxHpDmg(m, z.pct * dt);   // v15do: 장판 %딜도 총량 제한 대상
       }
     });
@@ -6290,12 +6316,16 @@ function update(dt){
     if(u.cd > 0) return;
     // 타겟팅: 사거리 내 보스가 있으면 보스 최우선, 없으면 가장 가까운 적
     let target=null, best=Infinity, bossTarget=null, bossBest=Infinity;
+    // v15e6: [성능] 유닛 x 몬스터를 매 프레임 도는 최대 경로라 제곱근을 없앴다.
+    //   거리 값 자체는 쓰지 않고 크기 비교만 하므로 제곱끼리 비교해도 결과가 같다.
+    const _rangeSq = def.range * def.range;
     for(const m of state.monsters){
       const p = pathPos(m.d);
-      const dist = Math.hypot(p.x-u.x, p.y-u.y);
-      if(dist > def.range) continue;
-      if(m.boss){ if(dist < bossBest){ bossBest=dist; bossTarget=m; } }
-      else if(dist < best){ best=dist; target=m; }
+      const _dx = p.x-u.x, _dy = p.y-u.y;
+      const dist2 = _dx*_dx + _dy*_dy;
+      if(dist2 > _rangeSq) continue;
+      if(m.boss){ if(dist2 < bossBest){ bossBest=dist2; bossTarget=m; } }
+      else if(dist2 < best){ best=dist2; target=m; }
     }
     if(bossTarget) target = bossTarget;
     if(target){
@@ -6463,7 +6493,11 @@ function gameClear(){
 // =========================================================
 //  렌더링
 // =========================================================
+// v15e6: [성능] 이펙트의 shadowBlur 는 캔버스에서 가장 비싼 연산 중 하나다.
+//   몬스터나 이펙트가 많을 때는 글로우만 끄고 선/도형은 그대로 그린다(모양은 유지, 발광만 사라짐).
+let _fxGlow = true;
 function draw(){
+  _fxGlow = (state.monsters.length < 250 && state.fx.length < 40);
   const th = themeOf(state.round);
   // 테마 배경 그라디언트 (라운드마다 지역이 바뀜)
   if(state._themeName !== th.name){
@@ -6558,7 +6592,7 @@ function draw(){
       if(mode === "lightning"){
         // 지그재그 번개
         ctx.strokeStyle = f.color; ctx.lineWidth = 3;
-        ctx.shadowColor = f.color; ctx.shadowBlur = 12;
+        ctx.shadowColor = f.color; ctx.shadowBlur = _fxGlow ? 12 : 0;
         ctx.beginPath(); ctx.moveTo(x1, y1);
         const segs = 5;
         for(let i=1;i<=segs;i++){
@@ -6571,14 +6605,14 @@ function draw(){
       }else if(mode === "slashfx"){
         // 목표 지점 교차 검기
         ctx.strokeStyle = f.color; ctx.lineWidth = 3.5;
-        ctx.shadowColor = f.color; ctx.shadowBlur = 10;
+        ctx.shadowColor = f.color; ctx.shadowBlur = _fxGlow ? 10 : 0;
         const L = 26 + prog*18;
         ctx.beginPath(); ctx.moveTo(x2-L, y2-L*0.5); ctx.lineTo(x2+L, y2+L*0.5); ctx.stroke();
         ctx.beginPath(); ctx.moveTo(x2+L*0.7, y2-L*0.7); ctx.lineTo(x2-L*0.7, y2+L*0.7); ctx.stroke();
       }else if(mode === "flame"){
         // 화염 스트림 + 불꽃
         ctx.strokeStyle = f.color; ctx.lineWidth = 5; ctx.lineCap = "round";
-        ctx.shadowColor = "#ff6b2e"; ctx.shadowBlur = 14;
+        ctx.shadowColor = "#ff6b2e"; ctx.shadowBlur = _fxGlow ? 14 : 0;
         ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
         for(let i=0;i<4;i++){
           const tt = 0.4 + i*0.15;
@@ -6589,7 +6623,7 @@ function draw(){
       }else if(mode === "hakifx"){
         // 패왕색: 검붉은 균열 파동
         ctx.strokeStyle = f.color; ctx.lineWidth = 3;
-        ctx.shadowColor = f.color; ctx.shadowBlur = 12;
+        ctx.shadowColor = f.color; ctx.shadowBlur = _fxGlow ? 12 : 0;
         ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
         ctx.strokeStyle = "#14141c"; ctx.lineWidth = 1.4;
         ctx.beginPath(); ctx.moveTo(x1, y1+2); ctx.lineTo(x2, y2+2); ctx.stroke();
@@ -6600,7 +6634,7 @@ function draw(){
         const grd = ctx.createLinearGradient(x1,y1,x2,y2);
         grd.addColorStop(0, "#ffffff"); grd.addColorStop(1, f.color);
         ctx.strokeStyle = grd; ctx.lineWidth = 6 - prog*3; ctx.lineCap = "round";
-        ctx.shadowColor = "#fff"; ctx.shadowBlur = 16;
+        ctx.shadowColor = "#fff"; ctx.shadowBlur = _fxGlow ? 16 : 0;
         ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
         ctx.beginPath(); ctx.arc(x2, y2, 6+prog*10, 0, Math.PI*2);
         ctx.fillStyle = "rgba(255,250,220,"+(0.6*a)+")"; ctx.fill();
@@ -6617,7 +6651,7 @@ function draw(){
       }else{
         // energy: 에너지 구체 폭발
         ctx.strokeStyle = f.color; ctx.lineWidth = 4; ctx.lineCap = "round";
-        ctx.shadowColor = f.color; ctx.shadowBlur = 14;
+        ctx.shadowColor = f.color; ctx.shadowBlur = _fxGlow ? 14 : 0;
         ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
         for(let i=0;i<5;i++){
           const ang = i*1.256 + prog*3;
