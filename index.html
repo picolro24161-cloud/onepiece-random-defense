@@ -671,22 +671,24 @@ const GRADES = {
 // 최상위/신화 등급 이름 표식 (색 외 추가 구분)
 const GRADE_ICON = { transcend:"✦", eternal:"❖", immortal:"♛", limit:"⚡", mythic:"★", origin:"☀", absolute:"♾", hidden:"🔮", supremal:"⚜", ultramaximal:"💫", overlord:"👑" };
 // 사거리 상향: 중앙 슬롯(트랙까지 최대 약 180px)에서도 공격 가능
+// v15e7: range 는 캔버스 픽셀값이다. 옆의 칸 수는 PC 기준(1칸 ≈ 114px) 환산값이며,
+//   실행 시 2칸 미만인 등급만 MIN_RANGE_PX 로 올라간다(기존 2칸 이상은 그대로).
 const GRADE_STATS = {
-  common:    { dmg:9,    cd:0.85, range:250 },
-  uncommon:  { dmg:42,   cd:0.80, range:265 },
-  special:   { dmg:130,  cd:0.75, range:280 },
-  rare:      { dmg:360,  cd:0.70, range:295 },
-  legend:    { dmg:1200, cd:0.65, range:315 },
-  transcend: { dmg:3200, cd:0.60, range:340 },
-  eternal:   { dmg:3000, cd:0.55, range:360 },
-  immortal:  { dmg:4200, cd:0.80, range:345 },
-  limit:     { dmg:3400, cd:0.60, range:370 },
-  mythic:    { dmg:6000, cd:0.50, range:430 },
-  origin:    { dmg:24000, cd:0.45, range:520 },
+  common:    { dmg:9,    cd:0.85, range:250 },   // 2.2칸
+  uncommon:  { dmg:42,   cd:0.80, range:265 },   // 2.3칸
+  special:   { dmg:130,  cd:0.75, range:280 },   // 2.5칸
+  rare:      { dmg:360,  cd:0.70, range:295 },   // 2.6칸
+  legend:    { dmg:1200, cd:0.65, range:315 },   // 2.8칸
+  transcend: { dmg:3200, cd:0.60, range:340 },   // 3.0칸
+  eternal:   { dmg:3000, cd:0.55, range:360 },   // 3.2칸
+  immortal:  { dmg:4200, cd:0.80, range:345 },   // 3.0칸
+  limit:     { dmg:3400, cd:0.60, range:370 },   // 3.2칸
+  mythic:    { dmg:6000, cd:0.50, range:430 },   // 3.8칸
+  origin:    { dmg:24000, cd:0.45, range:520 },   // 4.6칸
   absolute:   { dmg:48000, cd:0.40, range:620 },
   // v15bh: 히든은 서폿 특화라 공격력만 절대자(96000)와 초절대자(216000) 사이 중간값으로 재조정 (다른 스탯은 최고티어 유지)
-  hidden:     { dmg:156000, cd:0.30, range:780 },
-  supremal:   { dmg:96000, cd:0.35, range:700 },
+  hidden:     { dmg:156000, cd:0.30, range:780 },   // 6.8칸
+  supremal:   { dmg:96000, cd:0.35, range:700 },   // 6.1칸
   ultramaximal:{ dmg:216000,cd:0.30, range:780 },   // v15ap: 공격력 20% 상향 (180000 → 216000)
   overlord:    { dmg:280000,cd:0.28, range:820 },   // v15c5: 초절대자보다 상위인 신규 최고 등급
 };
@@ -3193,6 +3195,21 @@ function buildSlotsMobile(){
 (IS_MOBILE_CANVAS ? buildSlotsMobile() : buildSlotsPC()).forEach(s => SLOTS.push(s));
 
 // =========================================================
+//  v15e7: 공격 범위의 "1칸" 기준
+// =========================================================
+// 슬롯은 6열 x 5행 격자인데 가로/세로 간격이 서로 다르고(PC 136 x 95.5, 모바일 84 x 185.5)
+// PC와 모바일도 값이 달라서, 같은 픽셀 사거리가 기기·방향에 따라 체감 칸 수가 최대 4배까지 벌어졌다.
+// 그래서 가로·세로 간격의 기하평균을 1칸으로 정의한다 → PC 약 114px / 모바일 약 125px.
+// 이 값을 하한선에만 쓰므로, 이미 2칸 이상인 기존 사거리는 픽셀값 그대로 유지된다.
+const CELL_W = Math.abs(SLOTS[1].x - SLOTS[0].x);   // 같은 행의 옆 칸 → 가로 간격
+const CELL_H = Math.abs(SLOTS[6].y - SLOTS[0].y);   // 다음 행의 같은 열 → 세로 간격
+const CELL = Math.sqrt(CELL_W * CELL_H);            // 1칸 = 기하평균
+const MIN_RANGE_CELLS = 2;                          // 근접딜·근접스킬 포함 전 등급 최소 2칸
+const MIN_RANGE_PX = MIN_RANGE_CELLS * CELL;
+// 실제 하한 적용은 역할별 사거리 지정이 모두 끝난 뒤에 한다(아래 applyMinRange).
+//   여기서 걸면 그 뒤의 하드코딩(근접 140 / 원거리 480, 스킬 반경 130/140/270…)이 덮어써서 무력화된다.
+
+// =========================================================
 //  v14: 캐릭터 역할군/사거리 자동 분류 + 자동배치
 // =========================================================
 // 사거리 타입: 무기가 검/도끼/육탄 계열 + 사거리 짧음 → melee, 그 외 → ranged
@@ -5503,7 +5520,8 @@ const TIER_PREV_GRADE = { mythic:"limit", origin:"mythic", absolute:"origin", hi
 // v15d0: 범위딜은 "필드 전체 공격"이 아니라 "겨냥한 몬스터 주변 스플래시"이므로 반경을 스플래시 크기로 축소.
 //   근접범위딜 170 = 좁지만 배수 높음 / 원거리범위딜 210 = 넓지만 배수 낮음 (역할 차별화 유지)
 //   평타 사거리(근접140 / 원거리480)는 "얼마나 멀리 쏘느냐"이고, 이 값은 "맞은 자리에서 얼마나 퍼지느냐"로 의미가 다름
-const ROLE_RADIUS_MAP = { "근접범위딜":170, "원거리범위딜":210 };
+// v15e7: 역할 광역 반경도 최소 2칸 보장. 170/210 은 둘 다 2칸(PC 228 / 모바일 250) 미만이라 상향된다.
+const ROLE_RADIUS_MAP = { "근접범위딜":Math.max(170, MIN_RANGE_PX), "원거리범위딜":Math.max(210, MIN_RANGE_PX) };
 // v15c7: 직업(역할)별 고유 메커니즘 티어 스케일 — 티어가 오를수록 미세하게 강해짐
 const ROLE_TIER_SCALE = {
   // ① 근접단일딜 스턴: 스턴은 어디까지나 "히든 티어 고유 능력(1.0)"이고, 그 외는 보조 수단일 뿐.
@@ -5653,6 +5671,29 @@ Object.keys(ROLE_TAGS).forEach(nm=>{
     }
   });
 });
+
+// =========================================================
+//  v15e7: 최소 사거리 2칸 보장 — 모든 사거리/반경 지정이 끝난 뒤 마지막에 적용
+// =========================================================
+// 이 지점 이전에 사거리를 정하는 곳이 세 군데다.
+//   ① GRADE_STATS.range (등급 기본값)
+//   ② 근접 무기면 140 고정 (사이드 배치를 의미 있게 하려는 의도)
+//   ③ 역할별 하드코딩 (근접 140 / 원거리 480) + 스킬 반경 (근접단일 140, 원거리단일 130, 역할 표준 등)
+// 셋 다 지나간 뒤에 한 번만 걸어야 하한이 실제로 유지된다.
+// 이미 2칸 이상인 값은 손대지 않는다. radius:9999(필드 전체 버프)도 자연히 제외된다.
+(function applyMinRange(){
+  let rangeUp = 0, radiusUp = 0;
+  const MIN_PX = Math.round(MIN_RANGE_PX);
+  Object.values(UNIT_DEFS).forEach(def=>{
+    if(def.range < MIN_PX){ def.range = MIN_PX; rangeUp++; }
+    [def.skill, def.skill2, def.skill3].forEach(sk=>{
+      if(sk && sk.radius && sk.radius < MIN_PX){ sk.radius = MIN_PX; radiusUp++; }
+    });
+  });
+  console.log(`[원랜디] 1칸=${CELL.toFixed(1)}px (가로 ${CELL_W.toFixed(1)} x 세로 ${CELL_H.toFixed(1)}) | `
+    + `최소 ${MIN_RANGE_CELLS}칸=${MIN_PX}px | 사거리 상향 ${rangeUp}명, 스킬반경 상향 ${radiusUp}개`);
+})();
+
 // v15ae: 히든 등급 중 방감 없는 캐릭터(에넬/가프/스튜시/로/샤카/에디슨/릴리스/요크 등) 채워넣기 — 히든은 전원 근접범위 디버프형이라 근접 보너스 포함
 GRADE_POOL.hidden.forEach(id=>{
   const d = UNIT_DEFS[id];
@@ -5716,6 +5757,11 @@ function fireSkill(u, def, sk){
   // 태초 이상: 스킬 범위 +20%
   if((def.grade === "origin" || def.grade === "absolute") && sk.radius){
     sk = Object.assign({}, sk, { radius: Math.round(sk.radius * 1.2) });
+  }
+  // v15e7: 스킬 반경도 최소 2칸 보장. 원본 스킬 객체는 여러 유닛이 공유하므로 복제해서 바꾼다.
+  //   radius:9999 는 필드 전체 버프용이라 대상이 아니다(이미 훨씬 큼).
+  if(sk.radius && sk.radius < MIN_RANGE_PX){
+    sk = Object.assign({}, sk, { radius: Math.round(MIN_RANGE_PX) });
   }
   const inRange = state.monsters.filter(m=>{
     const p = pathPos(m.d);
