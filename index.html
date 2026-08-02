@@ -1804,41 +1804,68 @@ function rankOf(round){
 // v15bn: 난이도별 최종 라운드(60/65/70/75)가 55보다 길어서 추가 보스 체크포인트 필요 -
 // 실제로는 그 게임의 FINAL_ROUND와 일치하는 라운드 하나만 도달되고 나머지는 사용되지 않음(더 짧은 난이도에서는 아예 안 만남)
 // v15bo: R55/60/65/70/75 신규 보스 - 요청하신 캐릭터로 교체 (우타/제파/천룡왕 샴록/해적신 로저/세계정부 총수 이무)
+// v15e5: 보스 18명 - 5라운드 간격 (5~90), 원피스 스토리 순서
 const BOSSES = {
-  5:"버기 더 피에로",
-  15:"에넬(하늘의 신)",
+  5:"어인 아론",
+  10:"칠무해 크로커다일",
+  15:"갓 에넬",
+  20:"로브 루치",
   25:"게코 모리아",
-  35:"호디 존스(신어인)",
-  45:"황제 카이도",
-  55:"우타",
-  60:"제파",
-  65:"천룡왕 샴록",
-  70:"해적신 로저",
-  75:"세계정부 총수 이무",
+  30:"독독 마젤란",
+  35:"해군원수 아카이누",
+  40:"호디 존스",
+  45:"천야왕 도플라밍고",
+  50:"천 팔 크래커",
+  55:"샬롯 카타쿠리",
+  60:"사황 빅맘",
+  65:"백수 카이도",
+  70:"해군대장 키자루",
+  75:"오로성 새턴",
+  80:"거인왕자 로키",
+  85:"세계군주 이무",
+  90:"암흑황제 검은수염",
 };
+// v15e5: 보스 색상 18종
 const BOSS_COLORS = {
-  5:"#ff5e5e",
+  5:"#3c7ab0",
+  10:"#c8a060",
   15:"#ffe94d",
+  20:"#2b2b34",
   25:"#5c3c74",
-  35:"#0e4a78",
-  45:"#3c2c6c",
-  55:"#ff90b0",
-  60:"#c0d8ff",
-  65:"#80c0ff",
-  70:"#ff4020",
-  75:"#14141c",
+  30:"#7ac040",
+  35:"#c0392b",
+  40:"#0e4a78",
+  45:"#ff70c0",
+  50:"#e8b85e",
+  55:"#8c3c74",
+  60:"#ff8ac0",
+  65:"#5c3c74",
+  70:"#ffe066",
+  75:"#6a2ca0",
+  80:"#9c8cc8",
+  85:"#14141c",
+  90:"#1a0030",
 };
+// v15e5: 보스 대사 18종
 const BOSS_QUOTES = {
-  5:"이 몸이 지나가는 곳엔 웃음만 남는다!",
+  5:"이 바다는 어인의 것이다. 인간 따위가!",
+  10:"이 나라는 이미 내 손 안에 있다.",
   15:"나는 신이다! 거역할 자, 나오라!",
-  25:"공포조차 내겐 그림자일 뿐.",
-  35:"바다는 나의 것이다!",
-  45:"재밌겠는데, 이거!",
-  55:"모두가... 영원히 행복한 세상을 노래할게.",
-  60:"해군의 긍지, 내가 지킨다.",
-  65:"세상의 법칙이란 내가 만드는 것이다.",
-  70:"내가 가진 것이 갖고 싶은가? 다 줘도 좋아.",
-  75:"모든 것은 이미 정해져 있다.",
+  20:"정부의 정의에 자비는 없다.",
+  25:"키시시시... 네 그림자, 내가 가져가마.",
+  30:"임펠다운에서 나갈 수 있을 것 같나?",
+  35:"철저한 정의다. 악은 뿌리째 태운다.",
+  40:"어인이야말로 이 바다의 지배자다!",
+  45:"이 나라는 내 새장이야. 도망칠 곳은 없어.",
+  50:"비스킷 병사는 무한하다!",
+  55:"미래를 보는 눈은 속일 수 없다.",
+  60:"케이크를 내놔라아아!!",
+  65:"세계 최강이 되려면 이 카이도를 넘어라.",
+  70:"미안하네. 여기서 끝내야겠어.",
+  75:"너희 같은 존재가 세계 정부에 맞서겠다는 건가.",
+  80:"엘바프의 피가 끓는다!",
+  85:"모든 것은 이미 정해져 있다.",
+  90:"제하하하! 사람의 꿈은!! 끝나지 않아!!!",
 };
 
 // =========================================================
@@ -1856,7 +1883,7 @@ function drawShadow(c, x, y, w){
 //  등록된 캐릭터는 AI 픽셀아트 원형 토큰으로, 나머지는 코드 치비로 표시
 // =========================================================
 // v15dn: 분리된 이미지 에셋 목록 (패치 시 자동 생성). 게임 시작 전 전량 프리로드한다.
-const PRELOAD_ASSETS = ["assets/img/004e67071e47.png", "assets/img/006f79520842.png", "assets/img/00875d71a494.png", "assets/img/00a97068b6f7.jpg", "assets/img/00c12e2cc7c7.jpg", "assets/img/014b865afa6e.png", "assets/img/015a6525a86c.jpg", "assets/img/01c08357b77e.png", "assets/img/021541eb2763.png", "assets/img/021ef5198f26.jpg", "assets/img/035ca7b3734d.png", "assets/img/045cb17ab57b.jpg", "assets/img/053894260f95.png", "assets/img/057b80ec00cb.jpg", "assets/img/09008c2f430b.png", "assets/img/0bf39f8e7c9b.png", "assets/img/0ce916577126.png", "assets/img/0e4481fd512f.png", "assets/img/0e86c9af1a46.jpg", "assets/img/0eb7823f010f.jpg", "assets/img/0feb135732b8.jpg", "assets/img/117b9414f489.jpg", "assets/img/11898415458d.jpg", "assets/img/118c27c4974e.jpg", "assets/img/12b48f4ddd48.png", "assets/img/15ca5f7daa3d.jpg", "assets/img/17f37adbb638.jpg", "assets/img/183015193538.png", "assets/img/188be6a96ed6.jpg", "assets/img/1a199371cace.png", "assets/img/1dad5bb47b00.jpg", "assets/img/1f9e60ed5fe2.jpg", "assets/img/1fdfe3198781.jpg", "assets/img/2018781b23af.jpg", "assets/img/20a8df8353ff.jpg", "assets/img/243c5f78979e.jpg", "assets/img/24c2af74e5bd.jpg", "assets/img/284619ab69e7.jpg", "assets/img/28bb0e99c897.jpg", "assets/img/2a1b2b410f5c.jpg", "assets/img/2ae10e9607b4.jpg", "assets/img/2b5a3881255d.png", "assets/img/2da789635802.jpg", "assets/img/2f20a2dc5a5a.jpg", "assets/img/2ffc05901356.png", "assets/img/301f2cac6022.jpg", "assets/img/30e0bc34fee2.png", "assets/img/32ac7b864bef.jpg", "assets/img/334dad3150ab.jpg", "assets/img/34f1c66b1d2c.png", "assets/img/369675c6202d.jpg", "assets/img/3a7937400697.jpg", "assets/img/3c5a4476db0e.png", "assets/img/3cabb986641d.jpg", "assets/img/3e2cd69e245e.jpg", "assets/img/3e368c0716ca.jpg", "assets/img/3ef354922ae1.jpg", "assets/img/40dfc9ef3b1e.jpg", "assets/img/4115eb3a7886.jpg", "assets/img/4204803eedf2.png", "assets/img/43f3f9b508d1.png", "assets/img/4514699b7680.jpg", "assets/img/459e334d6b50.jpg", "assets/img/45d1bc218c14.jpg", "assets/img/47440e6ea977.jpg", "assets/img/47c2cdd69449.jpg", "assets/img/480394a2a7b9.jpg", "assets/img/483fb210596b.png", "assets/img/489424610072.png", "assets/img/4c9e81f2c773.jpg", "assets/img/5039f69ffbc4.jpg", "assets/img/5099b4b143ed.jpg", "assets/img/51765cc4c9fb.jpg", "assets/img/526dea67517b.jpg", "assets/img/53d210160900.jpg", "assets/img/546ed47f6153.png", "assets/img/55bf024c031d.jpg", "assets/img/5641361f4e3c.png", "assets/img/592b87e837d2.png", "assets/img/5a53d9bdc30a.png", "assets/img/5a7ea550a7a9.png", "assets/img/5c3a22ff1726.jpg", "assets/img/5cbd55c45c2a.jpg", "assets/img/5da1ce2fd424.png", "assets/img/5e5048c18846.png", "assets/img/5e631b3bfecd.png", "assets/img/6001b506c85f.png", "assets/img/6017da9ca0ef.jpg", "assets/img/61a25415cf10.jpg", "assets/img/663b0e9b87b3.jpg", "assets/img/67608dad3545.png", "assets/img/696cc69a2b64.png", "assets/img/6acffa00c80a.jpg", "assets/img/6bf1da3ad9b8.png", "assets/img/6ce607d25f71.png", "assets/img/6d7b1a8a92d4.jpg", "assets/img/6dd0db2ba5a2.jpg", "assets/img/6ee34f92a3c0.jpg", "assets/img/6f35c3dd11c0.png", "assets/img/6f3eaded7563.png", "assets/img/6f86764d39a7.jpg", "assets/img/6fb8bd4efafa.png", "assets/img/7089b6ff4940.png", "assets/img/70e96312ea40.png", "assets/img/71a333c7f60f.jpg", "assets/img/749daeedc1e9.png", "assets/img/75b48fc0b85a.jpg", "assets/img/786d1e9ad3b6.jpg", "assets/img/78ab15294211.jpg", "assets/img/79e9b8579cb5.jpg", "assets/img/7a3f9cd145a2.jpg", "assets/img/7f218ae9d1f2.jpg", "assets/img/7f62ff60d0cd.jpg", "assets/img/80471628d268.jpg", "assets/img/827781ef8d62.png", "assets/img/8297f4a4ca00.jpg", "assets/img/83d48576ffb7.png", "assets/img/862dc49eefde.png", "assets/img/87adb6b35f6c.png", "assets/img/8826aeba1213.jpg", "assets/img/8b3602b3557b.png", "assets/img/8b3a0cf76973.jpg", "assets/img/8c786832ffbf.jpg", "assets/img/8c95c4dc7693.jpg", "assets/img/8d2a5fadce2c.jpg", "assets/img/8de75d0d1b89.jpg", "assets/img/8f665d0767d1.jpg", "assets/img/92bb828180ea.jpg", "assets/img/9493a5078f97.png", "assets/img/949e2b736e03.jpg", "assets/img/9605267c3ba4.png", "assets/img/96ff7c1e7bda.png", "assets/img/97238020b5d6.png", "assets/img/97a8ed597097.jpg", "assets/img/9ad7ed67d6cc.jpg", "assets/img/9b66c306299e.jpg", "assets/img/9caf5a9833be.png", "assets/img/9d1ce115739d.jpg", "assets/img/9d8cae710e6f.png", "assets/img/9eff4aad67fe.png", "assets/img/a0fd649642c7.png", "assets/img/a2adec13cc42.jpg", "assets/img/a40ef7d0eb6f.jpg", "assets/img/a653466280ae.jpg", "assets/img/a6a843fb2542.jpg", "assets/img/a7e8c2f432ef.jpg", "assets/img/a8ab976aa53b.jpg", "assets/img/ae00327ce32a.jpg", "assets/img/ae5fcc814bbd.png", "assets/img/afffc53b02ee.jpg", "assets/img/b08d304c26cd.jpg", "assets/img/b0d30aa3a942.jpg", "assets/img/b769beab6a48.png", "assets/img/b8d3dbe7109d.png", "assets/img/b996d3576f06.jpg", "assets/img/bc8d39edc803.jpg", "assets/img/be745b4cc3fa.jpg", "assets/img/bf5a77b8958b.jpg", "assets/img/c0a051f50259.jpg", "assets/img/c2b244afd5b6.png", "assets/img/c33165164ae0.jpg", "assets/img/c4a70576ef7f.png", "assets/img/c52fd6cf09d3.jpg", "assets/img/c66d774970c2.jpg", "assets/img/c6d5d857f212.jpg", "assets/img/c89426040269.jpg", "assets/img/cbe276becc13.jpg", "assets/img/cce3a06d60f5.jpg", "assets/img/cf29e044b516.jpg", "assets/img/cffe6c922cb3.jpg", "assets/img/d0400b6a55de.jpg", "assets/img/d1531da03496.png", "assets/img/d1990fa1efa2.png", "assets/img/d1deb032f91b.jpg", "assets/img/d3540229b27b.jpg", "assets/img/d377ab86e4fc.jpg", "assets/img/d49999875db9.png", "assets/img/d5c9fdf3d721.png", "assets/img/d83aaed0caa7.jpg", "assets/img/d856c69178c8.jpg", "assets/img/d9bedaed4503.jpg", "assets/img/da3d20a492a6.png", "assets/img/db273053feba.jpg", "assets/img/db9bfd649544.jpg", "assets/img/dbbb4eea5352.jpg", "assets/img/dc828893770b.jpg", "assets/img/dc97b8d47688.jpg", "assets/img/dd61fb68100c.jpg", "assets/img/dd97a6b4e1b4.jpg", "assets/img/ddc7f6160cbe.jpg", "assets/img/df301e031128.jpg", "assets/img/dfbfa5e1ec54.jpg", "assets/img/e0a34a6df16a.png", "assets/img/e258f7021c55.png", "assets/img/e2d548c85f58.png", "assets/img/e89a96199856.jpg", "assets/img/e94c22b13fb7.png", "assets/img/eaa406207515.jpg", "assets/img/eba5114e6f09.png", "assets/img/ec118b3aa6e1.jpg", "assets/img/ecb8f50630ec.jpg", "assets/img/ed285a01a19b.jpg", "assets/img/ed34cc9a60ab.jpg", "assets/img/ed8ec6fb4820.jpg", "assets/img/ee62cf9039bf.jpg", "assets/img/f19cf7804bbc.jpg", "assets/img/f1cb64ab46fe.jpg", "assets/img/f2c4c46f0472.jpg", "assets/img/f36c90f4b70f.jpg", "assets/img/f3b1db35d295.png", "assets/img/f5d77d14d77e.jpg", "assets/img/f6519a041835.jpg", "assets/img/f73f19499edc.jpg", "assets/img/f86ec6de6bd5.png", "assets/img/f94bbc83db98.jpg", "assets/img/fa0cb1eab6e0.png", "assets/img/fa374e0d7310.jpg", "assets/img/fa6a2da1c441.jpg", "assets/img/fc884ae8f4be.png", "assets/img/fd0d9392510f.jpg", "assets/img/fdea50835e6b.jpg", "assets/img/fe41849026f7.jpg", "assets/img/ff4586508418.png"];
+const PRELOAD_ASSETS = ["assets/img/004e67071e47.png", "assets/img/006f79520842.png", "assets/img/00875d71a494.png", "assets/img/00a97068b6f7.jpg", "assets/img/00c12e2cc7c7.jpg", "assets/img/014b865afa6e.png", "assets/img/015a6525a86c.jpg", "assets/img/01c08357b77e.png", "assets/img/021541eb2763.png", "assets/img/021ef5198f26.jpg", "assets/img/035ca7b3734d.png", "assets/img/045cb17ab57b.jpg", "assets/img/053894260f95.png", "assets/img/057b80ec00cb.jpg", "assets/img/09008c2f430b.png", "assets/img/0bf39f8e7c9b.png", "assets/img/0ce916577126.png", "assets/img/0e4481fd512f.png", "assets/img/0e86c9af1a46.jpg", "assets/img/0eb7823f010f.jpg", "assets/img/0feb135732b8.jpg", "assets/img/117b9414f489.jpg", "assets/img/11898415458d.jpg", "assets/img/118c27c4974e.jpg", "assets/img/12b48f4ddd48.png", "assets/img/15ca5f7daa3d.jpg", "assets/img/17f37adbb638.jpg", "assets/img/183015193538.png", "assets/img/188be6a96ed6.jpg", "assets/img/1a199371cace.png", "assets/img/1dad5bb47b00.jpg", "assets/img/1f9e60ed5fe2.jpg", "assets/img/1fdfe3198781.jpg", "assets/img/2018781b23af.jpg", "assets/img/20a8df8353ff.jpg", "assets/img/243c5f78979e.jpg", "assets/img/24c2af74e5bd.jpg", "assets/img/284619ab69e7.jpg", "assets/img/28bb0e99c897.jpg", "assets/img/28dafe336c05.jpg", "assets/img/2a1b2b410f5c.jpg", "assets/img/2ae10e9607b4.jpg", "assets/img/2b5a3881255d.png", "assets/img/2b9657f51881.jpg", "assets/img/2da789635802.jpg", "assets/img/2f20a2dc5a5a.jpg", "assets/img/2ffc05901356.png", "assets/img/301f2cac6022.jpg", "assets/img/30e0bc34fee2.png", "assets/img/32ac7b864bef.jpg", "assets/img/334dad3150ab.jpg", "assets/img/34f1c66b1d2c.png", "assets/img/369675c6202d.jpg", "assets/img/3a7937400697.jpg", "assets/img/3c5a4476db0e.png", "assets/img/3cabb986641d.jpg", "assets/img/3e2cd69e245e.jpg", "assets/img/3e368c0716ca.jpg", "assets/img/3ef354922ae1.jpg", "assets/img/40dfc9ef3b1e.jpg", "assets/img/4115eb3a7886.jpg", "assets/img/4204803eedf2.png", "assets/img/43f3f9b508d1.png", "assets/img/4514699b7680.jpg", "assets/img/459e334d6b50.jpg", "assets/img/45d1bc218c14.jpg", "assets/img/47440e6ea977.jpg", "assets/img/47c2cdd69449.jpg", "assets/img/480394a2a7b9.jpg", "assets/img/483fb210596b.png", "assets/img/489424610072.png", "assets/img/4c9e81f2c773.jpg", "assets/img/5039f69ffbc4.jpg", "assets/img/5099b4b143ed.jpg", "assets/img/51765cc4c9fb.jpg", "assets/img/526dea67517b.jpg", "assets/img/52a228ab2da2.jpg", "assets/img/53d210160900.jpg", "assets/img/546ed47f6153.png", "assets/img/55bf024c031d.jpg", "assets/img/5641361f4e3c.png", "assets/img/592b87e837d2.png", "assets/img/5a53d9bdc30a.png", "assets/img/5a7ea550a7a9.png", "assets/img/5c3a22ff1726.jpg", "assets/img/5cbd55c45c2a.jpg", "assets/img/5da1ce2fd424.png", "assets/img/5e5048c18846.png", "assets/img/5e631b3bfecd.png", "assets/img/6001b506c85f.png", "assets/img/6017da9ca0ef.jpg", "assets/img/61a25415cf10.jpg", "assets/img/663b0e9b87b3.jpg", "assets/img/67608dad3545.png", "assets/img/696cc69a2b64.png", "assets/img/6acffa00c80a.jpg", "assets/img/6bf1da3ad9b8.png", "assets/img/6ce607d25f71.png", "assets/img/6d7b1a8a92d4.jpg", "assets/img/6dd0db2ba5a2.jpg", "assets/img/6ee34f92a3c0.jpg", "assets/img/6f35c3dd11c0.png", "assets/img/6f3eaded7563.png", "assets/img/6f86764d39a7.jpg", "assets/img/6fb8bd4efafa.png", "assets/img/7089b6ff4940.png", "assets/img/70e96312ea40.png", "assets/img/71a333c7f60f.jpg", "assets/img/749daeedc1e9.png", "assets/img/75b48fc0b85a.jpg", "assets/img/786d1e9ad3b6.jpg", "assets/img/78ab15294211.jpg", "assets/img/79e9b8579cb5.jpg", "assets/img/7a3f9cd145a2.jpg", "assets/img/7f218ae9d1f2.jpg", "assets/img/7f62ff60d0cd.jpg", "assets/img/80471628d268.jpg", "assets/img/815443799ac2.jpg", "assets/img/827781ef8d62.png", "assets/img/8297f4a4ca00.jpg", "assets/img/83d48576ffb7.png", "assets/img/862dc49eefde.png", "assets/img/87adb6b35f6c.png", "assets/img/8826aeba1213.jpg", "assets/img/8b3602b3557b.png", "assets/img/8b3a0cf76973.jpg", "assets/img/8c786832ffbf.jpg", "assets/img/8c95c4dc7693.jpg", "assets/img/8d2a5fadce2c.jpg", "assets/img/8de75d0d1b89.jpg", "assets/img/8f665d0767d1.jpg", "assets/img/92bb828180ea.jpg", "assets/img/9493a5078f97.png", "assets/img/949e2b736e03.jpg", "assets/img/9605267c3ba4.png", "assets/img/96ff7c1e7bda.png", "assets/img/97238020b5d6.png", "assets/img/97a8ed597097.jpg", "assets/img/9ad7ed67d6cc.jpg", "assets/img/9b66c306299e.jpg", "assets/img/9caf5a9833be.png", "assets/img/9d1ce115739d.jpg", "assets/img/9d8cae710e6f.png", "assets/img/9eff4aad67fe.png", "assets/img/a0a77f7d49f4.jpg", "assets/img/a0fd649642c7.png", "assets/img/a2adec13cc42.jpg", "assets/img/a40ef7d0eb6f.jpg", "assets/img/a5fec4dcc9c0.jpg", "assets/img/a653466280ae.jpg", "assets/img/a6a843fb2542.jpg", "assets/img/a7e8c2f432ef.jpg", "assets/img/a8ab976aa53b.jpg", "assets/img/ae00327ce32a.jpg", "assets/img/ae5fcc814bbd.png", "assets/img/afffc53b02ee.jpg", "assets/img/b08d304c26cd.jpg", "assets/img/b0d30aa3a942.jpg", "assets/img/b769beab6a48.png", "assets/img/b8d3dbe7109d.png", "assets/img/b90620b64bdf.jpg", "assets/img/b996d3576f06.jpg", "assets/img/bc8d39edc803.jpg", "assets/img/be745b4cc3fa.jpg", "assets/img/bf5a77b8958b.jpg", "assets/img/c0a051f50259.jpg", "assets/img/c2b244afd5b6.png", "assets/img/c33165164ae0.jpg", "assets/img/c4a70576ef7f.png", "assets/img/c52fd6cf09d3.jpg", "assets/img/c66d774970c2.jpg", "assets/img/c6d5d857f212.jpg", "assets/img/c89426040269.jpg", "assets/img/cbe276becc13.jpg", "assets/img/cce3a06d60f5.jpg", "assets/img/cf29e044b516.jpg", "assets/img/cffe6c922cb3.jpg", "assets/img/d0400b6a55de.jpg", "assets/img/d1531da03496.png", "assets/img/d1990fa1efa2.png", "assets/img/d1deb032f91b.jpg", "assets/img/d3540229b27b.jpg", "assets/img/d377ab86e4fc.jpg", "assets/img/d49999875db9.png", "assets/img/d5c9fdf3d721.png", "assets/img/d83aaed0caa7.jpg", "assets/img/d856c69178c8.jpg", "assets/img/d9bedaed4503.jpg", "assets/img/da3d20a492a6.png", "assets/img/db273053feba.jpg", "assets/img/db9bfd649544.jpg", "assets/img/dbbb4eea5352.jpg", "assets/img/dc828893770b.jpg", "assets/img/dc97b8d47688.jpg", "assets/img/dd61fb68100c.jpg", "assets/img/dd97a6b4e1b4.jpg", "assets/img/ddc7f6160cbe.jpg", "assets/img/df301e031128.jpg", "assets/img/dfbfa5e1ec54.jpg", "assets/img/e0a34a6df16a.png", "assets/img/e258f7021c55.png", "assets/img/e2d548c85f58.png", "assets/img/e5eccf8182ba.jpg", "assets/img/e89a96199856.jpg", "assets/img/e94c22b13fb7.png", "assets/img/eaa406207515.jpg", "assets/img/eba5114e6f09.png", "assets/img/ec118b3aa6e1.jpg", "assets/img/ecb8f50630ec.jpg", "assets/img/ed285a01a19b.jpg", "assets/img/ed34cc9a60ab.jpg", "assets/img/ed8ec6fb4820.jpg", "assets/img/ee62cf9039bf.jpg", "assets/img/f19cf7804bbc.jpg", "assets/img/f1cb64ab46fe.jpg", "assets/img/f2c4c46f0472.jpg", "assets/img/f36c90f4b70f.jpg", "assets/img/f3b1db35d295.png", "assets/img/f5d77d14d77e.jpg", "assets/img/f6519a041835.jpg", "assets/img/f73f19499edc.jpg", "assets/img/f86ec6de6bd5.png", "assets/img/f94bbc83db98.jpg", "assets/img/fa0cb1eab6e0.png", "assets/img/fa374e0d7310.jpg", "assets/img/fa6a2da1c441.jpg", "assets/img/fc884ae8f4be.png", "assets/img/fd0d9392510f.jpg", "assets/img/fdea50835e6b.jpg", "assets/img/fe41849026f7.jpg", "assets/img/ff4586508418.png"];
 const AI_SPRITES = {
   "mythic|스크래치맨 아푸": "assets/img/a8ab976aa53b.jpg",
   "origin|백수해적단 잭": "assets/img/32ac7b864bef.jpg",
@@ -3314,7 +3341,7 @@ const DIFFS = {
   hell:   { label:"HELL",   hp:1.125, armor:1.3, gold:0.45, field:280 },
 };
 // v15bn: 난이도별 최종 라운드 - 쉬움 60 / 노말 65 / 하드 70 / 지옥 75
-const FINAL_ROUND_BY_DIFF = { easy:60, normal:65, hard:70, hell:75 };
+const FINAL_ROUND_BY_DIFF = { easy:75, normal:80, hard:85, hell:90 };   // v15e5: 라운드 연장
 // v15am: NORMAL/HARD도 일반 라인 몬스터 체력·방어력을 20% 완화 (EASY는 이미 별도 R20+ 완화가 있어 여기서는 그대로 1)
 // 보스는 monsterStats/computeRoundHp를 거치지 않고 spawnBoss()의 별도 공식을 쓰므로 이 배율의 영향을 받지 않음
 // v15ap: 쉬움/노말/하드 전부 추가로 완화 (일반 몬스터 체력·방어력만, 보스 미적용)
@@ -3332,7 +3359,8 @@ let state = null;
 
 function initState(diffKey){
   document.querySelectorAll(".autoStashCk").forEach(ck=>{ ck.checked = false; });
-  FINAL_ROUND = FINAL_ROUND_BY_DIFF[diffKey] || 55;   // v15bn: 난이도별 최종 라운드 반영
+  FINAL_ROUND = FINAL_ROUND_BY_DIFF[diffKey] || 55;
+  _midClearShown = {};   // v15e5: 새 게임마다 중간 클리어 팝업 이력 초기화   // v15bn: 난이도별 최종 라운드 반영
   state = {
     diff: DIFFS[diffKey], diffKey,
     round:1, roundTime:ROUND_LEN,
@@ -3649,16 +3677,42 @@ function playRangeErrorSfx(){
 // =========================================================
 // v15bo: R55 보스가 이무→우타로 바뀌어서 이무 전용 블러배경 연출은 실제 이무가 등장하는 R75로 이동
 //        (55/60/65/70은 전용 배경 이미지가 없어 컷씬 연출 없이 바로 전투 시작 - 캐릭터 스프라이트는 정상 표시됨)
+// v15e5: 보스 18명 연출 매핑 (1순위 기존 이미지 유지, 없으면 동일 인물 캐릭터 스프라이트에서 크롭)
 const BOSS_VISUALS = {
-  5: { bg: "buggy_bg.png", portrait: "buggy_portrait.png" },
-  15: { bg: "enel_bg.png", portrait: "enel_portrait.png" },
-  25: { bg: "moria_bg.png", portrait: "moria_portrait.png" },
-  35: { bg: "hody_bg.png", portrait: "hody_portrait.png" },
-  45: { bg: "kaido_bg.png", portrait: "kaido_portrait.png" },
-  60: { bg: "jepa_bg.png", portrait: "jepa_portrait.png" },
-  75: { bg: "imu_bg.png", portrait: "imu_portrait.png" },
+  5: { bg: "enel_bg.png", portrait: "arlong_portrait.png" },
+  10: { bg: "moria_bg.png", portrait: "crocodile_portrait.png" },
+  15: { bg: "hody_bg.png", portrait: "enel_portrait.png" },
+  20: { bg: "kaido_bg.png", portrait: "lucci_portrait.png" },
+  25: { bg: "imu_bg.png", portrait: "moria_portrait.png" },
+  30: { bg: "enel_bg.png", portrait: "magellan_portrait.png" },
+  35: { bg: "moria_bg.png", portrait: "akainu_portrait.png" },
+  40: { bg: "hody_bg.png", portrait: "hody_portrait.png" },
+  45: { bg: "kaido_bg.png", portrait: "doflamingo_portrait.png" },
+  50: { bg: "imu_bg.png", portrait: "cracker_portrait.png" },
+  55: { bg: "enel_bg.png", portrait: "katakuri_portrait.png" },
+  60: { bg: "moria_bg.png", portrait: "bigmom_portrait.png" },
+  65: { bg: "hody_bg.png", portrait: "kaido_portrait.png" },
+  70: { bg: "kaido_bg.png", portrait: "kizaru_portrait.png" },
+  75: { bg: "imu_bg.png", portrait: "saturn_portrait.png" },
+  80: { bg: "enel_bg.png", portrait: "loki_portrait.png" },
+  85: { bg: "moria_bg.png", portrait: "imu_portrait.png" },
+  90: { bg: "hody_bg.png", portrait: "blackbeard_portrait.png" },
 };
 const BOSS_VISUAL_IMAGES = {
+  // v15e5: 신규 보스 초상화. 기존 캐릭터 스프라이트에서 해당 칸만 잘라 만든 것이라 새로 생성한 이미지는 없다.
+  "arlong_portrait.png": "assets/img/a5fec4dcc9c0.jpg",
+  "crocodile_portrait.png": "assets/img/a0a77f7d49f4.jpg",
+  "lucci_portrait.png": "assets/img/815443799ac2.jpg",
+  "magellan_portrait.png": "assets/img/9ad7ed67d6cc.jpg",
+  "akainu_portrait.png": "assets/img/75b48fc0b85a.jpg",
+  "doflamingo_portrait.png": "assets/img/e5eccf8182ba.jpg",
+  "cracker_portrait.png": "assets/img/28dafe336c05.jpg",
+  "katakuri_portrait.png": "assets/img/52a228ab2da2.jpg",
+  "bigmom_portrait.png": "assets/img/2b9657f51881.jpg",
+  "kizaru_portrait.png": "assets/img/b90620b64bdf.jpg",
+  "saturn_portrait.png": "assets/img/4514699b7680.jpg",
+  "loki_portrait.png": "assets/img/c0a051f50259.jpg",
+  "blackbeard_portrait.png": "assets/img/11898415458d.jpg",
   "buggy_bg.png": "assets/img/1a199371cace.png",
   "buggy_portrait.png": "assets/img/09008c2f430b.png",
   "enel_bg.png": "assets/img/0e4481fd512f.png",
@@ -3739,7 +3793,7 @@ function playBossIntro(round, name, quote, onDone){
 
 // v15do: 후반 보스 전용 체력 배율표. 실측 TTK 역산값 (HARD, 유닛 30기 기준)
 const LATE_BOSS_FROM = 41;
-let LATE_BOSS_HP_K = [[45,13],[50,14.5],[55,8.5],[60,15.5],[65,12.5],[70,10.5],[75,10.5]];
+let LATE_BOSS_HP_K = [[45,13],[50,14.5],[55,8.5],[60,15.5],[65,12.5],[70,10.5],[75,10.5],[80,10.5],[85,10.5],[90,10.5]];   // v15e5: 90라운드까지 연장 (기존 배율 그대로 유지)
 // 위 배율은 유닛 30기 로스터로 실측한 TTK 기준 확정값이다.
 //   EASY 19~27s / NORMAL 22~35s / HARD 25~41s / HELL 26~46s (보스 제한시간 60초)
 //   R55는 보스와 함께 잡몹 8마리가 추가 스폰되는 설계라 배율이 낮아도 TTK가 길게 나온다.
@@ -3779,6 +3833,18 @@ function spawnBoss(round){
     // v15db: R40 이후 보스를 기존 대비 2배로 올리되, 라운드가 오를수록 그 배수 자체를 키움
     //        (R45 x2.0 → R55 x2.2 → R60 x2.4 → R65 x2.6 → R70 x2.8 → R75 x3.0)
     45: { hpMul:58*2.0,    armor:5000/0.75    },
+    // v15e5: 5라운드 간격 보스로 바뀌면서 비어 있던 라운드를 기존 곡선 위에서 보간/외삽만 했다.
+    //   (10/20/30/40 은 인접 두 값의 기하평균, 80/85/90 은 후반 증가비 유지)
+    //   hpMul 은 R41 미만에서만 쓰이고, R41+ 는 LATE_BOSS_HP_K 가 담당한다.
+    10: { hpMul:1.0,       armor:58           },
+    20: { hpMul:3.5,       armor:367          },
+    30: { hpMul:16,        armor:2000         },
+    //   R40 은 구 공식(hpMul x3 x lateBossAmp) 마지막 라운드이고 R41+ 는 LATE_BOSS_HP_K 로 넘어간다.
+    //   인접값 기하평균(59)을 쓰면 R45 보다 4배 커지는 역전이 생겨, 이어지도록 실측으로 맞춘 값.
+    40: { hpMul:14,        armor:4714         },
+    80: { hpMul:6278,      armor:120000/0.75  },
+    85: { hpMul:9731,      armor:180000/0.75  },
+    90: { hpMul:15083,     armor:270000/0.75  },
     // v15do: R50은 tier 항목이 아예 없어서 방어력이 1,407(R45의 1/5)까지 떨어지고
     //        체력도 R45의 1/53 수준이었다. R45~R55 사이를 잇는 값으로 채운다.
     50: { hpMul:265,       armor:8500/0.75    },
@@ -4407,6 +4473,54 @@ const CUTSCENE_DATA = {
   wave64: { img: "tesoro_cutscene.jpeg", lines: ["가일드 테조로: \"황금이야말로 절대적인 힘! 이 바다 전부가 내 재산이 될 것이다!\"", "가일드 테조로: \"그랑 테조로의 이름 아래, 너희도 황금으로 만들어주마.\"", "루피: \"돈으로 사람 마음까지 살 순 없어!\""] },
   wave69: { img: "bullet_story.png", lines: ["더글라스 블릿: \"부동의 이름을 가진 자, 그것이 바로 나다.\"", "더글라스 블릿: \"진정한 해적왕의 힘, 똑똑히 봐둬라!\"", "루피: \"그 타이틀, 내가 가져갈게!\""] },
 };
+
+// v15e5: [컷씬 타이밍 재매핑]
+//   보스 순서가 스토리 순(아론→검은수염)으로 바뀌면서, 기존 컷씬이 붙어 있던 라운드와
+//   그 라운드의 보스 인물이 서로 어긋나게 됐다(예: 도플라밍고 컷씬 자리에 루치 보스).
+//   원본 컷씬 데이터는 그대로 두고, "보스 직전 라운드 → 사용할 컷씬 키"만 여기서 지정한다.
+//   키가 없는 보스는 아직 컷씬이 없다는 뜻이고, 아래 placeholder 로 자리만 잡아둔다.
+const CUTSCENE_ROUND_MAP = {
+  // ── 보스 직전 라운드 (인물 일치) ─────────────────────────
+  4:  "wave4",              // R5  어인 아론
+  9:  "wave9",              // R10 칠무해 크로커다일
+  14: "wave14",             // R15 갓 에넬
+  19: "boss20_lucci",       // R20 로브 루치        (placeholder)
+  24: "wave24",             // R25 게코 모리아
+  29: "boss30_magellan",    // R30 독독 마젤란      (placeholder)
+  34: "boss35_akainu",      // R35 해군원수 아카이누 (placeholder)
+  39: "boss40_hody",        // R40 호디 존스        (placeholder)
+  44: "wave19",             // R45 천야왕 도플라밍고 ← 기존 도플라밍고 컷씬 이동
+  49: "boss50_cracker",     // R50 천 팔 크래커     (placeholder)
+  54: "boss55_katakuri",    // R55 샬롯 카타쿠리    (placeholder)
+  59: "wave34",             // R60 사황 빅맘        ← 기존 빅맘 컷씬 이동
+  64: "wave44",             // R65 백수 카이도      ← 기존 카이도 컷씬 이동
+  69: "wave39",             // R70 해군대장 키자루   ← 기존 키자루 컷씬 이동
+  74: "wave49",             // R75 오로성 새턴      ← 기존 새턴 컷씬 이동
+  79: "boss80_loki",        // R80 거인왕자 로키    (placeholder)
+  84: "wave74",             // R85 세계군주 이무    ← 기존 이무 컷씬 이동
+  89: "boss90_blackbeard",  // R90 암흑황제 검은수염 (placeholder)
+  // ── 보스와 무관한 기존 스토리 컷씬 (보스 라운드와 겹치지 않게 재배치) ──
+  27: "wave27",             // 센고쿠
+  28: "wave29",             // 에그헤드 도착
+  42: "wave42",             // 보니
+  47: "wave47",             // 기어5
+  52: "wave52",             // 로저 vs 록스
+  53: "wave54",             // 우타 & 샹크스
+  58: "wave59",             // 제파
+  63: "wave64",             // 테조로
+  68: "wave69",             // 더글라스 블릿
+};
+// v15e5: 아직 대사가 없는 보스 컷씬 자리. lines 가 비어 있으면 재생하지 않고 그냥 넘어간다.
+Object.assign(CUTSCENE_DATA, {
+  boss20_lucci:      { img:null, lines:[] },
+  boss30_magellan:   { img:null, lines:[] },
+  boss35_akainu:     { img:null, lines:[] },
+  boss40_hody:       { img:null, lines:[] },
+  boss50_cracker:    { img:null, lines:[] },
+  boss55_katakuri:   { img:null, lines:[] },
+  boss80_loki:       { img:null, lines:[] },
+  boss90_blackbeard: { img:null, lines:[] },
+});
 const CUTSCENE_IMAGES = {
   "bullet_story.png": "assets/img/da3d20a492a6.png",
   "roger_rox.jpeg": "assets/img/80471628d268.jpg",
@@ -6003,6 +6117,8 @@ function update(dt){
       state.banner = { text:`🏆 BOSS ${m.name} 격파! +${m.reward}G, 소환권 +3`, t:3 };
       addLog(`🏆 <b class="win-c">BOSS ${m.name} 격파!</b> +${m.reward}G, 소환권 +3장`);
       SFX.bossDie();
+      // v15e5: 최종 라운드가 아닌 60/75 보스 격파 시 중간 클리어 팝업 (필드는 그대로 유지)
+      if(!m.finalBoss && MID_CLEAR_ROUNDS.includes(state.round)) showMidClearPopup(state.round);
       if(m.finalBoss){ removeLapCounted(m); swapRemove(state.monsters, i); poolPut(monsterPool, m); gameClear(); return; }
     }else{
       if(m.bounty){
@@ -6048,13 +6164,16 @@ function update(dt){
       state.roundTime = ROUND_LEN;
       // v15af: 보스 라운드 직전이면 스토리 컷씬 재생 후 라운드 시작 (게임 일시정지)
       // v15c6: 지정된 보스 직전 라운드는 영상 컷씬을 먼저 재생 (영상이 있으면 같은 라운드의 텍스트 컷씬은 중복 연출이라 생략)
-      const cutsceneKey = "wave" + (state.round - 1);
+      // v15e5: 라운드→컷씬 매핑표를 따른다. 매핑에 없으면 그 라운드는 컷씬 없음.
+      const cutsceneKey = CUTSCENE_ROUND_MAP[state.round - 1];
       const videoKey = BOSS_VIDEO_ROUNDS[state.round];
       if(videoKey){
         playVideoCutscene(videoKey, ()=>{ startRound(state.round); refreshUI(); });
         return;
       }
-      if(CUTSCENE_DATA[cutsceneKey]){
+      // lines 가 빈 placeholder 는 재생하지 않고 그냥 진행한다
+      if(cutsceneKey && CUTSCENE_DATA[cutsceneKey] && CUTSCENE_DATA[cutsceneKey].lines
+         && CUTSCENE_DATA[cutsceneKey].lines.length){
         playCutscene(cutsceneKey, ()=>{ startRound(state.round); refreshUI(); });
         return;
       }
@@ -6281,6 +6400,55 @@ function gameOver(){
   document.getElementById("loseText").innerHTML =
     `도달 라운드: <b>${state.round}</b><br>처치한 몬스터: <b>${state.kills.toLocaleString()}</b>마리<br>획득 골드: <b>${state.goldEarned.toLocaleString()}</b>G`;
   document.getElementById("loseOverlay").style.display = "flex";
+}
+// v15e5: [중간 클리어 팝업]
+//   60/75 라운드 보스를 잡으면 필드는 그대로 둔 채 화면 중앙에 팝업만 띄운다.
+//   해당 라운드가 그 난이도의 최종 라운드면(이지=75) 팝업 대신 기존 최종 클리어가 나간다.
+const MID_CLEAR_ROUNDS = [60, 75];
+let _midClearShown = {};
+function showMidClearPopup(round){
+  if(_midClearShown[round]) return;
+  _midClearShown[round] = true;
+  state.paused = true;                       // 필드는 그대로 두고 진행만 멈춘다
+  let wrap = document.getElementById("midClearPopup");
+  if(!wrap){
+    wrap = document.createElement("div");
+    wrap.id = "midClearPopup";
+    wrap.style.cssText = "position:fixed;inset:0;z-index:99997;display:flex;align-items:center;"
+      + "justify-content:center;background:rgba(4,8,16,.55);";
+    wrap.innerHTML =
+        '<div style="background:linear-gradient(180deg,#1b2438,#111827);border:2px solid #ffe066;'
+      +      'border-radius:16px;padding:32px 36px;text-align:center;max-width:min(90vw,420px);'
+      +      'box-shadow:0 12px 40px rgba(0,0,0,.7);">'
+      +   '<div style="font-size:34px;line-height:1;margin-bottom:10px;">🎉</div>'
+      +   '<div style="font-size:20px;font-weight:bold;color:#ffe066;margin-bottom:6px;">클리어를 축하합니다!</div>'
+      +   '<div id="midClearSub" style="font-size:14px;color:#cfd6e4;margin-bottom:22px;">게임을 더 하시겠어요?</div>'
+      +   '<button id="midClearGo" style="display:block;width:100%;padding:16px 0;margin-bottom:10px;'
+      +      'font-size:18px;font-weight:bold;font-family:inherit;color:#2a1500;cursor:pointer;'
+      +      'border:2px solid #ffe9a8;border-radius:12px;background:linear-gradient(180deg,#ffd75e,#ff9f1c);'
+      +      'box-shadow:0 4px 0 #a35a00;">진행하기</button>'
+      +   '<button id="midClearEnd" style="display:block;width:100%;padding:10px 0;font-size:14px;'
+      +      'font-family:inherit;color:#cfd6e4;cursor:pointer;background:rgba(255,255,255,.08);'
+      +      'border:1px solid rgba(255,255,255,.25);border-radius:10px;">종료하기</button>'
+      + '</div>';
+    document.body.appendChild(wrap);
+    wrap.querySelector("#midClearGo").addEventListener("click", ()=>{
+      wrap.style.display = "none";
+      state.paused = false;                  // 다음 라운드부터 그대로 이어서 진행
+      addLog(`▶ <b class="win-c">계속 진행</b> — 라운드 ${state.round + 1}부터 이어서 도전합니다.`);
+      refreshUI();
+    });
+    wrap.querySelector("#midClearEnd").addEventListener("click", ()=>{
+      wrap.style.display = "none";
+      state.paused = false;
+      gameClear();                           // 기존 게임 종료(클리어) 화면 그대로
+    });
+  }
+  const sub = wrap.querySelector("#midClearSub");
+  if(sub) sub.textContent = `${round}라운드 돌파! 게임을 더 하시겠어요?`;
+  wrap.style.display = "flex";
+  try{ SFX.win(); }catch(e){}
+  addLog(`🎉 <b class="win-c">${round}라운드 클리어!</b> 계속할지 선택하세요.`);
 }
 function gameClear(){
   // v15c0: 클리어해도 게임을 강제 종료하지 않음 - 전체화면 오버레이/재시작 버튼(클릭 안되는 버그) 대신
