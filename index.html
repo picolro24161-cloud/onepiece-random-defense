@@ -1103,19 +1103,19 @@ const ULTRA_SKILLS = [
   /*검은수염 해적단원*/ [ {type:"암흑 저격",  cd:3.0,mult:9.5,color:"#8040c0",kind:"bolt",hits:6},{type:"해적단 일제사격",cd:4.5,mult:7.2,color:"#6020a0",kind:"bolt",hits:20} ],
 ];
 const OVERLORD_SKILLS = [
-  /*해군대장 료쿠규*/     [ {type:"그린 타이푼",cd:3.0,mult:9.0,color:"#40a030",kind:"ring",radius:560}, {type:"삼림의 감옥",cd:4.0,mult:7.0,color:"#2c7020",kind:"bolt",hits:26}, {type:"대지의 포옹",cd:6.0,mult:5.0,color:"#3c8c30",kind:"burn",radius:300,dur:5} ],
-  /*암흑황제 검은수염*/   [ {type:"야미야미 흡수",cd:3.2,mult:9.5,color:"#4a0080",kind:"haki",radius:520,stun:3.2}, {type:"그라그라 진동파",cd:4.0,mult:7.5,color:"#2a0050",kind:"ring",radius:540}, {type:"어둠의 종언",cd:5.0,mult:14.0,color:"#3a0060",kind:"bolt",hits:1} ],
+  /*해군대장 료쿠규*/     [ {type:"그린 타이푼",cd:3.0,mult:9.0,color:"#40a030",kind:"ring",radius:560}, {type:"삼림의 감옥",cd:4.0,mult:7.0,color:"#2c7020",kind:"bolt",hits:26}, {type:"대지의 심판 · 운석",cd:20,mult:5.0,color:"#3c8c30",kind:"ring",ult:"meteor",radius:520,radius2:230,count:4,stun:1.5} ],
+  /*암흑황제 검은수염*/   [ {type:"야미야미 흡수",cd:3.2,mult:9.5,color:"#4a0080",kind:"haki",radius:520,stun:3.2}, {type:"그라그라 진동파",cd:4.0,mult:7.5,color:"#2a0050",kind:"ring",radius:540}, {type:"어둠의 중력장",cd:25,mult:5.5,color:"#3a0060",kind:"ring",ult:"gravity",radius:460,pull:110} ],
   /*세계군주 이무*/       [ {type:"여명의 심판",cd:3.0,mult:9.0,color:"#c000ff",kind:"bolt",hits:30}, {type:"패왕의 위압",cd:5.0,mult:0,color:"#ffb300",kind:"elite_aspd_buff",radius:9999}, {type:"세계의 굴레",cd:6.0,mult:4.0,color:"#a000e0",kind:"near_debuff",radius:9999,armorRed:60,slow:0.35} ],
-  /*화월의 오뎅*/         [ {type:"아마테라스 참",cd:3.0,mult:9.5,color:"#5ee0ff",kind:"slash",hits:36}, {type:"코즈키 유파 오의",cd:4.0,mult:7.5,color:"#30a0c0",kind:"ring",radius:480}, {type:"부동의 일섬",cd:5.0,mult:13.0,color:"#7ef0ff",kind:"slash",hits:3} ],
-  /*혁명군총사령관 사보*/ [ {type:"용염 폭발",cd:3.0,mult:9.0,color:"#ff8c14",kind:"ring",radius:560}, {type:"혁명의 불꽃",cd:4.0,mult:7.0,color:"#ff6000",kind:"bolt",hits:26}, {type:"해방의 화염",cd:6.0,mult:5.0,color:"#ff7000",kind:"burn",radius:300,dur:5} ],
-  /*불주먹 에이스*/       [ {type:"화염 대선풍",cd:3.0,mult:9.0,color:"#ff5010",kind:"ring",radius:580}, {type:"불새 피닉스",cd:4.0,mult:7.0,color:"#ff8020",kind:"bolt",hits:28}, {type:"대염계",cd:5.5,mult:8.5,color:"#ff4020",kind:"haki",radius:560,stun:2.8} ],
-  /*전설의 해적왕 로저*/  [ {type:"패왕색 패기 개방",cd:3.2,mult:9.5,color:"#ffb300",kind:"haki",radius:600,stun:3.5}, {type:"로저의 유언",cd:4.0,mult:7.5,color:"#ffd24d",kind:"ring",radius:540}, {type:"라프텔의 의지",cd:5.5,mult:9.0,color:"#ffd24d",kind:"ring",radius:600} ],
-  /*최강해적 록스D지벡*/  [ {type:"패왕의 일격",cd:3.5,mult:12.0,color:"#a00030",kind:"bolt",hits:1}, {type:"정복자의 노도",cd:4.0,mult:7.5,color:"#700020",kind:"slash",hits:20}, {type:"군림하는 자",cd:5.0,mult:16.0,color:"#8c0028",kind:"bolt",hits:1} ],
-  /*사황 버기*/           [ {type:"바라바라 대분열",cd:3.0,mult:9.0,color:"#c020ff",kind:"ring",radius:540}, {type:"패왕의 위압",cd:5.0,mult:0,color:"#ffb300",kind:"elite_aspd_buff",radius:9999}, {type:"사황의 축복",cd:6.0,mult:0,color:"#ffb300",kind:"ally_buff",radius:9999,atk:0.45,cdr:0.30} ],
-  /*스코퍼가반*/          [ {type:"황금 창격",cd:3.0,mult:9.0,color:"#6090d0",kind:"bolt",hits:24}, {type:"가반류 오의",cd:4.0,mult:7.0,color:"#4070b0",kind:"slash",hits:28}, {type:"가반류 비전",cd:5.0,mult:12.0,color:"#5080c0",kind:"slash",hits:3} ],
-  /*태양신 니카 루피*/ [ {type:"태양신 해방",cd:3.0,mult:10.0,color:"#ffd700",kind:"haki",radius:600,stun:3.2}, {type:"고무고무 대원숭이",cd:3.5,mult:9.0,color:"#ff8c00",kind:"ring",radius:560}, {type:"니카의 자유",cd:6.0,mult:5.5,color:"#fff0a0",kind:"burn",radius:300,dur:5} ],
-  /*전성기 흰수염*/    [ {type:"섬 흔들기",cd:3.0,mult:11.0,color:"#20e0e0",kind:"ring",radius:580}, {type:"구라구라 진파",cd:4.0,mult:9.5,color:"#40c0ff",kind:"bolt",hits:1}, {type:"세계 최강의 일격",cd:5.0,mult:18.0,color:"#a0f0ff",kind:"bolt",hits:1} ],
-  /*[필름 레드] 샹크스*/ [ {type:"신의 검 그리폰",cd:3.0,mult:12.0,color:"#ff2020",kind:"slash",hits:4}, {type:"패왕색 충돌",cd:3.5,mult:9.5,color:"#c00000",kind:"haki",radius:560,stun:3.0}, {type:"필름 레드 일섬",cd:5.0,mult:17.0,color:"#ff6060",kind:"bolt",hits:1} ],
+  /*화월의 오뎅*/         [ {type:"아마테라스 참",cd:3.0,mult:9.5,color:"#5ee0ff",kind:"slash",hits:36}, {type:"코즈키 유파 오의",cd:4.0,mult:7.5,color:"#30a0c0",kind:"ring",radius:480}, {type:"염왕 · 절대동결",cd:30,mult:0,color:"#7ef0ff",kind:"ring",ult:"freeze",radius:440,dur:5} ],
+  /*혁명군총사령관 사보*/ [ {type:"용염 폭발",cd:3.0,mult:9.0,color:"#ff8c14",kind:"ring",radius:560}, {type:"혁명의 불꽃",cd:4.0,mult:7.0,color:"#ff6000",kind:"bolt",hits:26}, {type:"해방의 정체 영역",cd:20,mult:0,color:"#ff7000",kind:"ring",ult:"time_slow",radius:480,dur:7} ],
+  /*불주먹 에이스*/       [ {type:"화염 대선풍",cd:3.0,mult:9.0,color:"#ff5010",kind:"ring",radius:580}, {type:"불새 피닉스",cd:4.0,mult:7.0,color:"#ff8020",kind:"bolt",hits:28}, {type:"대염계 · 흡혈화염",cd:15,mult:6.0,color:"#ff4020",kind:"ring",ult:"lifesteal",radius:400,atk:0.35,dur:6} ],
+  /*전설의 해적왕 로저*/  [ {type:"패왕색 패기 개방",cd:3.2,mult:9.5,color:"#ffb300",kind:"haki",radius:600,stun:3.5}, {type:"로저의 유언",cd:4.0,mult:7.5,color:"#ffd24d",kind:"ring",radius:540}, {type:"라프텔의 의지",cd:10,mult:8.0,color:"#ffd24d",kind:"ring",ult:"chain_bounce",radius:600,bounces:6} ],
+  /*최강해적 록스D지벡*/  [ {type:"패왕의 일격",cd:3.5,mult:12.0,color:"#a00030",kind:"bolt",hits:1}, {type:"정복자의 노도",cd:4.0,mult:7.5,color:"#700020",kind:"slash",hits:20}, {type:"군림하는 자의 저주",cd:20,mult:0,color:"#8c0028",kind:"ring",ult:"curse_armor",radius:9999,dur:7} ],
+  /*사황 버기*/           [ {type:"바라바라 대분열",cd:3.0,mult:9.0,color:"#c020ff",kind:"ring",radius:540}, {type:"패왕의 위압",cd:5.0,mult:0,color:"#ffb300",kind:"elite_aspd_buff",radius:9999}, {type:"사황의 대운수",cd:8,mult:5.0,color:"#ffb300",kind:"ring",ult:"lottery",radius:9999} ],
+  /*스코퍼가반*/          [ {type:"황금 창격",cd:3.0,mult:9.0,color:"#6090d0",kind:"bolt",hits:24}, {type:"가반류 오의",cd:4.0,mult:7.0,color:"#4070b0",kind:"slash",hits:28}, {type:"가반류 비전 · 연쇄폭발",cd:15,mult:3,color:"#5080c0",kind:"ring",ult:"chain_boom",radius:9999,dur:10} ],
+  /*태양신 니카 루피*/ [ {type:"태양신 해방",cd:3.0,mult:10.0,color:"#ffd700",kind:"haki",radius:600,stun:3.2}, {type:"고무고무 대원숭이",cd:3.5,mult:9.0,color:"#ff8c00",kind:"ring",radius:560}, {type:"니카의 자유 · 환영소환",cd:40,mult:0,color:"#fff0a0",kind:"ring",ult:"summon",radius:9999,dur:12} ],
+  /*전성기 흰수염*/    [ {type:"섬 흔들기",cd:3.0,mult:11.0,color:"#20e0e0",kind:"ring",radius:580}, {type:"구라구라 진파",cd:4.0,mult:9.5,color:"#40c0ff",kind:"bolt",hits:1}, {type:"세계 최강의 일격",cd:60,mult:4.0,color:"#a0f0ff",kind:"ring",ult:"field_nuke",radius:9999} ],
+  /*[필름 레드] 샹크스*/ [ {type:"신의 검 그리폰",cd:3.0,mult:12.0,color:"#ff2020",kind:"slash",hits:4}, {type:"패왕색 충돌",cd:3.5,mult:9.5,color:"#c00000",kind:"haki",radius:560,stun:3.0}, {type:"필름 레드 · 신속",cd:25,mult:0,color:"#ff6060",kind:"ring",ult:"cd_reset",radius:9999,chance:0.6} ],
 ];
 
 const SKILLS = [
@@ -1966,7 +1966,7 @@ function drawShadow(c, x, y, w){
 //  등록된 캐릭터는 AI 픽셀아트 원형 토큰으로, 나머지는 코드 치비로 표시
 // =========================================================
 // v15dn: 분리된 이미지 에셋 목록 (패치 시 자동 생성). 게임 시작 전 전량 프리로드한다.
-const PRELOAD_ASSETS = ["assets/img/004e67071e47.png", "assets/img/006f79520842.png", "assets/img/00875d71a494.png", "assets/img/00a97068b6f7.jpg", "assets/img/00c12e2cc7c7.jpg", "assets/img/014b865afa6e.png", "assets/img/015a6525a86c.jpg", "assets/img/01c08357b77e.png", "assets/img/021541eb2763.png", "assets/img/021ef5198f26.jpg", "assets/img/035ca7b3734d.png", "assets/img/045cb17ab57b.jpg", "assets/img/053894260f95.png", "assets/img/057b80ec00cb.jpg", "assets/img/09008c2f430b.png", "assets/img/0bf39f8e7c9b.png", "assets/img/0ce916577126.png", "assets/img/0e4481fd512f.png", "assets/img/0e86c9af1a46.jpg", "assets/img/0eb7823f010f.jpg", "assets/img/0f9c45b9dbde.jpg", "assets/img/0feb135732b8.jpg", "assets/img/117b9414f489.jpg", "assets/img/11898415458d.jpg", "assets/img/118c27c4974e.jpg", "assets/img/12b48f4ddd48.png", "assets/img/15ca5f7daa3d.jpg", "assets/img/17f37adbb638.jpg", "assets/img/183015193538.png", "assets/img/188be6a96ed6.jpg", "assets/img/18f9db059968.jpg", "assets/img/1a199371cace.png", "assets/img/1c4b08f43b31.jpg", "assets/img/1dad5bb47b00.jpg", "assets/img/1f9e60ed5fe2.jpg", "assets/img/1fdfe3198781.jpg", "assets/img/2018781b23af.jpg", "assets/img/20a8df8353ff.jpg", "assets/img/243c5f78979e.jpg", "assets/img/24c2af74e5bd.jpg", "assets/img/284619ab69e7.jpg", "assets/img/28bb0e99c897.jpg", "assets/img/28dafe336c05.jpg", "assets/img/2a1b2b410f5c.jpg", "assets/img/2a45ebb2b484.jpg", "assets/img/2ae10e9607b4.jpg", "assets/img/2b5a3881255d.png", "assets/img/2b9657f51881.jpg", "assets/img/2da789635802.jpg", "assets/img/2f20a2dc5a5a.jpg", "assets/img/2ffc05901356.png", "assets/img/301f2cac6022.jpg", "assets/img/306a6e71f279.jpg", "assets/img/30e0bc34fee2.png", "assets/img/32ac7b864bef.jpg", "assets/img/334dad3150ab.jpg", "assets/img/34f1c66b1d2c.png", "assets/img/369675c6202d.jpg", "assets/img/3a7937400697.jpg", "assets/img/3c5a4476db0e.png", "assets/img/3cabb986641d.jpg", "assets/img/3e2cd69e245e.jpg", "assets/img/3e368c0716ca.jpg", "assets/img/3ef354922ae1.jpg", "assets/img/40dfc9ef3b1e.jpg", "assets/img/4115eb3a7886.jpg", "assets/img/413213fec2de.jpg", "assets/img/4204803eedf2.png", "assets/img/43f3f9b508d1.png", "assets/img/4514699b7680.jpg", "assets/img/459e334d6b50.jpg", "assets/img/45d1bc218c14.jpg", "assets/img/47440e6ea977.jpg", "assets/img/47c2cdd69449.jpg", "assets/img/480394a2a7b9.jpg", "assets/img/483fb210596b.png", "assets/img/489424610072.png", "assets/img/49ccd2a3e086.jpg", "assets/img/4c9e81f2c773.jpg", "assets/img/5039f69ffbc4.jpg", "assets/img/5099b4b143ed.jpg", "assets/img/51765cc4c9fb.jpg", "assets/img/526dea67517b.jpg", "assets/img/52a228ab2da2.jpg", "assets/img/53d210160900.jpg", "assets/img/546ed47f6153.png", "assets/img/55bf024c031d.jpg", "assets/img/5641361f4e3c.png", "assets/img/56b029cdcb9a.jpg", "assets/img/56e38cfc4248.jpg", "assets/img/592b87e837d2.png", "assets/img/59799cdbb3b8.jpg", "assets/img/5a53d9bdc30a.png", "assets/img/5a7ea550a7a9.png", "assets/img/5ab136d026b7.jpg", "assets/img/5c3a22ff1726.jpg", "assets/img/5cbd55c45c2a.jpg", "assets/img/5da1ce2fd424.png", "assets/img/5e5048c18846.png", "assets/img/5e631b3bfecd.png", "assets/img/6001b506c85f.png", "assets/img/6017da9ca0ef.jpg", "assets/img/61a25415cf10.jpg", "assets/img/663b0e9b87b3.jpg", "assets/img/67608dad3545.png", "assets/img/696cc69a2b64.png", "assets/img/6acffa00c80a.jpg", "assets/img/6bf1da3ad9b8.png", "assets/img/6ce607d25f71.png", "assets/img/6d7b1a8a92d4.jpg", "assets/img/6dd0db2ba5a2.jpg", "assets/img/6ee34f92a3c0.jpg", "assets/img/6f35c3dd11c0.png", "assets/img/6f3eaded7563.png", "assets/img/6f86764d39a7.jpg", "assets/img/6fb8bd4efafa.png", "assets/img/7089b6ff4940.png", "assets/img/70e96312ea40.png", "assets/img/71a333c7f60f.jpg", "assets/img/749daeedc1e9.png", "assets/img/75b48fc0b85a.jpg", "assets/img/786d1e9ad3b6.jpg", "assets/img/78ab15294211.jpg", "assets/img/79e9b8579cb5.jpg", "assets/img/7a3f9cd145a2.jpg", "assets/img/7ca8eb1612b7.jpg", "assets/img/7f218ae9d1f2.jpg", "assets/img/7f62ff60d0cd.jpg", "assets/img/80471628d268.jpg", "assets/img/815443799ac2.jpg", "assets/img/827781ef8d62.png", "assets/img/8297f4a4ca00.jpg", "assets/img/83d48576ffb7.png", "assets/img/862dc49eefde.png", "assets/img/87adb6b35f6c.png", "assets/img/8826aeba1213.jpg", "assets/img/8b3602b3557b.png", "assets/img/8b3a0cf76973.jpg", "assets/img/8c786832ffbf.jpg", "assets/img/8c95c4dc7693.jpg", "assets/img/8d2a5fadce2c.jpg", "assets/img/8de75d0d1b89.jpg", "assets/img/8f665d0767d1.jpg", "assets/img/92bb828180ea.jpg", "assets/img/92ec9444cca1.jpg", "assets/img/9493a5078f97.png", "assets/img/949e2b736e03.jpg", "assets/img/9605267c3ba4.png", "assets/img/96ff7c1e7bda.png", "assets/img/97238020b5d6.png", "assets/img/97a8ed597097.jpg", "assets/img/9ad7ed67d6cc.jpg", "assets/img/9b66c306299e.jpg", "assets/img/9b850b68e478.jpg", "assets/img/9caf5a9833be.png", "assets/img/9d1ce115739d.jpg", "assets/img/9d8cae710e6f.png", "assets/img/9eff4aad67fe.png", "assets/img/a0a77f7d49f4.jpg", "assets/img/a0fd649642c7.png", "assets/img/a2adec13cc42.jpg", "assets/img/a40ef7d0eb6f.jpg", "assets/img/a5fec4dcc9c0.jpg", "assets/img/a653466280ae.jpg", "assets/img/a6a843fb2542.jpg", "assets/img/a7e8c2f432ef.jpg", "assets/img/a8ab976aa53b.jpg", "assets/img/adf50639b6f4.jpg", "assets/img/ae00327ce32a.jpg", "assets/img/ae5fcc814bbd.png", "assets/img/afffc53b02ee.jpg", "assets/img/b08d304c26cd.jpg", "assets/img/b0d30aa3a942.jpg", "assets/img/b769beab6a48.png", "assets/img/b789a7bb3834.jpg", "assets/img/b7a271fd04e7.jpg", "assets/img/b8d3dbe7109d.png", "assets/img/b90620b64bdf.jpg", "assets/img/b96cc48906af.jpg", "assets/img/b996d3576f06.jpg", "assets/img/bc8d39edc803.jpg", "assets/img/be745b4cc3fa.jpg", "assets/img/bf5a77b8958b.jpg", "assets/img/c0a051f50259.jpg", "assets/img/c2b244afd5b6.png", "assets/img/c33165164ae0.jpg", "assets/img/c4a70576ef7f.png", "assets/img/c52fd6cf09d3.jpg", "assets/img/c66d774970c2.jpg", "assets/img/c6d5d857f212.jpg", "assets/img/c89426040269.jpg", "assets/img/cbe276becc13.jpg", "assets/img/cce3a06d60f5.jpg", "assets/img/cf29e044b516.jpg", "assets/img/cffe6c922cb3.jpg", "assets/img/d0400b6a55de.jpg", "assets/img/d1531da03496.png", "assets/img/d1990fa1efa2.png", "assets/img/d1deb032f91b.jpg", "assets/img/d3540229b27b.jpg", "assets/img/d377ab86e4fc.jpg", "assets/img/d49999875db9.png", "assets/img/d5c9fdf3d721.png", "assets/img/d83aaed0caa7.jpg", "assets/img/d856c69178c8.jpg", "assets/img/d9bedaed4503.jpg", "assets/img/da3d20a492a6.png", "assets/img/db273053feba.jpg", "assets/img/db9bfd649544.jpg", "assets/img/dbbb4eea5352.jpg", "assets/img/dc828893770b.jpg", "assets/img/dc97b8d47688.jpg", "assets/img/dd61fb68100c.jpg", "assets/img/dd97a6b4e1b4.jpg", "assets/img/ddc7f6160cbe.jpg", "assets/img/df301e031128.jpg", "assets/img/dfbfa5e1ec54.jpg", "assets/img/e0a34a6df16a.png", "assets/img/e258f7021c55.png", "assets/img/e2d548c85f58.png", "assets/img/e5eccf8182ba.jpg", "assets/img/e89a96199856.jpg", "assets/img/e94c22b13fb7.png", "assets/img/e95ca99f0133.jpg", "assets/img/eaa406207515.jpg", "assets/img/eba5114e6f09.png", "assets/img/ec118b3aa6e1.jpg", "assets/img/ecb8f50630ec.jpg", "assets/img/ed285a01a19b.jpg", "assets/img/ed34cc9a60ab.jpg", "assets/img/ed8ec6fb4820.jpg", "assets/img/ee62cf9039bf.jpg", "assets/img/f19cf7804bbc.jpg", "assets/img/f1cb64ab46fe.jpg", "assets/img/f2c4c46f0472.jpg", "assets/img/f36c90f4b70f.jpg", "assets/img/f3b1db35d295.png", "assets/img/f5d77d14d77e.jpg", "assets/img/f6519a041835.jpg", "assets/img/f73f19499edc.jpg", "assets/img/f86ec6de6bd5.png", "assets/img/f94bbc83db98.jpg", "assets/img/fa0cb1eab6e0.png", "assets/img/fa374e0d7310.jpg", "assets/img/fa6a2da1c441.jpg", "assets/img/fc884ae8f4be.png", "assets/img/fd0d9392510f.jpg", "assets/img/fdea50835e6b.jpg", "assets/img/fe087a1c7c5a.jpg", "assets/img/fe41849026f7.jpg", "assets/img/ff4586508418.png"];
+const PRELOAD_ASSETS = ["assets/img/004e67071e47.png", "assets/img/006f79520842.png", "assets/img/00875d71a494.png", "assets/img/00a97068b6f7.jpg", "assets/img/00c12e2cc7c7.jpg", "assets/img/014b865afa6e.png", "assets/img/015a6525a86c.jpg", "assets/img/01c08357b77e.png", "assets/img/021541eb2763.png", "assets/img/021ef5198f26.jpg", "assets/img/035ca7b3734d.png", "assets/img/045cb17ab57b.jpg", "assets/img/053894260f95.png", "assets/img/057b80ec00cb.jpg", "assets/img/09008c2f430b.png", "assets/img/0bf39f8e7c9b.png", "assets/img/0ce916577126.png", "assets/img/0e4481fd512f.png", "assets/img/0e86c9af1a46.jpg", "assets/img/0eb7823f010f.jpg", "assets/img/0f9c45b9dbde.jpg", "assets/img/0feb135732b8.jpg", "assets/img/117b9414f489.jpg", "assets/img/11898415458d.jpg", "assets/img/118c27c4974e.jpg", "assets/img/12b48f4ddd48.png", "assets/img/15ca5f7daa3d.jpg", "assets/img/17f37adbb638.jpg", "assets/img/183015193538.png", "assets/img/188be6a96ed6.jpg", "assets/img/18d98d1e1352.jpg", "assets/img/18f9db059968.jpg", "assets/img/1a199371cace.png", "assets/img/1c4b08f43b31.jpg", "assets/img/1dad5bb47b00.jpg", "assets/img/1f9e60ed5fe2.jpg", "assets/img/1fdfe3198781.jpg", "assets/img/2018781b23af.jpg", "assets/img/20a8df8353ff.jpg", "assets/img/2336d7eabaaa.jpg", "assets/img/243c5f78979e.jpg", "assets/img/24c2af74e5bd.jpg", "assets/img/284619ab69e7.jpg", "assets/img/28bb0e99c897.jpg", "assets/img/28dafe336c05.jpg", "assets/img/2a1b2b410f5c.jpg", "assets/img/2a45ebb2b484.jpg", "assets/img/2ae10e9607b4.jpg", "assets/img/2b5a3881255d.png", "assets/img/2b9657f51881.jpg", "assets/img/2da789635802.jpg", "assets/img/2f20a2dc5a5a.jpg", "assets/img/2ffc05901356.png", "assets/img/301f2cac6022.jpg", "assets/img/306a6e71f279.jpg", "assets/img/30e0bc34fee2.png", "assets/img/32ac7b864bef.jpg", "assets/img/334dad3150ab.jpg", "assets/img/34f1c66b1d2c.png", "assets/img/369675c6202d.jpg", "assets/img/369e1bb259a4.jpg", "assets/img/3a7937400697.jpg", "assets/img/3c5a4476db0e.png", "assets/img/3cabb986641d.jpg", "assets/img/3e2cd69e245e.jpg", "assets/img/3e368c0716ca.jpg", "assets/img/3ef354922ae1.jpg", "assets/img/3ef764d664da.jpg", "assets/img/40dfc9ef3b1e.jpg", "assets/img/4115eb3a7886.jpg", "assets/img/413213fec2de.jpg", "assets/img/4204803eedf2.png", "assets/img/43f3f9b508d1.png", "assets/img/4514699b7680.jpg", "assets/img/459e334d6b50.jpg", "assets/img/45d1bc218c14.jpg", "assets/img/47440e6ea977.jpg", "assets/img/47c2cdd69449.jpg", "assets/img/480394a2a7b9.jpg", "assets/img/483fb210596b.png", "assets/img/489424610072.png", "assets/img/49ccd2a3e086.jpg", "assets/img/4c9e81f2c773.jpg", "assets/img/5039f69ffbc4.jpg", "assets/img/5099b4b143ed.jpg", "assets/img/51765cc4c9fb.jpg", "assets/img/526dea67517b.jpg", "assets/img/52a228ab2da2.jpg", "assets/img/53d210160900.jpg", "assets/img/546ed47f6153.png", "assets/img/55bf024c031d.jpg", "assets/img/5641361f4e3c.png", "assets/img/56b029cdcb9a.jpg", "assets/img/56e38cfc4248.jpg", "assets/img/592b87e837d2.png", "assets/img/59799cdbb3b8.jpg", "assets/img/5a53d9bdc30a.png", "assets/img/5a7ea550a7a9.png", "assets/img/5ab136d026b7.jpg", "assets/img/5c3a22ff1726.jpg", "assets/img/5cbd55c45c2a.jpg", "assets/img/5da1ce2fd424.png", "assets/img/5e5048c18846.png", "assets/img/5e631b3bfecd.png", "assets/img/5e8fad514cbb.jpg", "assets/img/6001b506c85f.png", "assets/img/6017da9ca0ef.jpg", "assets/img/61a25415cf10.jpg", "assets/img/663b0e9b87b3.jpg", "assets/img/67608dad3545.png", "assets/img/696cc69a2b64.png", "assets/img/6acffa00c80a.jpg", "assets/img/6bf1da3ad9b8.png", "assets/img/6ce607d25f71.png", "assets/img/6d08d74b28ff.jpg", "assets/img/6d7b1a8a92d4.jpg", "assets/img/6dd0db2ba5a2.jpg", "assets/img/6ee34f92a3c0.jpg", "assets/img/6f35c3dd11c0.png", "assets/img/6f3eaded7563.png", "assets/img/6f86764d39a7.jpg", "assets/img/6fb8bd4efafa.png", "assets/img/7089b6ff4940.png", "assets/img/70e96312ea40.png", "assets/img/71a333c7f60f.jpg", "assets/img/749daeedc1e9.png", "assets/img/75b48fc0b85a.jpg", "assets/img/786d1e9ad3b6.jpg", "assets/img/78ab15294211.jpg", "assets/img/79e9b8579cb5.jpg", "assets/img/7a3f9cd145a2.jpg", "assets/img/7ca8eb1612b7.jpg", "assets/img/7f218ae9d1f2.jpg", "assets/img/7f62ff60d0cd.jpg", "assets/img/80471628d268.jpg", "assets/img/815443799ac2.jpg", "assets/img/827781ef8d62.png", "assets/img/8297f4a4ca00.jpg", "assets/img/83d48576ffb7.png", "assets/img/862dc49eefde.png", "assets/img/87adb6b35f6c.png", "assets/img/8826aeba1213.jpg", "assets/img/8b3602b3557b.png", "assets/img/8b3a0cf76973.jpg", "assets/img/8c786832ffbf.jpg", "assets/img/8c95c4dc7693.jpg", "assets/img/8d2a5fadce2c.jpg", "assets/img/8de75d0d1b89.jpg", "assets/img/8f396ce6b05e.jpg", "assets/img/8f665d0767d1.jpg", "assets/img/92bb828180ea.jpg", "assets/img/92ec9444cca1.jpg", "assets/img/9493a5078f97.png", "assets/img/949e2b736e03.jpg", "assets/img/9605267c3ba4.png", "assets/img/96ff7c1e7bda.png", "assets/img/97238020b5d6.png", "assets/img/97a8ed597097.jpg", "assets/img/9ad7ed67d6cc.jpg", "assets/img/9b66c306299e.jpg", "assets/img/9b850b68e478.jpg", "assets/img/9bcfee950983.jpg", "assets/img/9caf5a9833be.png", "assets/img/9d1ce115739d.jpg", "assets/img/9d8cae710e6f.png", "assets/img/9eff4aad67fe.png", "assets/img/a0a77f7d49f4.jpg", "assets/img/a0fd649642c7.png", "assets/img/a2adec13cc42.jpg", "assets/img/a40ef7d0eb6f.jpg", "assets/img/a5fec4dcc9c0.jpg", "assets/img/a653466280ae.jpg", "assets/img/a6a843fb2542.jpg", "assets/img/a7e8c2f432ef.jpg", "assets/img/a8ab976aa53b.jpg", "assets/img/adf50639b6f4.jpg", "assets/img/ae00327ce32a.jpg", "assets/img/ae5fcc814bbd.png", "assets/img/afffc53b02ee.jpg", "assets/img/b08d304c26cd.jpg", "assets/img/b0d30aa3a942.jpg", "assets/img/b769beab6a48.png", "assets/img/b789a7bb3834.jpg", "assets/img/b7a271fd04e7.jpg", "assets/img/b88af848f4c5.jpg", "assets/img/b8d3dbe7109d.png", "assets/img/b90620b64bdf.jpg", "assets/img/b96cc48906af.jpg", "assets/img/b996d3576f06.jpg", "assets/img/bc8d39edc803.jpg", "assets/img/be745b4cc3fa.jpg", "assets/img/bf5a77b8958b.jpg", "assets/img/c0a051f50259.jpg", "assets/img/c2b244afd5b6.png", "assets/img/c33165164ae0.jpg", "assets/img/c4a70576ef7f.png", "assets/img/c52fd6cf09d3.jpg", "assets/img/c66d774970c2.jpg", "assets/img/c6d5d857f212.jpg", "assets/img/c89426040269.jpg", "assets/img/cbcc4352e2b9.jpg", "assets/img/cbe276becc13.jpg", "assets/img/cce3a06d60f5.jpg", "assets/img/cf29e044b516.jpg", "assets/img/cffe6c922cb3.jpg", "assets/img/d0400b6a55de.jpg", "assets/img/d1531da03496.png", "assets/img/d1990fa1efa2.png", "assets/img/d1deb032f91b.jpg", "assets/img/d3540229b27b.jpg", "assets/img/d377ab86e4fc.jpg", "assets/img/d49999875db9.png", "assets/img/d5c9fdf3d721.png", "assets/img/d83aaed0caa7.jpg", "assets/img/d856c69178c8.jpg", "assets/img/d9bedaed4503.jpg", "assets/img/da3d20a492a6.png", "assets/img/db273053feba.jpg", "assets/img/db9bfd649544.jpg", "assets/img/dbbb4eea5352.jpg", "assets/img/dc828893770b.jpg", "assets/img/dc97b8d47688.jpg", "assets/img/dd61fb68100c.jpg", "assets/img/dd97a6b4e1b4.jpg", "assets/img/ddc7f6160cbe.jpg", "assets/img/df301e031128.jpg", "assets/img/dfbfa5e1ec54.jpg", "assets/img/e054559e5bde.jpg", "assets/img/e0a34a6df16a.png", "assets/img/e1ce54443450.jpg", "assets/img/e258f7021c55.png", "assets/img/e2d548c85f58.png", "assets/img/e5eccf8182ba.jpg", "assets/img/e89a96199856.jpg", "assets/img/e94c22b13fb7.png", "assets/img/e95ca99f0133.jpg", "assets/img/eaa406207515.jpg", "assets/img/eba5114e6f09.png", "assets/img/ec118b3aa6e1.jpg", "assets/img/ecb8f50630ec.jpg", "assets/img/ed285a01a19b.jpg", "assets/img/ed34cc9a60ab.jpg", "assets/img/ed8ec6fb4820.jpg", "assets/img/ee62cf9039bf.jpg", "assets/img/f19cf7804bbc.jpg", "assets/img/f1cb64ab46fe.jpg", "assets/img/f2c4c46f0472.jpg", "assets/img/f36c90f4b70f.jpg", "assets/img/f3b1db35d295.png", "assets/img/f5d77d14d77e.jpg", "assets/img/f6519a041835.jpg", "assets/img/f73f19499edc.jpg", "assets/img/f86ec6de6bd5.png", "assets/img/f94bbc83db98.jpg", "assets/img/fa0cb1eab6e0.png", "assets/img/fa374e0d7310.jpg", "assets/img/fa6a2da1c441.jpg", "assets/img/fc884ae8f4be.png", "assets/img/fd0d9392510f.jpg", "assets/img/fdea50835e6b.jpg", "assets/img/fe087a1c7c5a.jpg", "assets/img/fe41849026f7.jpg", "assets/img/ff4586508418.png"];
 const AI_SPRITES = {
   // v15e9: 신규 20명 (단일 이미지 - frame2 등급은 _f1 이 없으면 이 키로 폴백)
   "mythic|백수해적단 킹": "assets/img/b789a7bb3834.jpg",
@@ -3500,7 +3500,8 @@ function initState(diffKey){
   document.querySelectorAll(".autoStashCk").forEach(ck=>{ ck.checked = false; });
   FINAL_ROUND = FINAL_ROUND_BY_DIFF[diffKey] || 55;
   _midClearShown = {};   // v15e5: 새 게임마다 중간 클리어 팝업 이력 초기화
-  _midBossDone = {};     // v15f0: 중간보스 등장 이력 초기화   // v15bn: 난이도별 최종 라운드 반영
+  _midBossDone = {};     // v15f0: 중간보스 등장 이력 초기화
+  _chainBoomUntil = 0; _chainBoomMult = 0;   // v15f2: 고유기 지속 상태 초기화   // v15bn: 난이도별 최종 라운드 반영
   state = {
     diff: DIFFS[diffKey], diffKey,
     round:1, roundTime:ROUND_LEN,
@@ -3735,6 +3736,7 @@ function spawnMonster(){
   m.spawnD = m.d; m.lapCounted = false;   // v15bs: 완주(1바퀴) 판정 기준점
   m.hp=s.hp; m.maxHp=s.hp; m.speed=s.speed; m.reward=s.reward;
   m.armor=s.armor; m.rank=s.rank; m.boss=false; m.slow=0; m.stun=0;
+  m.stunPulses = null; m.slowStrongUntil = 0; m._armorSave = null; m._armorCurseUntil = 0;   // v15f2: 고유기 잔여 상태 초기화 (몬스터 풀 재사용 대비)
   m.name=""; m.bossColor=""; m.elite=false; m.finalBoss=false;
   // 아크별 혼성 비율 + 병종 이름 할당
   const spArc = arcOf(state.round);
@@ -3960,6 +3962,7 @@ function spawnBoss(round){
   m.armor = Math.round((MARINE_RANKS[rankOf(round)].armor + Math.max(0, round-7)*4 + Math.max(0, round-25)*Math.max(0, round-25)*0.3) * state.diff.armor * 2.6);
   m.rank = rankOf(round);
   m.boss = true; m.slow = 0; m.stun = 0; m.elite = false; m.faction = "marine";
+  m.stunPulses = null; m.slowStrongUntil = 0; m._armorSave = null; m._armorCurseUntil = 0;   // v15f2: 고유기 잔여 상태 초기화 (몬스터 풀 재사용 대비)
   m.name = BOSSES[round] || "해군 본부";
   m.bossColor = BOSS_COLORS[round] || "#2b3c54";
   m.finalBoss = (round === FINAL_ROUND);
@@ -5503,6 +5506,7 @@ function spawnMidBoss(round){
   m.armor = Math.round(s.armor * 2.8 * 1.25);             // v15k: 중간보스 25% 강화
   m.rank = rankOf(round);
   m.boss = false; m.slow = 0; m.stun = 0; m.finalBoss = false;
+  m.stunPulses = null; m.slowStrongUntil = 0; m._armorSave = null; m._armorCurseUntil = 0;   // v15f2: 고유기 잔여 상태 초기화 (몬스터 풀 재사용 대비)
   m.elite = true; m.bounty = true;
   m.faction = Math.random() < 0.5 ? "marine" : "pirate";
   m.name = name;
@@ -5528,6 +5532,7 @@ function triggerEvent(){
     m.d=0; m.spawnD=0; m.lapCounted=false; m.hp=m.maxHp=s.hp*10; m.speed=s.speed*0.7;
     m.armor=Math.round(s.armor*2); m.rank=s.rank;
     m.boss=false; m.slow=0; m.stun=0; m.elite=true; m.finalBoss=false;
+    m.stunPulses = null; m.slowStrongUntil = 0; m._armorSave = null; m._armorCurseUntil = 0;   // v15f2: 고유기 잔여 상태 초기화
     m.faction = "pirate";
     m.name = getBountyName();
     m.bounty = true;
@@ -5883,6 +5888,48 @@ function pctMaxHpDmg(m, pct){
   m._pctUsed += give;
   return give;
 }
+// =========================================================
+//  v15f2: 패왕 전용 고유기 (스킬3)
+// =========================================================
+// 배율 설계 - 타격 범위가 넓을수록 배율을 낮춘다.
+//   전체 필드 4.0 < 다중 낙하 5.0 < 광역 5.5~6.0 < 단일 연쇄 8.0
+// 동결/시간지연/저주/쿨초기화/소환은 '효과가 본체'라 배율 0 (피해 없음).
+// 고유기 쿨타임은 쿨감을 받아도 8초 밑으로 내려가지 않는다(ULT_MIN_CD).
+const ULT_MIN_CD = 8;
+const ULT_FX_IMAGES = {
+  "field_nuke": "assets/img/cbcc4352e2b9.jpg",
+  "cd_reset": "assets/img/3ef764d664da.jpg",
+  "curse_armor": "assets/img/5e8fad514cbb.jpg",
+  "gravity": "assets/img/e1ce54443450.jpg",
+  "freeze": "assets/img/8f396ce6b05e.jpg",
+  "chain_boom": "assets/img/b88af848f4c5.jpg",
+  "lifesteal": "assets/img/6d08d74b28ff.jpg",
+  "summon": "assets/img/2336d7eabaaa.jpg",
+  "time_slow": "assets/img/18d98d1e1352.jpg",
+  "meteor": "assets/img/e054559e5bde.jpg",
+  "chain_bounce": "assets/img/9bcfee950983.jpg",
+  "lottery": "assets/img/369e1bb259a4.jpg"
+};
+let _chainBoomUntil = 0, _chainBoomMult = 0;   // 연쇄폭발 지속 상태
+
+function _ultDmg(def, m, mult){
+  if(!mult) return 0;
+  const A = state.aura;
+  const base = def.dmg * mult * state.synDmg * (1 + A.atk) * (1 + A.skillDmg);
+  const pct  = (m.boss || m.elite) ? SKILL_PCT_V * 0.5 : SKILL_PCT_V;
+  return Math.round((base + pctMaxHpDmg(m, pct)) * (1 + A.dmgTaken) * combatDmgMult(def, m));
+}
+// 스턴은 pulse 누적 방식(합계 3이면 최저속). 완전 정지를 원하면 value 3 을 넣는다.
+function _ultStun(m, value, dur){
+  if(!m.stunPulses) m.stunPulses = [];
+  m.stunPulses.push({ value, until: state.time + dur });
+}
+function _ultFx(x, y, color, kind, radius, dur){
+  const fx = poolGet(fxPool);
+  fx.kind = kind; fx.color = color; fx.t = 0; fx.dur = dur || 0.7;
+  fx.x = x; fx.y = y; fx.lines = null; fx.max = radius || 300;
+  state.fx.push(fx);
+}
 function fireSkill(u, def, sk){
   sk = sk || def.skill;
   // 초절대자 스킬 → 바운스 이펙트 트리거
@@ -5896,6 +5943,151 @@ function fireSkill(u, def, sk){
   if(sk.radius && sk.radius < MIN_RANGE_PX){
     sk = Object.assign({}, sk, { radius: Math.round(MIN_RANGE_PX) });
   }
+  // ── v15f2: 패왕 고유기 ────────────────────────────────────────────
+  if(sk.ult){
+    if(state.monsters.length === 0) return false;      // 빈 필드에 낭비하지 않는다
+    const R = sk.radius || 400;
+    const inR = ()=> state.monsters.filter(m=>{
+      const p = pathPos(m.d), dx = p.x - u.x, dy = p.y - u.y;
+      return dx*dx + dy*dy <= R*R;
+    });
+    _ultFx(u.x, u.y, sk.color, sk.ult, Math.min(R, 620), 0.75);
+    state.shake = Math.max(state.shake, 12);
+    SFX.skill();
+    switch(sk.ult){
+      case "field_nuke":                    // 흰수염 — 필드 전체 타격
+        state.monsters.forEach(m=> applyCombatDmg(def, m, _ultDmg(def, m, sk.mult)));
+        state.shake = Math.max(state.shake, 24);
+        addLog(`💥 <b style="color:${sk.color}">${sk.type}</b> — 필드 전체를 뒤흔들었다!`);
+        break;
+
+      case "cd_reset":                      // 샹크스 — 확률로 자신 쿨 전체 초기화
+        if(Math.random() < (sk.chance || 0.6)){
+          u.skillCd = 0; u.skillCd2 = 0;
+          addLog(`🔁 <b style="color:${sk.color}">${sk.type}</b> — 스킬 쿨타임 초기화!`);
+        }
+        break;
+
+      case "curse_armor": {                 // 록스 — 보스/정예 방어력을 일정 시간 0 으로
+        const until = state.time + (sk.dur || 6);
+        let n = 0;
+        state.monsters.forEach(m=>{
+          if(!(m.boss || m.elite || m.midBoss)) return;
+          if(m._armorSave == null) m._armorSave = m.armor;
+          m.armor = 0; m._armorCurseUntil = until; n++;
+        });
+        if(n) addLog(`☠ <b style="color:${sk.color}">${sk.type}</b> — 보스/정예 방어력 ${sk.dur}초간 무효화!`);
+        break;
+      }
+
+      case "gravity":                       // 검은수염 — 경로 뒤로 끌어당기며 피해
+        inR().forEach(m=>{
+          m.d = Math.max(m.spawnD || 0, m.d - (sk.pull || 90));
+          applyCombatDmg(def, m, _ultDmg(def, m, sk.mult));
+        });
+        break;
+
+      case "freeze": {                      // 오뎅 — 완전 동결 (피해 없음)
+        const t = inR();
+        t.forEach(m=> _ultStun(m, 3, sk.dur || 5));
+        if(t.length) addLog(`❄ <b style="color:${sk.color}">${sk.type}</b> — 범위 내 ${t.length}기 ${sk.dur}초간 동결!`);
+        break;
+      }
+
+      case "chain_boom":                    // 가반 — 일정 시간 처치 시 연쇄 폭발
+        _chainBoomUntil = state.time + (sk.dur || 8);
+        _chainBoomMult  = sk.mult || 3;
+        addLog(`💣 <b style="color:${sk.color}">${sk.type}</b> — ${sk.dur}초간 처치 시 주변 연쇄폭발!`);
+        break;
+
+      case "lifesteal": {                   // 에이스 — 피해를 흡수해 아군 공격력으로
+        let total = 0;
+        inR().forEach(m=>{ const d = _ultDmg(def, m, sk.mult); total += d; applyCombatDmg(def, m, d); });
+        if(total > 0){
+          pulseHiddenBuff(u, "atk", sk.atk || 0.3, state.time + (sk.dur || 6));
+          addLog(`🩸 <b style="color:${sk.color}">${sk.type}</b> — 아군 공격력 +${Math.round((sk.atk||0.3)*100)}% (${sk.dur}초)`);
+        }
+        break;
+      }
+
+      case "summon": {                      // 니카 루피 — 보유 캐릭터를 임시 복제 소환
+        const slot = SLOTS.find(s=>!s.unit);
+        const pool = state.units.filter(x=>x !== u && !x.tempUntil && UNIT_DEFS[x.defId].grade !== "overlord");
+        if(slot && pool.length){
+          const src = pool[Math.floor(Math.random()*pool.length)];
+          // placeUnit 은 등장 연출/TTS/일시정지를 동반하므로 소환에는 쓰지 않는다.
+          const nu = { defId:src.defId, x:slot.x, y:slot.y, cd:0, skillCd:1, skillCd2:2, skillCd3:99999,
+                       slot, locked:false, tempUntil: state.time + (sk.dur || 12) };
+          slot.unit = nu; state.units.push(nu); recalcSynergy();
+          addLog(`✨ <b style="color:${sk.color}">${sk.type}</b> — ${UNIT_DEFS[src.defId].name} ${sk.dur}초간 소환!`);
+        }
+        break;
+      }
+
+      case "time_slow": {                   // 사보 — 이동속도 대폭 감소 (피해 없음)
+        const until = state.time + (sk.dur || 6);
+        const t = inR();
+        t.forEach(m=>{ m.slowStrongUntil = until; });
+        if(t.length) addLog(`🕸 <b style="color:${sk.color}">${sk.type}</b> — 범위 내 이동속도 -70% (${sk.dur}초)`);
+        break;
+      }
+
+      case "meteor": {                      // 료쿠규 — 무작위 지점 다중 낙하
+        const n = sk.count || 4, rr = sk.radius2 || 230;
+        for(let i=0;i<n;i++){
+          const c = pathPos(Math.random() * PERIM);
+          state.monsters.forEach(m=>{
+            const p = pathPos(m.d), dx = p.x - c.x, dy = p.y - c.y;
+            if(dx*dx + dy*dy <= rr*rr){
+              applyCombatDmg(def, m, _ultDmg(def, m, sk.mult));
+              _ultStun(m, 1, sk.stun || 1.5);
+            }
+          });
+          _ultFx(c.x, c.y, sk.color, "ring", rr, 0.5);
+        }
+        break;
+      }
+
+      case "chain_bounce": {                // 로저 — 가까운 순으로 튕기며 전파
+        let cur = { x:u.x, y:u.y };
+        const hit = new Set();
+        for(let i=0;i<(sk.bounces||6);i++){
+          let best = null, bd = Infinity;
+          for(const m of state.monsters){
+            if(hit.has(m)) continue;
+            const p = pathPos(m.d), dx = p.x - cur.x, dy = p.y - cur.y, d2 = dx*dx + dy*dy;
+            if(d2 < bd){ bd = d2; best = m; }
+          }
+          if(!best) break;
+          hit.add(best);
+          applyCombatDmg(def, best, _ultDmg(def, best, sk.mult));
+          const bp = pathPos(best.d);
+          _ultFx(bp.x, bp.y, sk.color, "ring", 90, 0.35);
+          cur = bp;
+        }
+        break;
+      }
+
+      case "lottery": {                     // 버기 — 무작위 결과 (꽝 포함)
+        const r = Math.random();
+        if(r < 0.25){
+          pulseHiddenBuff(u, "atk", 2.0, state.time + 5);
+          addLog(`🎰 <b style="color:${sk.color}">${sk.type}</b> — 대박! 아군 공격력 3배 (5초)`);
+        }else if(r < 0.5){
+          state.monsters.forEach(m=> applyCombatDmg(def, m, _ultDmg(def, m, sk.mult)));
+          addLog(`🎰 <b style="color:${sk.color}">${sk.type}</b> — 필드 전체 공격!`);
+        }else if(r < 0.75){
+          u.skillCd = 0; u.skillCd2 = 0;
+          addLog(`🎰 <b style="color:${sk.color}">${sk.type}</b> — 스킬 쿨타임 초기화!`);
+        }else{
+          addLog(`🎰 <b style="color:${sk.color}">${sk.type}</b> — 꽝...`);
+        }
+        break;
+      }
+    }
+    return true;
+  }
+
   const inRange = state.monsters.filter(m=>{
     const p = pathPos(m.d);
     const _dx = p.x-u.x, _dy = p.y-u.y;
@@ -6268,6 +6460,7 @@ function spawnNamedMidBoss(round){
   m.boss = false; m.elite = true; m.finalBoss = false;   // 보스 판정과 분리 (보스 타이머/음악 없음)
   m.midBoss = true; m.midBossRound = round;
   m.slow = 0; m.stun = 0; m.bounty = false;
+  m.stunPulses = null; m.slowStrongUntil = 0; m._armorSave = null; m._armorCurseUntil = 0;   // v15f2: 고유기 잔여 상태 초기화 (몬스터 풀 재사용 대비)
   m.faction = "pirate";
   m.name = cfg.name;
   m.bossColor = cfg.color;
@@ -6448,6 +6641,16 @@ function update(dt){
       try{ SFX.bossDie(); }catch(e){}
       showMidBossReward(m.midBossRound);
     }
+    // v15f2: 연쇄폭발 지속 중이면 처치 지점 주변에 추가 피해
+    if(_chainBoomUntil && state.time < _chainBoomUntil){
+      const cp = pathPos(m.d), CR = 220;
+      state.monsters.forEach(o=>{
+        if(o === m) return;
+        const p = pathPos(o.d), dx = p.x - cp.x, dy = p.y - cp.y;
+        if(dx*dx + dy*dy <= CR*CR) o.hp -= Math.round(o.maxHp * 0.015 * _chainBoomMult);
+      });
+      _ultFx(cp.x, cp.y, "#ffb02e", "ring", CR, 0.35);
+    }
     m.bounty = false;
     removeLapCounted(m);
     swapRemove(state.monsters, i);
@@ -6455,6 +6658,15 @@ function update(dt){
   }
 
 
+  // v15f2: 임시 소환 유닛 만료 → 슬롯 반납
+  for(let i=state.units.length-1;i>=0;i--){
+    const tu = state.units[i];
+    if(tu.tempUntil && state.time >= tu.tempUntil){
+      if(tu.slot && tu.slot.unit === tu) tu.slot.unit = null;
+      state.units.splice(i,1);
+      recalcSynergy();
+    }
+  }
   // v15n: 히든/절대 근접디버프+아군버프 스킬의 임시 aura 펄스를 baseAura 위에 합산 반영
   // (armorRed는 여러 시전자 펄스가 전부 중첩 합산, 나머지 수치는 활성 펄스 중 최댓값 1개만 적용)
   {
@@ -6535,7 +6747,14 @@ function update(dt){
     const stunMult = monsterStunSpeedMult(m);
     const slowAura = m.boss ? state.aura.slowBoss : state.aura.slow;
     const bossSpeedMult = (m.speedBoost && m.hp <= m.maxHp*m.speedBoostThresh) ? m.speedBoostMult : 1;
-    m.d += m.speed * bossSpeedMult * stunMult * (m.slow > 0 ? 0.5 : 1) * (1 - slowAura) * dt;
+    // v15f2: 시간지연 고유기 - 이동속도 70% 감소
+    const _tSlow = (m.slowStrongUntil && state.time < m.slowStrongUntil) ? 0.3 : 1;
+    m.d += m.speed * bossSpeedMult * stunMult * (m.slow > 0 ? 0.5 : 1) * _tSlow * (1 - slowAura) * dt;
+    // v15f2: 방어력 저주 만료 시 원래 방어력 복구
+    if(m._armorCurseUntil && state.time >= m._armorCurseUntil){
+      if(m._armorSave != null) m.armor = m._armorSave;
+      m._armorSave = null; m._armorCurseUntil = 0;
+    }
     // v15bs: 필드 카운트는 이제 "현재 필드에 있는 수"가 아니라 "경로를 1바퀴 완주한 수" 기준 - 처치되면 반영 안 됨
     if(!m.lapCounted && (m.d - (m.spawnD||0)) >= PERIM){
       m.lapCounted = true;
@@ -6609,7 +6828,9 @@ function update(dt){
       u.skillCd3 = (u.skillCd3 == null ? 6 : u.skillCd3) - dt;
       if(u.skillCd3 <= 0){
         if(fireSkill(u, def, def.skill3)){
-          u.skillCd3 = def.skill3.cd * (1 - state.aura.cdr);
+          // v15f2: 고유기는 쿨감을 받아도 8초 밑으로 내려가지 않는다
+          const _c3 = def.skill3.cd * (1 - state.aura.cdr);
+          u.skillCd3 = def.skill3.ult ? Math.max(ULT_MIN_CD, _c3) : _c3;
           if(def.frame2) u.frame2Until = state.time + 0.6;
         }else u.skillCd3 = 0.4;
       }
@@ -6967,6 +7188,27 @@ function draw(){
       return;
     }
     ctx.globalAlpha = 1 - prog;
+    // v15f2: 패왕 고유기 - 전용 이펙트 이미지를 범위에 맞춰 확대하며 페이드아웃
+    const _ultSrc = ULT_FX_IMAGES[f.kind];
+    if(_ultSrc){
+      const im = getImg(_ultSrc);
+      if(im && im.complete && im.naturalWidth){
+        // 이펙트 원본은 검은 배경 JPG(알파 없음)라 그대로 그리면 검은 사각형이 얹힌다.
+        // 가산 합성(lighter)으로 올리면 검은 부분이 자연히 투명해진다.
+        const sz = Math.min(f.max, 300) * (0.9 + prog * 0.8);
+        ctx.save();
+        ctx.globalCompositeOperation = "lighter";
+        ctx.globalAlpha = (1 - prog) * 0.95;
+        ctx.drawImage(im, f.x - sz/2, f.y - sz/2, sz, sz);
+        ctx.restore();
+      }
+      ctx.globalAlpha = (1 - prog) * 0.6;
+      ctx.beginPath();
+      ctx.arc(f.x, f.y, Math.min(f.max, 300) * prog, 0, Math.PI*2);
+      ctx.strokeStyle = f.color; ctx.lineWidth = 3; ctx.stroke();
+      ctx.globalAlpha = 1;
+      return;
+    }
     if(f.kind === "ring"){
       ctx.beginPath();
       ctx.arc(f.x, f.y, f.max * prog, 0, Math.PI*2);
