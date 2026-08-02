@@ -216,7 +216,6 @@
                 font-size:15px; font-weight:bold; font-family:inherit; cursor:pointer; color:#1a1206;
                 background:linear-gradient(180deg,#ffd75e,#ff9f1c); border:2px solid #ffe9a8; border-radius:10px;
                 box-shadow:0 4px 0 #a35a00, 0 6px 16px rgba(0,0,0,.5);">건너뛰기 ▶</button>
-        <button id="introSoundBtn" style="position:absolute; bottom:20px; left:20px; z-index:1; padding:10px 18px; font-size:14px; font-weight:bold; background:rgba(20,20,28,.75); color:#fff; border:1px solid rgba(255,255,255,.5); border-radius:8px; cursor:pointer;">🔊 소리 켜기</button>
         <div style="display:none;">
           <h1 style="color:#ffe066; font-size:34px; letter-spacing:4px; text-shadow:0 2px 10px #000;">⚓ 원피스 랜덤 디펜스</h1>
           <button class="bigBtn" id="introStartBtn" style="font-size:20px; padding:16px 48px;">START</button>
@@ -245,6 +244,15 @@
 .uiHit:hover{ background:rgba(255,255,255,.16); }
 .uiHit:active{ background:rgba(0,0,0,.20); }
 .uiHit:focus-visible{ outline:3px solid #ffe066; outline-offset:2px; }
+/* v15e2: 마우스 클릭/터치 시 생기던 포커스 테두리와 탭 하이라이트 제거.
+   outline 을 전역으로 없애면 키보드 사용자가 위치를 알 수 없으므로,
+   ':focus:not(:focus-visible)' 로 "클릭했을 때만" 테두리를 없앤다.
+   (키보드 Tab 이동 시에는 :focus-visible 이 붙어 테두리가 그대로 보인다) */
+*{ -webkit-tap-highlight-color: transparent; }
+:focus:not(:focus-visible){ outline:none !important; box-shadow:none !important; }
+button::-moz-focus-inner{ border:0; }
+canvas{ outline:none; -webkit-tap-highlight-color:transparent; }
+canvas:focus, canvas:focus-visible{ outline:none; box-shadow:none; }
 /* v15dy: cover 로 채우면 세로 화면에서 좌우가 잘려 EASY/HELL 버튼을 누를 수 없었다.
    contain 으로 바꿔 이미지 전체가 항상 보이게 하고(=버튼도 항상 화면 안),
    남는 여백은 아래 .uiBackdrop 이 같은 이미지를 블러로 깔아 채운다. */
@@ -416,7 +424,6 @@
   // v15dm: 모바일 브라우저에서 click 만으로는 누락되는 경우가 있어 터치/포인터 계열을 모두 등록.
   //        중복 호출돼도 started 플래그 때문에 무해하다.
   function onTap(e){
-    if(e && e.target && e.target.id === "introSoundBtn") return;   // 소리 켜기 버튼은 제외
     // v15dw: 로딩 화면(#assetLoader)과 시작 화면(#startGate)은 #videoIntro 안쪽에 있어서
     //   그 내부 클릭이 여기까지 버블링된다. 그대로 두면 로딩 중 클릭이나 '게임 시작' 클릭이
     //   인트로 탭으로 잡혀 __introWantStart 가 켜지고, 준비되는 순간 인트로가 스킵된다.
@@ -7139,19 +7146,6 @@ if(window.__introStart){
     }, { passive:false });
   });
 }
-// v15bk: 소리 켜기 버튼 - 메인 영상 음소거 해제 (전체 클릭 시작 동작과 안 겹치게 클릭 전파 차단)
-// v15dm: 모바일 대응 - click 외 터치/포인터 이벤트도 등록 (중복 호출 무해)
-["click","touchend","pointerup"].forEach(t=>{
-  document.getElementById("introSoundBtn").addEventListener(t, (e)=>{
-    e.stopPropagation();
-    if(e.cancelable) e.preventDefault();
-    const vid = document.getElementById("introVideo");
-    vid.muted = false;
-    vid.volume = 1.0;
-    vid.play().catch(()=>{});
-    document.getElementById("introSoundBtn").textContent = "🔊 재생 중";
-  }, { passive:false });
-});
 
 document.getElementById("summonBtn").addEventListener("click", ()=>summonUnit());
 document.getElementById("bulkSummonBtn").addEventListener("click", bulkSummon);
@@ -7225,6 +7219,61 @@ requestAnimationFrame(loop);
 // v15dv: 풀스크린 시작 화면. 브라우저 자동재생 정책 우회용.
 //   영상/WebAudio 는 "사용자 제스처" 안에서 시작해야 소리가 허용되므로,
 //   로딩 완료 후 이 화면을 띄우고 버튼 클릭 시점에 오디오를 깨운다.
+// v15e2: 배경 이미지가 화면 대비 너무 작게 보이던 문제.
+//   contain 으로 맞추면 위아래 여백이 크고, cover 로 채우면 좌우가 잘려
+//   가장자리 버튼(EASY/HELL)이 화면 밖으로 나가버린다.
+//   → "버튼 영역이 잘리지 않는 선에서 가능한 한 크게" 배율을 직접 계산한다.
+const UI_IMG_W = 1344, UI_IMG_H = 752;
+const UI_BTN_X = 0.22;   // 버튼이 놓인 가로 범위: 22% ~ 78%
+const UI_BTN_Y = 0.84;   // 버튼 아래 끝: 84%
+function fitUiStage(root){
+  if(!root) return;
+  const stage = root.querySelector(".uiStage");
+  if(!stage) return;
+  const cw = root.clientWidth, ch = root.clientHeight;
+  if(!cw || !ch){                      // 아직 숨겨져 있으면 다음 프레임에 다시 시도
+    requestAnimationFrame(()=>{ if(root.clientWidth && root.clientHeight) fitUiStage(root); });
+    return;
+  }
+  const cover   = Math.max(cw / UI_IMG_W, ch / UI_IMG_H);
+  const contain = Math.min(cw / UI_IMG_W, ch / UI_IMG_H);
+  // 무대는 중앙 정렬이므로, 잘려나가는 폭은 양쪽으로 균등하다.
+  const maxByX = cw / (2 * UI_IMG_W * (0.5 - UI_BTN_X));
+  const maxByY = ch / (2 * UI_IMG_H * (UI_BTN_Y - 0.5));
+  const s = Math.max(contain, Math.min(cover, maxByX, maxByY));
+  stage.style.width     = (UI_IMG_W * s) + "px";
+  stage.style.height    = (UI_IMG_H * s) + "px";
+  stage.style.maxWidth  = "none";
+  stage.style.maxHeight = "none";
+  stage.style.aspectRatio = "auto";
+}
+function initUiStageFit(){
+  const ids = ["startGate", "startOverlay"];
+  const fitAll = ()=> ids.forEach(id => fitUiStage(document.getElementById(id)));
+  fitAll();
+  // display:none → flex 로 바뀌며 크기가 생기는 순간에도 다시 맞춰야 한다
+  if(window.ResizeObserver){
+    ids.forEach(id=>{
+      const el = document.getElementById(id);
+      if(el) new ResizeObserver(()=>fitUiStage(el)).observe(el);
+    });
+  }
+  window.addEventListener("resize", fitAll);
+  window.addEventListener("orientationchange", ()=>setTimeout(fitAll, 200));
+
+  // v15e3: display:none → flex 로 바뀌는 순간을 ResizeObserver 가 놓치는 경우가 있어
+  //   (난이도 화면이 확대되지 않고 작게 남던 원인) style 변경을 직접 관찰해 다시 맞춘다.
+  ids.forEach(id=>{
+    const el = document.getElementById(id);
+    if(!el || !window.MutationObserver) return;
+    new MutationObserver(()=>{
+      if(getComputedStyle(el).display !== "none"){
+        fitUiStage(el);
+        requestAnimationFrame(()=>fitUiStage(el));   // 레이아웃 확정 후 한 번 더
+      }
+    }).observe(el, { attributes:true, attributeFilter:["style","class"] });
+  });
+}
 function showStartGate(){
   const gate = document.getElementById("startGate");
   const btn  = document.getElementById("startGateBtn");
@@ -7257,11 +7306,16 @@ function showStartGate(){
     //   v15dw: 예전엔 unmute 직후 currentTime=0 으로 시크했는데, 재생 중 시크가 play() 를
     //   AbortError 로 중단시켜서 폴백이 다시 muted 로 되돌려 버렸다. 시크를 하지 않는다.
     const vid = document.getElementById("introVideo");
-    const sb  = document.getElementById("introSoundBtn");
-    if(sb) sb.style.display = "none";      // 소리가 켜질 예정이므로 수동 버튼은 숨김
-    function revealSoundBtn(why){
-      console.log("[원랜디] 인트로 소리 자동 재생 실패 - 수동 버튼 노출: " + why);
-      if(sb) sb.style.display = "block";
+    // v15e2: 수동 '소리 켜기' 버튼을 없앴다. 실패해도 버튼을 띄우지 않고,
+    //   다음 사용자 입력에서 조용히 한 번 더 시도한다(화면에 아무것도 안 띄움).
+    function retrySoundSilently(why){
+      console.log("[원랜디] 소리 재생 재시도 예약: " + why);
+      const again = ()=>{
+        try{ if(vid){ vid.muted = false; vid.volume = 1.0; vid.play().catch(()=>{}); } }catch(e){}
+        try{ SFX.init(); }catch(e){}
+      };
+      ["pointerdown","touchstart","keydown","click"].forEach(ev=>
+        document.addEventListener(ev, again, { once:true, passive:true }));
     }
     if(vid){
       vid.muted = false;
@@ -7269,14 +7323,27 @@ function showStartGate(){
       if(vid.paused){
         const p = vid.play();
         if(p && p.catch) p.catch(err=>{
-          vid.muted = true;                // 소리 재생이 거부되면 최소한 화면은 나오게
+          vid.muted = true;                // 소리가 거부되면 화면이라도 나오게
           vid.play().catch(()=>{});
-          revealSoundBtn(err && err.name ? err.name : "play() 거부");
+          retrySoundSilently(err && err.name ? err.name : "play() 거부");
         });
       }
-      // 브라우저가 조용히 음소거로 되돌리거나 멈추는 경우가 있어 실제 상태로 최종 판정
-      setTimeout(()=>{ if(vid.muted || vid.paused) revealSoundBtn("재생 후 상태 확인"); }, 600);
+      setTimeout(()=>{ if(vid.muted || vid.paused) retrySoundSilently("재생 후 상태 확인"); }, 600);
     }
+
+    // v15e2: BGM(HTMLAudio)도 이 사용자 제스처 안에서 한 번 깨워둬야
+    //   나중에 라운드 시작 시 playBgm() 이 자동 재생된다. (버튼 없이 소리가 나오게 하는 핵심)
+    try{
+      if(typeof BGM_URI === "string"){
+        if(!_bgmAudio) _bgmAudio = new Audio(BGM_URI);
+        _bgmAudio.muted = true;
+        const bp = _bgmAudio.play();
+        if(bp && bp.then) bp.then(()=>{
+          _bgmAudio.pause(); _bgmAudio.currentTime = 0; _bgmAudio.muted = false;
+        }).catch(()=>{ _bgmAudio.muted = false; });
+        else { _bgmAudio.muted = false; }
+      }
+    }catch(e){}
 
     // ④ 게이트 페이드아웃 → 인트로 영상 노출
     gate.style.opacity = "0";
@@ -7381,6 +7448,7 @@ function startAssetPreload(){
 }
 
 // v15dn: 게임 로직은 준비됐지만, 이미지 전량 프리로드가 끝난 뒤에 __gameReady=true 가 된다.
+initUiStageFit();   // v15e2: 시작/난이도 화면 배경을 화면 크기에 맞춰 최대로 확대
 startAssetPreload();
 </script>
 </body>
