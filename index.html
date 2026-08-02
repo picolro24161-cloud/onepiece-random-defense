@@ -3556,7 +3556,6 @@ function fieldWeight(){
 function removeLapCounted(m){
   if(m.lapCounted){
     state.lapBreaches = Math.max(0, state.lapBreaches - 1);
-    console.log("[필드카운트] 처치로 -1 | 몬스터:", m.name||"(일반몹)", "| 누적 lapBreaches:", state.lapBreaches);
   }
 }
 function spawnMonster(){
@@ -5805,6 +5804,8 @@ canvas.addEventListener("pointercancel", endDrag);
 let last = performance.now();
 // v15dj: [테스트용 임시] 빨리감기 - dt를 키우면 이동/충돌이 튀므로 update()를 배속만큼 반복 호출한다
 let gameSpeed = 1;
+let _hudLast = 0;    // v15e4: HUD 마지막 갱신 시각(ms)
+const HUD_INTERVAL = 66;   // 약 초당 15회. 화면 주사율(60/120/240Hz)과 무관하게 일정하게 유지
 const GAME_SPEEDS = [1, 2, 3, 5];
 function cycleGameSpeed(){
   const i = GAME_SPEEDS.indexOf(gameSpeed);
@@ -5826,6 +5827,9 @@ function loop(now){
     }
   }
   if(state) draw();
+  // v15e4: HUD 갱신은 시간 기준으로 제한한다.
+  //   프레임 기준(4프레임에 1회)으로 하면 240Hz 환경에서 초당 60회가 되어 의미가 옅어진다.
+  if(state && now - _hudLast >= HUD_INTERVAL){ _hudLast = now; refreshHUD(); }
   requestAnimationFrame(loop);
 }
 // v15s: 일시정지 (ESC 키 또는 화면 버튼) — 게임 로직만 멈추고 화면은 계속 그려서 "일시정지" 표시가 보이게 함
@@ -6089,18 +6093,6 @@ function update(dt){
     if(!m.lapCounted && (m.d - (m.spawnD||0)) >= PERIM){
       m.lapCounted = true;
       state.lapBreaches++;
-      console.log("[필드카운트] 완주감지 +1 | 몬스터:", m.name||"(일반몹)", "| 누적 lapBreaches:", state.lapBreaches, "| d:", m.d.toFixed(1), "spawnD:", (m.spawnD||0).toFixed(1), "PERIM:", PERIM);
-    }
-    // v15c4: 디버그 - 3초마다 필드 내 몬스터들의 최대 이동거리(spawnD 기준)를 PERIM과 비교해서 콘솔에 표시
-    // (완주 로그가 안 뜨는 게 "판정 버그"인지 "애초에 완주할 만큼 안 버팀"인지 구분하기 위함)
-    if(!state._fcDebugT || state.time >= state._fcDebugT){
-      state._fcDebugT = state.time + 3;
-      let maxProg = 0, maxProgM = null;
-      state.monsters.forEach(mm=>{
-        const p = mm.d - (mm.spawnD||0);
-        if(p > maxProg){ maxProg = p; maxProgM = mm; }
-      });
-      console.log("[필드카운트][3초주기] 필드몬스터수:", state.monsters.length, "| lapBreaches:", state.lapBreaches, "| 필드내 최대진행거리:", maxProg.toFixed(1), "/", PERIM, "(" + (maxProg/PERIM*100).toFixed(1) + "%)", "| 최대진행몬스터:", maxProgM ? (maxProgM.name||"일반몹") : "-");
     }
   });
 
@@ -6275,7 +6267,8 @@ function update(dt){
     if(fieldWeight() >= state.diff.field) gameOver();
   }
 
-  refreshHUD();
+  // v15e4: refreshHUD 는 loop() 에서 4프레임에 1회만 호출한다.
+  //   update() 안에 두면 배속 N배일 때 프레임당 N번 실행되어 배속에서 급격히 무거워졌다.
 }
 
 function fmtTime(sec){
@@ -6716,50 +6709,74 @@ function cloneCanvas(cv){
   return c2;
 }
 
+// v15e4: [성능] refreshHUD 가 매 프레임 getElementById 를 24회 호출하고 있었다.
+//   60fps 기준 초당 1,440회, 배속 5배에서는 7,200회 → 상시 렉의 주원인.
+//   ① 엘리먼트 참조를 최초 1회만 조회해 캐싱
+//   ② 값이 실제로 바뀐 항목만 DOM 에 쓴다 (불필요한 리플로우 제거)
+const _hudEl = {};        // id -> element
+const _hudVal = {};       // 마지막으로 쓴 값
+function _hEl(id){
+  let e = _hudEl[id];
+  if(e === undefined){ e = _hudEl[id] = document.getElementById(id); }
+  return e;
+}
+function _hText(id, v){
+  const e = _hEl(id); if(!e) return;
+  const k = "t:" + id;
+  if(_hudVal[k] !== v){ _hudVal[k] = v; e.textContent = v; }
+}
+function _hDisabled(id, v){
+  const e = _hEl(id); if(!e) return;
+  const k = "d:" + id;
+  if(_hudVal[k] !== v){ _hudVal[k] = v; e.disabled = v; }
+}
+function _hStyle(id, prop, v){
+  const e = _hEl(id); if(!e) return;
+  const k = "s:" + id + ":" + prop;
+  if(_hudVal[k] !== v){ _hudVal[k] = v; e.style[prop] = v; }
+}
 function refreshHUD(){
-  document.getElementById("roundNum").textContent = state.round;
-  document.getElementById("finalRoundNum").textContent = FINAL_ROUND;   // v15bn: 난이도별 최종 라운드 표시
-  document.getElementById("roundTimer").textContent = Math.ceil(state.roundTime);
-  document.getElementById("gold").textContent = state.gold.toLocaleString();
-  document.getElementById("kills").textContent = state.kills.toLocaleString();
+  _hText("roundNum", state.round);
+  _hText("finalRoundNum", FINAL_ROUND);   // v15bn: 난이도별 최종 라운드 표시
+  _hText("roundTimer", Math.ceil(state.roundTime));
+  _hText("gold", state.gold.toLocaleString());
+  _hText("kills", state.kills.toLocaleString());
   const n = fieldWeight();
-  document.getElementById("limitBar").style.width = (n/state.diff.field*100)+"%";
-  const lt = document.getElementById("limitText");
-  lt.textContent = `필드 ${n} / ${state.diff.field}`;
-  lt.style.color = n >= state.diff.field*0.75 ? "var(--danger)" : "var(--text)";
-  document.getElementById("tickets").textContent = state.tickets;
-  document.getElementById("summonBtn").disabled = state.tickets<=0 || state.over;
-  document.getElementById("buyTicketBtn").disabled = state.gold<35 || state.over;
-  document.getElementById("gamble100Btn").disabled = state.gold<100 || state.over;
-  document.getElementById("gambleLegendBtn").disabled = state.gold<500 || state.over;
-  document.getElementById("gambleTransBtn").disabled = state.gold<3500 || state.over;
-  document.getElementById("bulkLowBtn").disabled = state.gold<35 || state.over;
-  document.getElementById("bulkSummonBtn").disabled = state.tickets<=0 || state.over;
-  document.getElementById("bulk100Btn").disabled = state.gold<100 || state.over;
-  document.getElementById("bulk500Btn").disabled = state.gold<500 || state.over;
-  document.getElementById("bulk3500Btn").disabled = state.gold<3500 || state.over;
-  document.getElementById("diffLabel").textContent = state.diff.label;
+  _hStyle("limitBar", "width", (n/state.diff.field*100)+"%");
+  _hText("limitText", `필드 ${n} / ${state.diff.field}`);
+  _hStyle("limitText", "color", n >= state.diff.field*0.75 ? "var(--danger)" : "var(--text)");
+  _hText("tickets", state.tickets);
+  const over = state.over;
+  _hDisabled("summonBtn",       state.tickets<=0 || over);
+  _hDisabled("buyTicketBtn",    state.gold<35   || over);
+  _hDisabled("gamble100Btn",    state.gold<100  || over);
+  _hDisabled("gambleLegendBtn", state.gold<500  || over);
+  _hDisabled("gambleTransBtn",  state.gold<3500 || over);
+  _hDisabled("bulkLowBtn",      state.gold<35   || over);
+  _hDisabled("bulkSummonBtn",   state.tickets<=0|| over);
+  _hDisabled("bulk100Btn",      state.gold<100  || over);
+  _hDisabled("bulk500Btn",      state.gold<500  || over);
+  _hDisabled("bulk3500Btn",     state.gold<3500 || over);
+  _hText("diffLabel", state.diff.label);
   const mr = MARINE_RANKS[rankOf(state.round)];
-  document.getElementById("mobInfo").textContent = `${mr.name}(방어 ${Math.round(mr.armor*state.diff.armor)})`;
+  _hText("mobInfo", `${mr.name}(방어 ${Math.round(mr.armor*state.diff.armor)})`);
   const nextBoss = Math.ceil(state.round/5)*5;
-  const bossIn = document.getElementById("bossIn");
-  if(state.bossAlive) bossIn.textContent = "전투중!";
-  else bossIn.textContent = (nextBoss - state.round === 0 ? 5 : nextBoss - state.round) + "R 후";
-  document.getElementById("transState").textContent = (unitsOfGrade("transcend").length + storageGradeCount("transcend")) + "기";
-  const mi = document.getElementById("missionInfo");
+  _hText("bossIn", state.bossAlive ? "전투중!"
+        : ((nextBoss - state.round === 0 ? 5 : nextBoss - state.round) + "R 후"));
+  _hText("transState", (unitsOfGrade("transcend").length + storageGradeCount("transcend")) + "기");
   const mm = state.mission;
-  if(!mm) mi.textContent = "-";
-  else if(mm.done){ mi.textContent = "성공 ✓"; mi.style.color = "var(--win)"; }
+  if(!mm){ _hText("missionInfo", "-"); }
+  else if(mm.done){ _hText("missionInfo", "성공 ✓"); _hStyle("missionInfo", "color", "var(--win)"); }
   else{
-    mi.style.color = "var(--gold)";
+    _hStyle("missionInfo", "color", "var(--gold)");
     let prog = "";
     if(mm.type==="killN") prog = ` (${state.roundKills}/${mm.target})`;
     else if(mm.type==="killElite") prog = ` (${state.roundEliteKills}/${mm.target})`;
     else if(mm.type==="craftN") prog = ` (${state.roundCrafts}/${mm.target})`;
     else if(mm.type==="fieldKeep") prog = ` (현재 ${state.monsters.length})`;
-    mi.textContent = mm.desc + prog;
+    _hText("missionInfo", mm.desc + prog);
   }
-  document.getElementById("synInfo").textContent = state.synNames || "시너지 없음";
+  _hText("synInfo", state.synNames || "시너지 없음");
 }
 
 // ---------- 도감(컬렉션): 획득한 캐릭터를 영구 기록 ----------
