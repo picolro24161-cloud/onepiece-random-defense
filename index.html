@@ -732,6 +732,12 @@ const MYTHIC_SKILLS = [
                   {type:"패왕색 개방",   cd:6.5, mult:2.8, color:"#ff3b5c", kind:"haki", radius:300, stun:1.8} ],
   /*스크래치맨 아푸*/ [ {type:"샤크 뮤직",   cd:4.2, mult:3.7, color:"#ff4a7a", kind:"bolt", hits:10},
                   {type:"타탓타 라탓타", cd:6.5, mult:2.6, color:"#ffb02e", kind:"ring", radius:290} ],
+  /*백수해적단 킹*/ [ {type:"화룡 참격",   cd:4.0, mult:4.0, color:"#ff7a2e", kind:"slash", hits:14},
+               {type:"익룡 강습",   cd:6.5, mult:3.0, color:"#ff9a4e", kind:"bolt", hits:8} ],
+  /*최강해적 록스*/ [ {type:"혼돈의 포효", cd:4.5, mult:4.2, color:"#c00030", kind:"haki", radius:300, stun:1.6},
+               {type:"약탈의 일격", cd:6.5, mult:3.4, color:"#8c0020", kind:"bolt", hits:1} ],
+  /*해적여제 보아 행콕*/ [ {type:"메로메로 메로우", cd:4.2, mult:3.9, color:"#ff6aa0", kind:"ring", radius:280},
+                  {type:"슬레이브 애로우", cd:6.0, mult:3.2, color:"#ff90c0", kind:"bolt", hits:10} ],
 ];
 // 태초(신화 윗등급) 스킬 세트
 // ---------- 서포터 패시브 (신화 이상, 필드 전역 오라) ----------
@@ -739,6 +745,27 @@ const MYTHIC_SKILLS = [
 // atk 아군공격%, aspd 공속%, cdr 스킬쿨감%, crit 치명확률, critDmg 치명피해,
 // gold 골드%, armorRed 적방어감소(수치 차감, %아님 - v15ak), dmgTaken 적 받는피해%, slow 이속감소%(slowBoss 보스), skillDmg 스킬피해%
 const PASSIVES = {
+  // v15e9: 신규 20명
+  "백수해적단 킹": { crit:0.14, critDmg:0.12 },
+  "최강해적 록스": { critDmg:0.20 },
+  "해적여제 보아 행콕": { atk:0.14 },
+  "세라핌 S-쿠마": { atk:0.22, armorRed:14 },
+  "세라핌 S-도플라밍고": { slow:0.20, armorRed:16 },
+  "세라핌 S-미호크": { crit:0.24, critDmg:0.24 },
+  "해신왕 넵튠": { critDmg:0.26 },
+  "빈스모크 니지": { crit:0.20, critDmg:0.18 },
+  "빈스모크 욘지": { atk:0.18 },
+  "빈스모크 레이주": { atk:0.20, cdr:0.14 },
+  "고대병기 에메트": { atk:0.26 },
+  "살육무기 카마조": { crit:0.26, critDmg:0.28 },
+  "쇼군 쿠로즈미 오로치": { atk:0.22, armorRed:12 },
+  "신의기사단 갈링": { critDmg:0.34 },
+  "폭식왕 와폴": { atk:0.24 },
+  "비목의 블랙마리아": { slow:0.24, armorRed:18 },
+  "전격 캐럿": { crit:0.26, critDmg:0.30 },
+  "샬롯 푸딩": { crit:0.28, critDmg:0.26 },
+  "뉴스 조인 모건스": { atk:0.30, cdr:0.20 },
+  "사황 빅맘": { critDmg:0.42 },
   "스크래치맨 아푸": { crit:0.14, critDmg:0.12 },   // v15du: 신화 신규
   // v15dl: 신규 25명
   "백수해적단 잭": { critDmg:0.22 },
@@ -915,6 +942,20 @@ const ORIGIN_SKILLS = [
                    {type:"칼날 인간",     cd:6.5, mult:3.6, color:"#a0b8d8", kind:"bolt", hits:8} ],
   /*혁명군 코알라*/ [ {type:"어인공수 지원", cd:5.0, mult:0, color:"#60d0ff", kind:"ally_buff", radius:9999, atk:0.16, cdr:0.14},
                    {type:"어인가라테",     cd:6.0, mult:3.6, color:"#40b0f0", kind:"ring", radius:290} ],
+  /*세라핌 S-쿠마*/ [ {type:"충격파 압축포", cd:4.2, mult:5.2, color:"#a070ff", kind:"ring", radius:300},
+                {type:"니키니키 반사", cd:6.0, mult:4.0, color:"#c0a0ff", kind:"bolt", hits:12} ],
+  /*세라핌 S-도플라밍고*/ [ {type:"버드 케이지",  cd:4.5, mult:5.0, color:"#ff70c0", kind:"ring", radius:300, slow:2.5},
+                   {type:"오버히트",     cd:6.0, mult:4.2, color:"#ff90d0", kind:"slash", hits:14} ],
+  /*세라핌 S-미호크*/ [ {type:"흑도 요루 참", cd:3.9, mult:5.6, color:"#80c8ff", kind:"slash", hits:18},
+                 {type:"참격 비상",    cd:6.0, mult:4.4, color:"#a0d8ff", kind:"bolt", hits:6} ],
+  /*해신왕 넵튠*/ [ {type:"해신 삼지창",  cd:4.2, mult:5.4, color:"#40b0ff", kind:"bolt", hits:1},
+              {type:"대해류 붕괴",  cd:6.5, mult:4.0, color:"#2090e0", kind:"ring", radius:300} ],
+  /*빈스모크 니지*/ [ {type:"일렉트릭 블루", cd:3.9, mult:5.3, color:"#40c0ff", kind:"bolt", hits:10},
+               {type:"스텔스 블루",   cd:6.0, mult:4.2, color:"#80d8ff", kind:"slash", hits:12} ],
+  /*빈스모크 욘지*/ [ {type:"윙거 그린",    cd:4.2, mult:5.1, color:"#50e080", kind:"ring", radius:290},
+               {type:"강철 육체 돌진",cd:6.0, mult:4.0, color:"#80f0a0", kind:"haki", radius:290, stun:1.5} ],
+  /*빈스모크 레이주*/ [ {type:"포이즌 핑크",  cd:5.0, mult:0,   color:"#ff70b0", kind:"ally_buff", radius:9999, atk:0.20, cdr:0.14},
+                {type:"독무 살포",    cd:6.0, mult:3.8, color:"#e050a0", kind:"burn", radius:290, dur:6} ],
 ];
 // 절대 등급 스킬 세트
 // 히든 등급 스킬 (절대와 동급, 8명)
@@ -988,6 +1029,14 @@ const ABSOLUTE_SKILLS = [
                         {type:"다이너마이트 연속투척", cd:6.0, mult:5.5, color:"#a080c0", kind:"slash", hits:20} ],
   /*우타*/              [ {type:"구원의 노래",     cd:5.0, mult:0,   color:"#ff90b0", kind:"ally_buff", radius:9999, aspd:0.30},
                         {type:"저주의 노래",     cd:6.0, mult:0,   color:"#ff6090", kind:"ally_buff", radius:9999, slow:0.25} ],
+  /*고대병기 에메트*/ [ {type:"고대 거인 강타", cd:4.0, mult:6.0, color:"#c8a050", kind:"ring", radius:320},
+                {type:"에메트 각성",    cd:6.0, mult:4.6, color:"#e0c070", kind:"haki", radius:320, stun:2.0} ],
+  /*살육무기 카마조*/ [ {type:"쌍낫 참살",   cd:3.8, mult:6.2, color:"#e8d060", kind:"slash", hits:20},
+                {type:"살육 본능",   cd:5.8, mult:4.8, color:"#fff080", kind:"bolt", hits:8} ],
+  /*쇼군 쿠로즈미 오로치*/ [ {type:"야마타노오로치", cd:4.0, mult:5.8, color:"#c02878", kind:"ring", radius:320},
+                   {type:"팔두 화염",      cd:6.0, mult:4.4, color:"#e04898", kind:"burn", radius:320, dur:6} ],
+  /*신의기사단 갈링*/ [ {type:"성창 심판",   cd:4.0, mult:6.4, color:"#fff0a0", kind:"bolt", hits:1},
+                {type:"신의 처형",   cd:6.0, mult:5.0, color:"#ffe870", kind:"slash", hits:12} ],
 ];
 // 절대자 스킬 (19종 × 2)
 const SUPREMAL_SKILLS = [
@@ -1019,6 +1068,18 @@ const SUPREMAL_SKILLS = [
   /*해군 센토마루*/ [ {type:"거대 도끼 강타", cd:3.8,mult:6.5,color:"#8090b0",kind:"bolt",hits:1},{type:"무장색 도끼",    cd:5.5,mult:5.0,color:"#606f8f",kind:"slash",hits:12} ],
   /*크리크 참모 긴*/ [ {type:"쌍철퇴 폭격", cd:3.8,mult:5.8,color:"#ff9040",kind:"ring",radius:480},{type:"전귀의 진격", cd:5.5,mult:4.2,color:"#e07020",kind:"bolt",hits:18} ],
   /*베라미*/ [ {type:"스프링 홉",   cd:3.5,mult:6.2,color:"#40d0ff",kind:"bolt",hits:8},{type:"하이에나 강타", cd:5.5,mult:4.4,color:"#60e0ff",kind:"ring",radius:350} ],   // v15dt: 이미지가 마르코가 아니라 베라미였음 - 불사조 컨셉 스킬명을 스프링스프링 열매 컨셉으로 교체(수치 동일)
+  /*폭식왕 와폴*/ [ {type:"바쿠바쿠 포식", cd:3.8,mult:6.0,color:"#a06ad0",kind:"ring",radius:480},
+              {type:"무기 합체",     cd:5.5,mult:4.4,color:"#c090f0",kind:"haki",radius:460,stun:2.2} ],
+  /*비목의 블랙마리아*/ [ {type:"거미줄 포박",   cd:3.8,mult:5.9,color:"#e060b0",kind:"ring",radius:480,slow:3},
+                 {type:"환영 거미",     cd:5.5,mult:4.3,color:"#ff90d0",kind:"bolt",hits:18} ],
+  /*전격 캐럿*/ [ {type:"스라차 강습",   cd:3.5,mult:6.2,color:"#fff060",kind:"slash",hits:22},
+             {type:"월사자 발톱",   cd:5.0,mult:4.6,color:"#ffff90",kind:"bolt",hits:10} ],
+  /*샬롯 푸딩*/ [ {type:"메모메모 조작", cd:3.5,mult:6.1,color:"#ffa0d0",kind:"bolt",hits:8},
+             {type:"제3의 눈",     cd:5.0,mult:4.5,color:"#ffd0e8",kind:"slash",hits:12} ],
+  /*뉴스 조인 모건스*/ [ {type:"특종 보도",    cd:4.5,mult:0,color:"#ff5070",kind:"ally_buff",radius:9999,atk:0.28,cdr:0.20},
+                 {type:"소문의 날개",  cd:5.5,mult:4.6,color:"#ff8090",kind:"ring",radius:480} ],
+  /*사황 빅맘*/ [ {type:"소울 포커스",  cd:3.8,mult:6.5,color:"#ff70b0",kind:"bolt",hits:1},
+             {type:"천둥 벼락 제우스",cd:5.5,mult:5.0,color:"#ffd050",kind:"ring",radius:480} ],
 ];
 // 초절대자 스킬 (10종 × 2)
 const ULTRA_SKILLS = [
@@ -1274,6 +1335,10 @@ absolute: [
  ["더글라스 불릿", {hair:"#1a1a1a",top:"#1a1a22",btm:"#1a1a22",w:"bigsword",scale:1.9,aura:"rgba(120,60,20,.8)"}],
  ["지저스 바제스", {hair:"#a080c0",top:"#1a1a22",btm:"#1a1a22",w:"bigsword",scale:1.85,f:{mask:"#f0f0f0"},aura:"rgba(180,140,220,.8)"}],
  ["우타",       {hair:"#e83c3c",hs:"long",top:"#ffffff",btm:"#ffffff",scale:1.6,f:{grin:1},aura:"rgba(255,140,180,.85)"}],
+ ["고대병기 에메트", {skin:"#8c7a5c",hair:"#5c4a2c",hs:"none",top:"#6c5a3c",btm:"#4c3c24",scale:2.2,aura:"rgba(200,160,80,.9)"}],   // v15e9: 신규
+ ["살육무기 카마조", {hair:"#e8d060",hs:"spiky",top:"#2b2b34",btm:"#1a1a22",w:"bigsword",scale:1.85,f:{mask:"#c0c0c0"},aura:"rgba(230,210,90,.85)"}],   // v15e9: 신규
+ ["쇼군 쿠로즈미 오로치", {hair:"#2b2118",hs:"topknot",hat:"crown",hatC:"#c0a040",top:"#6c2050",btm:"#3c1030",scale:1.9,f:{grin:1},aura:"rgba(180,40,120,.85)"}],   // v15e9: 신규
+ ["신의기사단 갈링", {hair:"#e8e8f0",hs:"long",top:"#f0f0f8",open:1,btm:"#2b2b3c",w:"staff",scale:1.95,f:{beard:"#e8e8f0"},aura:"rgba(255,250,200,.9)"}],   // v15e9: 신규
 ],
 supremal: [
  ["태양신 조이보이", {hair:"#ffffff",hs:"afro",hat:"straw",hatC:"#fff4c0",band:"#ff8c00",top:"#fff8e1",open:1,btm:"#ff8c00",scale:1.85,f:{grin:1,scarL:1},aura:"rgba(255,200,50,.9)"}],
@@ -1303,7 +1368,13 @@ supremal: [
  ["혁명군 총수 드래곤", {hair:"#1e3020",hs:"long",top:"#142010",btm:"#0c1208",scale:1.9,f:{faceTat:1},aura:"rgba(40,200,90,.9)"}],
  ["해군 센토마루", {hair:"#2b2118",hs:"topknot",top:"#3c4854",btm:"#2b2b34",w:"bigsword",scale:2.0,aura:"rgba(120,140,180,.85)"}],
  ["크리크 참모 긴", {hair:"#2b2118",hat:"bandana",hatC:"#c0c8d0",top:"#e08040",btm:"#f0f0f0",w:"staff",scale:1.8,aura:"rgba(255,140,60,.85)"}],
- ["베라미", {hair:"#f0d878",hs:"spiky",top:"#3c5c8c",open:1,btm:"#2b2b34",scale:1.9,f:{glasses:1},aura:"rgba(80,220,255,.9)"}],   // v15dt: 이름 정정 → 베라미 (등록된 이미지가 마르코가 아니라 베라미였음). 이마 선글라스 반영
+ ["베라미", {hair:"#f0d878",hs:"spiky",top:"#3c5c8c",open:1,btm:"#2b2b34",scale:1.9,f:{glasses:1},aura:"rgba(80,220,255,.9)"}],
+ ["폭식왕 와폴", {hair:"#3c3c50",hs:"short",hat:"crown",hatC:"#c0a040",top:"#5c3c74",btm:"#3c2050",scale:2.0,f:{grin:1},aura:"rgba(160,110,200,.9)"}],   // v15e9: 신규
+ ["비목의 블랙마리아", {hair:"#e050a0",hs:"long",top:"#5c2050",btm:"#2c1030",w:"staff",scale:2.1,aura:"rgba(230,80,170,.9)"}],   // v15e9: 신규
+ ["전격 캐럿", {skin:"#f8f0e8",hair:"#f0f0f8",hs:"long",top:"#f0a0c0",btm:"#e07098",scale:1.75,aura:"rgba(255,240,120,.9)"}],   // v15e9: 신규
+ ["샬롯 푸딩", {hair:"#e8a0c0",hs:"long",top:"#f0c0d8",btm:"#8c4060",w:"rifle",scale:1.8,f:{glowEyes:1},aura:"rgba(255,170,210,.9)"}],   // v15e9: 신규
+ ["뉴스 조인 모건스", {skin:"#f0e0c0",hair:"#f0f0f0",hs:"long",top:"#c02840",btm:"#2b2b34",scale:2.0,f:{noseLong:1},aura:"rgba(240,60,90,.9)"}],   // v15e9: 신규
+ ["사황 빅맘", {hair:"#ff8ac0",hs:"long",hat:"crown",hatC:"#f0c75e",top:"#e86fa0",btm:"#c04878",scale:2.15,aura:"rgba(255,120,180,.95)"}],   // v15e9: 신규   // v15dt: 이름 정정 → 베라미 (등록된 이미지가 마르코가 아니라 베라미였음). 이마 선글라스 반영
 ],
 ultramaximal: [
  ["해방왕 루피",   {hair:"#ffffff",hat:"straw",hatC:"#ffd700",band:"#ffd700",top:"#ffd700",open:1,btm:"#ffd700",scale:2.1,f:{grin:1,scarL:1},aura:"rgba(255,220,0,.95)"}],
@@ -1366,6 +1437,13 @@ origin: [
  ["산적왕 히구마", {hair:"#2b2118",hs:"spiky",top:"#5a4a3a",btm:"#3a2a1a",w:"sword",scale:1.5,f:{beard:"#2b2118"},aura:"rgba(150,120,80,.65)"}],
  ["Mr.1 다즈 보네즈", {hair:"#1f1f1f",hs:"short",top:"#2b2b34",btm:"#1a1a22",w:"bigsword",scale:1.55,f:{glasses:1},aura:"rgba(180,200,220,.7)"}],
  ["혁명군 코알라", {hair:"#e08040",hs:"long",top:"#f5f0e8",btm:"#5c8ccc",scale:1.4,aura:"rgba(255,160,90,.7)"}],
+ ["세라핌 S-쿠마", {skin:"#f0e8e0",hair:"#2b2b34",hs:"short",hat:"cap",hatC:"#3b3b3b",top:"#5c3c74",btm:"#5c3c74",scale:1.85,f:{glasses:1},aura:"rgba(160,120,255,.8)"}],   // v15e9: 신규
+ ["세라핌 S-도플라밍고", {hair:"#f0d878",hs:"short",top:"#e070c0",open:1,btm:"#2b2b34",scale:1.8,f:{glasses:1,grin:1},aura:"rgba(255,110,200,.85)"}],   // v15e9: 신규
+ ["세라핌 S-미호크", {hair:"#1f1f1f",hs:"short",hat:"cowboy",hatC:"#2b2b34",top:"#2b2b34",btm:"#2b2b34",w:"bigsword",scale:1.8,aura:"rgba(120,200,255,.8)"}],   // v15e9: 신규
+ ["해신왕 넵튠", {skin:"#5b8fd0",hair:"#f0f0f0",hs:"long",hat:"crown",hatC:"#f0c75e",top:"#2c6ca8",btm:"#1c4c78",w:"staff",scale:2.0,f:{beard:"#f0f0f0"},aura:"rgba(80,180,255,.8)"}],   // v15e9: 신규
+ ["빈스모크 니지", {hair:"#40b0e0",hs:"fringe",top:"#1a2a4a",btm:"#1a1a22",scale:1.55,f:{browCurl:1},aura:"rgba(80,190,255,.75)"}],   // v15e9: 신규
+ ["빈스모크 욘지", {hair:"#40c060",hs:"fringe",top:"#1a3a2a",btm:"#1a1a22",scale:1.6,f:{browCurl:1},aura:"rgba(90,230,130,.75)"}],   // v15e9: 신규
+ ["빈스모크 레이주", {hair:"#e88ac0",hs:"fringe",top:"#e8a0c8",btm:"#8c3060",scale:1.5,f:{browCurl:1},aura:"rgba(255,140,200,.75)"}],   // v15e9: 신규
 ],
 mythic: [
  ["로키",        {hair:"#9c8cc8",hs:"long",top:"#3c3c50",btm:"#2b2b3c",w:"staff",scale:1.7,f:{blindfold:1}}],
@@ -1383,6 +1461,9 @@ mythic: [
  ["해신 시라호시",{skin:"#f8dfe8",hair:"#f4a0c0",hs:"long",top:"#7ad0c0",btm:"#7ad0c0",scale:1.6,aura:"rgba(90,220,255,.65)"}],
  ["다크킹 레일리",{hair:"#e8e8e8",top:"#1a1a22",btm:"#3c4854",w:"sword",scale:1.45,f:{glasses:1,scarL:1},aura:"rgba(255,255,255,.55)"}],
  ["스크래치맨 아푸",{skin:"#c58f5e",hair:"#1f1f28",hs:"long",top:"#e0304a",btm:"#e86a8a",scale:1.5,f:{grin:1},aura:"rgba(255,80,120,.7)"}],   // v15du: 신화 신규 - 음음 열매
+ ["백수해적단 킹", {hair:"#1a1a1a",hs:"long",hat:"horns",hatC:"#3a2a1a",top:"#1f1f28",btm:"#2b2b34",w:"bigsword",scale:1.6,f:{mask:"#1f1f28"},aura:"rgba(255,120,40,.7)"}],   // v15e9: 신규
+ ["최강해적 록스", {hair:"#1f1f1f",hs:"spiky",top:"#2a0010",btm:"#14000a",w:"sword",scale:1.65,f:{beard:"#1f1f1f",grin:1},aura:"rgba(180,0,60,.8)"}],   // v15e9: 신규
+ ["해적여제 보아 행콕", {hair:"#1f1f28",hs:"long",top:"#e0407a",btm:"#8c2050",scale:1.5,f:{earring:1},aura:"rgba(255,120,180,.75)"}],   // v15e9: 신규
 ],
 limit: [
  ["루치",     {hair:"#1f1f1f",top:"#0f0f14",btm:"#0f0f14",f:{beard:"#1f1f1f"},scale:1.2,aura:"rgba(182,255,74,.6)"}],
@@ -1885,8 +1966,29 @@ function drawShadow(c, x, y, w){
 //  등록된 캐릭터는 AI 픽셀아트 원형 토큰으로, 나머지는 코드 치비로 표시
 // =========================================================
 // v15dn: 분리된 이미지 에셋 목록 (패치 시 자동 생성). 게임 시작 전 전량 프리로드한다.
-const PRELOAD_ASSETS = ["assets/img/004e67071e47.png", "assets/img/006f79520842.png", "assets/img/00875d71a494.png", "assets/img/00a97068b6f7.jpg", "assets/img/00c12e2cc7c7.jpg", "assets/img/014b865afa6e.png", "assets/img/015a6525a86c.jpg", "assets/img/01c08357b77e.png", "assets/img/021541eb2763.png", "assets/img/021ef5198f26.jpg", "assets/img/035ca7b3734d.png", "assets/img/045cb17ab57b.jpg", "assets/img/053894260f95.png", "assets/img/057b80ec00cb.jpg", "assets/img/09008c2f430b.png", "assets/img/0bf39f8e7c9b.png", "assets/img/0ce916577126.png", "assets/img/0e4481fd512f.png", "assets/img/0e86c9af1a46.jpg", "assets/img/0eb7823f010f.jpg", "assets/img/0feb135732b8.jpg", "assets/img/117b9414f489.jpg", "assets/img/11898415458d.jpg", "assets/img/118c27c4974e.jpg", "assets/img/12b48f4ddd48.png", "assets/img/15ca5f7daa3d.jpg", "assets/img/17f37adbb638.jpg", "assets/img/183015193538.png", "assets/img/188be6a96ed6.jpg", "assets/img/1a199371cace.png", "assets/img/1dad5bb47b00.jpg", "assets/img/1f9e60ed5fe2.jpg", "assets/img/1fdfe3198781.jpg", "assets/img/2018781b23af.jpg", "assets/img/20a8df8353ff.jpg", "assets/img/243c5f78979e.jpg", "assets/img/24c2af74e5bd.jpg", "assets/img/284619ab69e7.jpg", "assets/img/28bb0e99c897.jpg", "assets/img/28dafe336c05.jpg", "assets/img/2a1b2b410f5c.jpg", "assets/img/2ae10e9607b4.jpg", "assets/img/2b5a3881255d.png", "assets/img/2b9657f51881.jpg", "assets/img/2da789635802.jpg", "assets/img/2f20a2dc5a5a.jpg", "assets/img/2ffc05901356.png", "assets/img/301f2cac6022.jpg", "assets/img/30e0bc34fee2.png", "assets/img/32ac7b864bef.jpg", "assets/img/334dad3150ab.jpg", "assets/img/34f1c66b1d2c.png", "assets/img/369675c6202d.jpg", "assets/img/3a7937400697.jpg", "assets/img/3c5a4476db0e.png", "assets/img/3cabb986641d.jpg", "assets/img/3e2cd69e245e.jpg", "assets/img/3e368c0716ca.jpg", "assets/img/3ef354922ae1.jpg", "assets/img/40dfc9ef3b1e.jpg", "assets/img/4115eb3a7886.jpg", "assets/img/4204803eedf2.png", "assets/img/43f3f9b508d1.png", "assets/img/4514699b7680.jpg", "assets/img/459e334d6b50.jpg", "assets/img/45d1bc218c14.jpg", "assets/img/47440e6ea977.jpg", "assets/img/47c2cdd69449.jpg", "assets/img/480394a2a7b9.jpg", "assets/img/483fb210596b.png", "assets/img/489424610072.png", "assets/img/4c9e81f2c773.jpg", "assets/img/5039f69ffbc4.jpg", "assets/img/5099b4b143ed.jpg", "assets/img/51765cc4c9fb.jpg", "assets/img/526dea67517b.jpg", "assets/img/52a228ab2da2.jpg", "assets/img/53d210160900.jpg", "assets/img/546ed47f6153.png", "assets/img/55bf024c031d.jpg", "assets/img/5641361f4e3c.png", "assets/img/592b87e837d2.png", "assets/img/5a53d9bdc30a.png", "assets/img/5a7ea550a7a9.png", "assets/img/5c3a22ff1726.jpg", "assets/img/5cbd55c45c2a.jpg", "assets/img/5da1ce2fd424.png", "assets/img/5e5048c18846.png", "assets/img/5e631b3bfecd.png", "assets/img/6001b506c85f.png", "assets/img/6017da9ca0ef.jpg", "assets/img/61a25415cf10.jpg", "assets/img/663b0e9b87b3.jpg", "assets/img/67608dad3545.png", "assets/img/696cc69a2b64.png", "assets/img/6acffa00c80a.jpg", "assets/img/6bf1da3ad9b8.png", "assets/img/6ce607d25f71.png", "assets/img/6d7b1a8a92d4.jpg", "assets/img/6dd0db2ba5a2.jpg", "assets/img/6ee34f92a3c0.jpg", "assets/img/6f35c3dd11c0.png", "assets/img/6f3eaded7563.png", "assets/img/6f86764d39a7.jpg", "assets/img/6fb8bd4efafa.png", "assets/img/7089b6ff4940.png", "assets/img/70e96312ea40.png", "assets/img/71a333c7f60f.jpg", "assets/img/749daeedc1e9.png", "assets/img/75b48fc0b85a.jpg", "assets/img/786d1e9ad3b6.jpg", "assets/img/78ab15294211.jpg", "assets/img/79e9b8579cb5.jpg", "assets/img/7a3f9cd145a2.jpg", "assets/img/7f218ae9d1f2.jpg", "assets/img/7f62ff60d0cd.jpg", "assets/img/80471628d268.jpg", "assets/img/815443799ac2.jpg", "assets/img/827781ef8d62.png", "assets/img/8297f4a4ca00.jpg", "assets/img/83d48576ffb7.png", "assets/img/862dc49eefde.png", "assets/img/87adb6b35f6c.png", "assets/img/8826aeba1213.jpg", "assets/img/8b3602b3557b.png", "assets/img/8b3a0cf76973.jpg", "assets/img/8c786832ffbf.jpg", "assets/img/8c95c4dc7693.jpg", "assets/img/8d2a5fadce2c.jpg", "assets/img/8de75d0d1b89.jpg", "assets/img/8f665d0767d1.jpg", "assets/img/92bb828180ea.jpg", "assets/img/9493a5078f97.png", "assets/img/949e2b736e03.jpg", "assets/img/9605267c3ba4.png", "assets/img/96ff7c1e7bda.png", "assets/img/97238020b5d6.png", "assets/img/97a8ed597097.jpg", "assets/img/9ad7ed67d6cc.jpg", "assets/img/9b66c306299e.jpg", "assets/img/9caf5a9833be.png", "assets/img/9d1ce115739d.jpg", "assets/img/9d8cae710e6f.png", "assets/img/9eff4aad67fe.png", "assets/img/a0a77f7d49f4.jpg", "assets/img/a0fd649642c7.png", "assets/img/a2adec13cc42.jpg", "assets/img/a40ef7d0eb6f.jpg", "assets/img/a5fec4dcc9c0.jpg", "assets/img/a653466280ae.jpg", "assets/img/a6a843fb2542.jpg", "assets/img/a7e8c2f432ef.jpg", "assets/img/a8ab976aa53b.jpg", "assets/img/ae00327ce32a.jpg", "assets/img/ae5fcc814bbd.png", "assets/img/afffc53b02ee.jpg", "assets/img/b08d304c26cd.jpg", "assets/img/b0d30aa3a942.jpg", "assets/img/b769beab6a48.png", "assets/img/b8d3dbe7109d.png", "assets/img/b90620b64bdf.jpg", "assets/img/b996d3576f06.jpg", "assets/img/bc8d39edc803.jpg", "assets/img/be745b4cc3fa.jpg", "assets/img/bf5a77b8958b.jpg", "assets/img/c0a051f50259.jpg", "assets/img/c2b244afd5b6.png", "assets/img/c33165164ae0.jpg", "assets/img/c4a70576ef7f.png", "assets/img/c52fd6cf09d3.jpg", "assets/img/c66d774970c2.jpg", "assets/img/c6d5d857f212.jpg", "assets/img/c89426040269.jpg", "assets/img/cbe276becc13.jpg", "assets/img/cce3a06d60f5.jpg", "assets/img/cf29e044b516.jpg", "assets/img/cffe6c922cb3.jpg", "assets/img/d0400b6a55de.jpg", "assets/img/d1531da03496.png", "assets/img/d1990fa1efa2.png", "assets/img/d1deb032f91b.jpg", "assets/img/d3540229b27b.jpg", "assets/img/d377ab86e4fc.jpg", "assets/img/d49999875db9.png", "assets/img/d5c9fdf3d721.png", "assets/img/d83aaed0caa7.jpg", "assets/img/d856c69178c8.jpg", "assets/img/d9bedaed4503.jpg", "assets/img/da3d20a492a6.png", "assets/img/db273053feba.jpg", "assets/img/db9bfd649544.jpg", "assets/img/dbbb4eea5352.jpg", "assets/img/dc828893770b.jpg", "assets/img/dc97b8d47688.jpg", "assets/img/dd61fb68100c.jpg", "assets/img/dd97a6b4e1b4.jpg", "assets/img/ddc7f6160cbe.jpg", "assets/img/df301e031128.jpg", "assets/img/dfbfa5e1ec54.jpg", "assets/img/e0a34a6df16a.png", "assets/img/e258f7021c55.png", "assets/img/e2d548c85f58.png", "assets/img/e5eccf8182ba.jpg", "assets/img/e89a96199856.jpg", "assets/img/e94c22b13fb7.png", "assets/img/eaa406207515.jpg", "assets/img/eba5114e6f09.png", "assets/img/ec118b3aa6e1.jpg", "assets/img/ecb8f50630ec.jpg", "assets/img/ed285a01a19b.jpg", "assets/img/ed34cc9a60ab.jpg", "assets/img/ed8ec6fb4820.jpg", "assets/img/ee62cf9039bf.jpg", "assets/img/f19cf7804bbc.jpg", "assets/img/f1cb64ab46fe.jpg", "assets/img/f2c4c46f0472.jpg", "assets/img/f36c90f4b70f.jpg", "assets/img/f3b1db35d295.png", "assets/img/f5d77d14d77e.jpg", "assets/img/f6519a041835.jpg", "assets/img/f73f19499edc.jpg", "assets/img/f86ec6de6bd5.png", "assets/img/f94bbc83db98.jpg", "assets/img/fa0cb1eab6e0.png", "assets/img/fa374e0d7310.jpg", "assets/img/fa6a2da1c441.jpg", "assets/img/fc884ae8f4be.png", "assets/img/fd0d9392510f.jpg", "assets/img/fdea50835e6b.jpg", "assets/img/fe41849026f7.jpg", "assets/img/ff4586508418.png"];
+const PRELOAD_ASSETS = ["assets/img/004e67071e47.png", "assets/img/006f79520842.png", "assets/img/00875d71a494.png", "assets/img/00a97068b6f7.jpg", "assets/img/00c12e2cc7c7.jpg", "assets/img/014b865afa6e.png", "assets/img/015a6525a86c.jpg", "assets/img/01c08357b77e.png", "assets/img/021541eb2763.png", "assets/img/021ef5198f26.jpg", "assets/img/035ca7b3734d.png", "assets/img/045cb17ab57b.jpg", "assets/img/053894260f95.png", "assets/img/057b80ec00cb.jpg", "assets/img/09008c2f430b.png", "assets/img/0bf39f8e7c9b.png", "assets/img/0ce916577126.png", "assets/img/0e4481fd512f.png", "assets/img/0e86c9af1a46.jpg", "assets/img/0eb7823f010f.jpg", "assets/img/0f9c45b9dbde.jpg", "assets/img/0feb135732b8.jpg", "assets/img/117b9414f489.jpg", "assets/img/11898415458d.jpg", "assets/img/118c27c4974e.jpg", "assets/img/12b48f4ddd48.png", "assets/img/15ca5f7daa3d.jpg", "assets/img/17f37adbb638.jpg", "assets/img/183015193538.png", "assets/img/188be6a96ed6.jpg", "assets/img/18f9db059968.jpg", "assets/img/1a199371cace.png", "assets/img/1c4b08f43b31.jpg", "assets/img/1dad5bb47b00.jpg", "assets/img/1f9e60ed5fe2.jpg", "assets/img/1fdfe3198781.jpg", "assets/img/2018781b23af.jpg", "assets/img/20a8df8353ff.jpg", "assets/img/243c5f78979e.jpg", "assets/img/24c2af74e5bd.jpg", "assets/img/284619ab69e7.jpg", "assets/img/28bb0e99c897.jpg", "assets/img/28dafe336c05.jpg", "assets/img/2a1b2b410f5c.jpg", "assets/img/2a45ebb2b484.jpg", "assets/img/2ae10e9607b4.jpg", "assets/img/2b5a3881255d.png", "assets/img/2b9657f51881.jpg", "assets/img/2da789635802.jpg", "assets/img/2f20a2dc5a5a.jpg", "assets/img/2ffc05901356.png", "assets/img/301f2cac6022.jpg", "assets/img/306a6e71f279.jpg", "assets/img/30e0bc34fee2.png", "assets/img/32ac7b864bef.jpg", "assets/img/334dad3150ab.jpg", "assets/img/34f1c66b1d2c.png", "assets/img/369675c6202d.jpg", "assets/img/3a7937400697.jpg", "assets/img/3c5a4476db0e.png", "assets/img/3cabb986641d.jpg", "assets/img/3e2cd69e245e.jpg", "assets/img/3e368c0716ca.jpg", "assets/img/3ef354922ae1.jpg", "assets/img/40dfc9ef3b1e.jpg", "assets/img/4115eb3a7886.jpg", "assets/img/413213fec2de.jpg", "assets/img/4204803eedf2.png", "assets/img/43f3f9b508d1.png", "assets/img/4514699b7680.jpg", "assets/img/459e334d6b50.jpg", "assets/img/45d1bc218c14.jpg", "assets/img/47440e6ea977.jpg", "assets/img/47c2cdd69449.jpg", "assets/img/480394a2a7b9.jpg", "assets/img/483fb210596b.png", "assets/img/489424610072.png", "assets/img/49ccd2a3e086.jpg", "assets/img/4c9e81f2c773.jpg", "assets/img/5039f69ffbc4.jpg", "assets/img/5099b4b143ed.jpg", "assets/img/51765cc4c9fb.jpg", "assets/img/526dea67517b.jpg", "assets/img/52a228ab2da2.jpg", "assets/img/53d210160900.jpg", "assets/img/546ed47f6153.png", "assets/img/55bf024c031d.jpg", "assets/img/5641361f4e3c.png", "assets/img/56b029cdcb9a.jpg", "assets/img/56e38cfc4248.jpg", "assets/img/592b87e837d2.png", "assets/img/59799cdbb3b8.jpg", "assets/img/5a53d9bdc30a.png", "assets/img/5a7ea550a7a9.png", "assets/img/5ab136d026b7.jpg", "assets/img/5c3a22ff1726.jpg", "assets/img/5cbd55c45c2a.jpg", "assets/img/5da1ce2fd424.png", "assets/img/5e5048c18846.png", "assets/img/5e631b3bfecd.png", "assets/img/6001b506c85f.png", "assets/img/6017da9ca0ef.jpg", "assets/img/61a25415cf10.jpg", "assets/img/663b0e9b87b3.jpg", "assets/img/67608dad3545.png", "assets/img/696cc69a2b64.png", "assets/img/6acffa00c80a.jpg", "assets/img/6bf1da3ad9b8.png", "assets/img/6ce607d25f71.png", "assets/img/6d7b1a8a92d4.jpg", "assets/img/6dd0db2ba5a2.jpg", "assets/img/6ee34f92a3c0.jpg", "assets/img/6f35c3dd11c0.png", "assets/img/6f3eaded7563.png", "assets/img/6f86764d39a7.jpg", "assets/img/6fb8bd4efafa.png", "assets/img/7089b6ff4940.png", "assets/img/70e96312ea40.png", "assets/img/71a333c7f60f.jpg", "assets/img/749daeedc1e9.png", "assets/img/75b48fc0b85a.jpg", "assets/img/786d1e9ad3b6.jpg", "assets/img/78ab15294211.jpg", "assets/img/79e9b8579cb5.jpg", "assets/img/7a3f9cd145a2.jpg", "assets/img/7ca8eb1612b7.jpg", "assets/img/7f218ae9d1f2.jpg", "assets/img/7f62ff60d0cd.jpg", "assets/img/80471628d268.jpg", "assets/img/815443799ac2.jpg", "assets/img/827781ef8d62.png", "assets/img/8297f4a4ca00.jpg", "assets/img/83d48576ffb7.png", "assets/img/862dc49eefde.png", "assets/img/87adb6b35f6c.png", "assets/img/8826aeba1213.jpg", "assets/img/8b3602b3557b.png", "assets/img/8b3a0cf76973.jpg", "assets/img/8c786832ffbf.jpg", "assets/img/8c95c4dc7693.jpg", "assets/img/8d2a5fadce2c.jpg", "assets/img/8de75d0d1b89.jpg", "assets/img/8f665d0767d1.jpg", "assets/img/92bb828180ea.jpg", "assets/img/92ec9444cca1.jpg", "assets/img/9493a5078f97.png", "assets/img/949e2b736e03.jpg", "assets/img/9605267c3ba4.png", "assets/img/96ff7c1e7bda.png", "assets/img/97238020b5d6.png", "assets/img/97a8ed597097.jpg", "assets/img/9ad7ed67d6cc.jpg", "assets/img/9b66c306299e.jpg", "assets/img/9b850b68e478.jpg", "assets/img/9caf5a9833be.png", "assets/img/9d1ce115739d.jpg", "assets/img/9d8cae710e6f.png", "assets/img/9eff4aad67fe.png", "assets/img/a0a77f7d49f4.jpg", "assets/img/a0fd649642c7.png", "assets/img/a2adec13cc42.jpg", "assets/img/a40ef7d0eb6f.jpg", "assets/img/a5fec4dcc9c0.jpg", "assets/img/a653466280ae.jpg", "assets/img/a6a843fb2542.jpg", "assets/img/a7e8c2f432ef.jpg", "assets/img/a8ab976aa53b.jpg", "assets/img/adf50639b6f4.jpg", "assets/img/ae00327ce32a.jpg", "assets/img/ae5fcc814bbd.png", "assets/img/afffc53b02ee.jpg", "assets/img/b08d304c26cd.jpg", "assets/img/b0d30aa3a942.jpg", "assets/img/b769beab6a48.png", "assets/img/b789a7bb3834.jpg", "assets/img/b7a271fd04e7.jpg", "assets/img/b8d3dbe7109d.png", "assets/img/b90620b64bdf.jpg", "assets/img/b96cc48906af.jpg", "assets/img/b996d3576f06.jpg", "assets/img/bc8d39edc803.jpg", "assets/img/be745b4cc3fa.jpg", "assets/img/bf5a77b8958b.jpg", "assets/img/c0a051f50259.jpg", "assets/img/c2b244afd5b6.png", "assets/img/c33165164ae0.jpg", "assets/img/c4a70576ef7f.png", "assets/img/c52fd6cf09d3.jpg", "assets/img/c66d774970c2.jpg", "assets/img/c6d5d857f212.jpg", "assets/img/c89426040269.jpg", "assets/img/cbe276becc13.jpg", "assets/img/cce3a06d60f5.jpg", "assets/img/cf29e044b516.jpg", "assets/img/cffe6c922cb3.jpg", "assets/img/d0400b6a55de.jpg", "assets/img/d1531da03496.png", "assets/img/d1990fa1efa2.png", "assets/img/d1deb032f91b.jpg", "assets/img/d3540229b27b.jpg", "assets/img/d377ab86e4fc.jpg", "assets/img/d49999875db9.png", "assets/img/d5c9fdf3d721.png", "assets/img/d83aaed0caa7.jpg", "assets/img/d856c69178c8.jpg", "assets/img/d9bedaed4503.jpg", "assets/img/da3d20a492a6.png", "assets/img/db273053feba.jpg", "assets/img/db9bfd649544.jpg", "assets/img/dbbb4eea5352.jpg", "assets/img/dc828893770b.jpg", "assets/img/dc97b8d47688.jpg", "assets/img/dd61fb68100c.jpg", "assets/img/dd97a6b4e1b4.jpg", "assets/img/ddc7f6160cbe.jpg", "assets/img/df301e031128.jpg", "assets/img/dfbfa5e1ec54.jpg", "assets/img/e0a34a6df16a.png", "assets/img/e258f7021c55.png", "assets/img/e2d548c85f58.png", "assets/img/e5eccf8182ba.jpg", "assets/img/e89a96199856.jpg", "assets/img/e94c22b13fb7.png", "assets/img/e95ca99f0133.jpg", "assets/img/eaa406207515.jpg", "assets/img/eba5114e6f09.png", "assets/img/ec118b3aa6e1.jpg", "assets/img/ecb8f50630ec.jpg", "assets/img/ed285a01a19b.jpg", "assets/img/ed34cc9a60ab.jpg", "assets/img/ed8ec6fb4820.jpg", "assets/img/ee62cf9039bf.jpg", "assets/img/f19cf7804bbc.jpg", "assets/img/f1cb64ab46fe.jpg", "assets/img/f2c4c46f0472.jpg", "assets/img/f36c90f4b70f.jpg", "assets/img/f3b1db35d295.png", "assets/img/f5d77d14d77e.jpg", "assets/img/f6519a041835.jpg", "assets/img/f73f19499edc.jpg", "assets/img/f86ec6de6bd5.png", "assets/img/f94bbc83db98.jpg", "assets/img/fa0cb1eab6e0.png", "assets/img/fa374e0d7310.jpg", "assets/img/fa6a2da1c441.jpg", "assets/img/fc884ae8f4be.png", "assets/img/fd0d9392510f.jpg", "assets/img/fdea50835e6b.jpg", "assets/img/fe087a1c7c5a.jpg", "assets/img/fe41849026f7.jpg", "assets/img/ff4586508418.png"];
 const AI_SPRITES = {
+  // v15e9: 신규 20명 (단일 이미지 - frame2 등급은 _f1 이 없으면 이 키로 폴백)
+  "mythic|백수해적단 킹": "assets/img/b789a7bb3834.jpg",
+  "mythic|최강해적 록스": "assets/img/0f9c45b9dbde.jpg",
+  "mythic|해적여제 보아 행콕": "assets/img/5ab136d026b7.jpg",
+  "origin|세라핌 S-쿠마": "assets/img/56b029cdcb9a.jpg",
+  "origin|세라핌 S-도플라밍고": "assets/img/e95ca99f0133.jpg",
+  "origin|세라핌 S-미호크": "assets/img/2a45ebb2b484.jpg",
+  "origin|해신왕 넵튠": "assets/img/306a6e71f279.jpg",
+  "origin|빈스모크 니지": "assets/img/18f9db059968.jpg",
+  "origin|빈스모크 욘지": "assets/img/b7a271fd04e7.jpg",
+  "origin|빈스모크 레이주": "assets/img/56e38cfc4248.jpg",
+  "absolute|고대병기 에메트": "assets/img/adf50639b6f4.jpg",
+  "absolute|살육무기 카마조": "assets/img/b96cc48906af.jpg",
+  "absolute|쇼군 쿠로즈미 오로치": "assets/img/59799cdbb3b8.jpg",
+  "absolute|신의기사단 갈링": "assets/img/92ec9444cca1.jpg",
+  "supremal|폭식왕 와폴": "assets/img/9b850b68e478.jpg",
+  "supremal|비목의 블랙마리아": "assets/img/7ca8eb1612b7.jpg",
+  "supremal|전격 캐럿": "assets/img/fe087a1c7c5a.jpg",
+  "supremal|샬롯 푸딩": "assets/img/1c4b08f43b31.jpg",
+  "supremal|뉴스 조인 모건스": "assets/img/49ccd2a3e086.jpg",
+  "supremal|사황 빅맘": "assets/img/413213fec2de.jpg",
   // v15e6: 필드 위 보스 토큰용 스프라이트. drawMarine/drawPirate 가 AI_SPRITES["boss|"+m.name] 으로 찾는다.
   //   보스 18명을 새 이름으로 교체하면서 기존 boss| 키와 전부 어긋나 절차적 렌더로 폴백되고 있었다.
   //   보스 연출(초상화)과 같은 이미지를 써서 인트로와 필드가 일치하게 한다.
@@ -5442,7 +5544,9 @@ function triggerEvent(){
 // 서포터: 기존 PASSIVES 버프/디버프 체계 그대로 사용
 const ROLE_TAGS = {
   // 신화
-  "로키":"원거리범위딜", "코즈키 모모노스케":"원거리범위딜", "스크래치맨 아푸":"원거리단일딜", "니카 루피":"근접범위딜", "이무":"끝딜", "로저":"근접단일딜",
+  "로키":"원거리범위딜", "코즈키 모모노스케":"원거리범위딜", "스크래치맨 아푸":"원거리단일딜",
+  // v15e9: 신규 20명
+  "백수해적단 킹":"근접단일딜", "최강해적 록스":"끝딜", "해적여제 보아 행콕":"근접범위딜", "세라핌 S-쿠마":"원거리범위딜", "세라핌 S-도플라밍고":"원거리범위딜", "세라핌 S-미호크":"근접단일딜", "해신왕 넵튠":"끝딜", "빈스모크 니지":"원거리단일딜", "빈스모크 욘지":"근접범위딜", "빈스모크 레이주":"서포터", "고대병기 에메트":"근접범위딜", "살육무기 카마조":"근접단일딜", "쇼군 쿠로즈미 오로치":"원거리범위딜", "신의기사단 갈링":"끝딜", "폭식왕 와폴":"근접범위딜", "비목의 블랙마리아":"원거리범위딜", "전격 캐럿":"근접단일딜", "샬롯 푸딩":"원거리단일딜", "뉴스 조인 모건스":"서포터", "사황 빅맘":"끝딜", "니카 루피":"근접범위딜", "이무":"끝딜", "로저":"근접단일딜",
   "조이보이":"원거리범위딜", "코즈키 오뎅":"근접단일딜", "오로성":"원거리단일딜", "카이도":"근접범위딜",
   "록스 D. 지벡":"끝딜", "빅맘":"서포터", "전성기 가프":"원거리단일딜", "해신 시라호시":"서포터", "다크킹 레일리":"서포터",
   // 태초
