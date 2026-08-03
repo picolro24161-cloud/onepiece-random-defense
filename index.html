@@ -3627,6 +3627,7 @@ function initState(diffKey){
   FINAL_ROUND = FINAL_ROUND_BY_DIFF[diffKey] || 55;
   _midClearShown = {};   // v15e5: 새 게임마다 중간 클리어 팝업 이력 초기화
   _midBossDone = {};     // v15f0: 중간보스 등장 이력 초기화
+  _midBossRewarded = {}; // v15f8: 중간보스 보상 지급 이력 초기화
   _chainBoomUntil = 0; _chainBoomMult = 0;   // v15f2: 고유기 지속 상태 초기화   // v15bn: 난이도별 최종 라운드 반영
   state = {
     diff: DIFFS[diffKey], diffKey,
@@ -3863,6 +3864,7 @@ function spawnMonster(){
   m.hp=s.hp; m.maxHp=s.hp; m.speed=s.speed; m.reward=s.reward;
   m.armor=s.armor; m.rank=s.rank; m.boss=false; m.slow=0; m.stun=0;
   m.stunPulses = null; m.slowStrongUntil = 0; m._armorSave = null; m._armorCurseUntil = 0;   // v15f2: 고유기 잔여 상태 초기화 (몬스터 풀 재사용 대비)
+  m.midBoss = false; m.midBossRound = 0;   // v15f8: 풀 재사용 시 중간보스 표식이 남아 보상이 반복되던 버그
   m.name=""; m.bossColor=""; m.elite=false; m.finalBoss=false;
   // 아크별 혼성 비율 + 병종 이름 할당
   const spArc = arcOf(state.round);
@@ -4092,7 +4094,8 @@ function spawnBoss(round){
   m.armor = Math.round((MARINE_RANKS[rankOf(round)].armor + Math.max(0, round-7)*4 + Math.max(0, round-25)*Math.max(0, round-25)*0.3) * state.diff.armor * 2.6);
   m.rank = rankOf(round);
   m.boss = true; m.slow = 0; m.stun = 0; m.elite = false; m.faction = "marine";
-  m.stunPulses = null; m.slowStrongUntil = 0; m._armorSave = null; m._armorCurseUntil = 0;   // v15f2: 고유기 잔여 상태 초기화 (몬스터 풀 재사용 대비)
+  m.stunPulses = null; m.slowStrongUntil = 0; m._armorSave = null; m._armorCurseUntil = 0;
+  m.midBoss = false; m.midBossRound = 0;   // v15f8: 풀 재사용 시 중간보스 표식이 남아 보상이 반복되던 버그   // v15f2: 고유기 잔여 상태 초기화 (몬스터 풀 재사용 대비)
   m.name = BOSSES[round] || "해군 본부";
   m.bossColor = BOSS_COLORS[round] || "#2b3c54";
   m.finalBoss = (round === FINAL_ROUND);
@@ -5661,6 +5664,7 @@ function spawnMidBoss(round){
   m.rank = rankOf(round);
   m.boss = false; m.slow = 0; m.stun = 0; m.finalBoss = false;
   m.stunPulses = null; m.slowStrongUntil = 0; m._armorSave = null; m._armorCurseUntil = 0;   // v15f2: 고유기 잔여 상태 초기화 (몬스터 풀 재사용 대비)
+  m.midBoss = false; m.midBossRound = 0;   // v15f8: 풀 재사용 시 중간보스 표식이 남아 보상이 반복되던 버그
   m.elite = true; m.bounty = true;
   m.faction = Math.random() < 0.5 ? "marine" : "pirate";
   m.name = name;
@@ -5687,6 +5691,7 @@ function triggerEvent(){
     m.armor=Math.round(s.armor*2); m.rank=s.rank;
     m.boss=false; m.slow=0; m.stun=0; m.elite=true; m.finalBoss=false;
     m.stunPulses = null; m.slowStrongUntil = 0; m._armorSave = null; m._armorCurseUntil = 0;   // v15f2: 고유기 잔여 상태 초기화
+  m.midBoss = false; m.midBossRound = 0;   // v15f8: 풀 재사용 시 중간보스 표식이 남아 보상이 반복되던 버그
     m.faction = "pirate";
     m.name = getBountyName();
     m.bounty = true;
@@ -6591,7 +6596,10 @@ const MIDBOSS = {
         reward:"고대병기 에메트", rewardGrade:"absolute", hpMul:34, armorMul:3.8 },
 };
 const MIDBOSS_GIF_SEC = 4;          // GIF 재생 시간(초) — 파일마다 길이를 알 수 없어 타이머로 처리
-let _midBossDone = {};              // 라운드별 1회만
+let _midBossDone = {};              // 라운드별 1회만 (등장)
+// v15f8: 등장 이력과 별개로 '보상을 이미 줬는지'를 따로 기록한다.
+//   몬스터 객체가 풀에서 재사용되면서 midBoss 표식이 남아 보상 팝업이 계속 뜨던 문제의 2차 방어선.
+let _midBossRewarded = {};          // 라운드별 보상 1회만
 
 function playMidBossGif(cfg, onDone){
   let wrap = document.getElementById("midBossGif");
@@ -6649,6 +6657,8 @@ function spawnNamedMidBoss(round){
 function showMidBossReward(round){
   const cfg = MIDBOSS[round];
   if(!cfg) return;
+  if(_midBossRewarded[round]) return;      // v15f8: 이미 준 보상은 다시 띄우지 않는다
+  _midBossRewarded[round] = true;
   const id = findByName(cfg.rewardGrade, cfg.reward);
   state.paused = true;
   let wrap = document.getElementById("midBossReward");
@@ -6809,10 +6819,16 @@ function update(dt){
       sfxKill();
     }
     // v15f0: 중간보스 격파 → 보상 팝업 (확인 누르면 필드/보관함에 지급)
+    // v15f8: 처리 즉시 표식을 지운다. 이 객체는 풀로 돌아가 잡몹으로 재사용되는데,
+    //   표식이 남아 있으면 그 잡몹이 죽을 때마다 보상 팝업이 다시 떴다.
     if(m.midBoss){
-      addLog(`🏆 <b class="win-c">중간보스 ${m.name} 격파!</b>`);
-      try{ SFX.bossDie(); }catch(e){}
-      showMidBossReward(m.midBossRound);
+      const mbRound = m.midBossRound;
+      m.midBoss = false; m.midBossRound = 0;
+      if(!_midBossRewarded[mbRound]){
+        addLog(`🏆 <b class="win-c">중간보스 ${m.name} 격파!</b>`);
+        try{ SFX.bossDie(); }catch(e){}
+        showMidBossReward(mbRound);
+      }
     }
     // v15f2: 연쇄폭발 지속 중이면 처치 지점 주변에 추가 피해
     if(_chainBoomUntil && state.time < _chainBoomUntil){
