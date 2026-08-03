@@ -1608,17 +1608,30 @@ for(const grade in TOP_RECIPE_DEFS){
 //   기존 13종 지정 조합은 특정 초절대자/절대자를 콕 집어 요구해서 재료가 안 맞으면 영영 막힌다.
 //   이 루트는 등급만 맞으면 되고 대신 "어떤 태초를 넣느냐"로 13갈래를 나눈다.
 //   결과가 랜덤이라 지정 조합보다 운이 필요한 대신, 재료 접근성이 훨씬 높다.
-const OVERLORD_ORIGIN_ROUTE_NAMES = [
-  "갓 에넬", "태양신 니카", "세계왕 이무", "해적왕 로저", "최강 흰 수염",
-  "검신 미호크", "패왕 샹크스", "용신 카이도", "태초의 조이보이", "사막왕 크로커다일",
-  "각성 유스타스 캡틴 키드", "백수해적단 잭", "해신왕 넵튠",
+// v15fg: 결과를 랜덤이 아니라 태초 1명당 패왕 1명으로 못박는다.
+//   무엇이 나오는지 모르면 조합을 계획할 수 없고, 카드에 이름도 못 띄운다.
+//   [지정 태초, 만들어지는 패왕] — 원작 인연을 기준으로 1:1 대응시켰다.
+const OVERLORD_ORIGIN_ROUTES = [
+  ["해적왕 로저",            "전설의 해적왕 로저"],   // 동일 인물
+  ["태양신 니카",            "태양신 니카 루피"],     // 동일 인물
+  ["세계왕 이무",            "세계군주 이무"],        // 동일 인물
+  ["최강 흰 수염",           "전성기 흰수염"],        // 동일 인물
+  ["패왕 샹크스",            "[필름 레드] 샹크스"],   // 동일 인물
+  ["용신 카이도",            "최강해적 록스D지벡"],   // 록스 해적단 출신
+  ["백수해적단 잭",          "화월의 오뎅"],          // 와노쿠니
+  ["사막왕 크로커다일",      "암흑황제 검은수염"],    // 임펠다운
+  ["검신 미호크",            "사황 버기"],            // 크로스 길드
+  ["각성 유스타스 캡틴 키드", "해군대장 료쿠규"],      // 키드를 꺾은 해군대장
+  ["태초의 조이보이",        "혁명군총사령관 사보"],  // 해방의 의지
+  ["해신왕 넵튠",            "스코퍼가반"],           // 로저 해적단 항해
+  ["갓 에넬",                "불주먹 에이스"],        // 자연계 최강급
 ];
-OVERLORD_ORIGIN_ROUTE_NAMES.forEach(originName=>{
+OVERLORD_ORIGIN_ROUTES.forEach(([originName, overlordName])=>{
   const oid = findByName("origin", originName);
-  if(!oid) return;
+  const rid = findByName("overlord", overlordName);
+  if(!oid || !rid) return;
   RECIPE_LIST.push({
-    result: null,                 // 랜덤 — craftRecipe 가 randomGrade 로 뽑는다
-    randomGrade: "overlord",
+    result: rid,
     mats: [oid],
     anyNeed: [ { grade:"ultramaximal", n:1 }, { grade:"supremal", n:2 } ],
     target: "overlord",
@@ -7951,10 +7964,8 @@ function refreshUI(){
         return cb-ca || matsOwned(b)-matsOwned(a);
       });
     list2.forEach(r=>{
-      // v15f7: 결과가 랜덤인 조합은 특정 캐릭터가 아니라 등급으로 표시한다
-      const isRandom = !r.result;
-      const def = isRandom ? null : UNIT_DEFS[r.result];
-      const g = isRandom ? GRADES[r.randomGrade] : GRADES[def.grade];
+      const def = UNIT_DEFS[r.result];
+      const g = GRADES[def.grade];
       const ok = canCraft(r);
       const seen = {};
       const matsParts = r.mats.map(id=>{
@@ -7985,12 +7996,13 @@ function refreshUI(){
       const div = document.createElement("div");
       div.className = "recipeCard";
       div.style.borderLeft = "3px solid "+g.color;
-      const skillTag = (!isRandom && def.skill) ? ` <span style="color:${g.color};font-size:10.5px">[${def.skill.type}]</span>` : "";
-      // v15ff: 랜덤 결과 카드는 히든 탭과 같은 형식으로 — 제목은 등급 이름만,
-      //   나머지는 전부 조합식으로 보여준다. ("랜덤 1명", "N종 중 랜덤", 후보 나열은 제거)
-      const title = isRandom ? `${GRADE_ICON[r.randomGrade]||""} ${g.name}` : def.name;
-      const dmgTxt = isRandom ? "" : `공격력 ${def.dmg}`;
-      if(isRandom){
+      const skillTag = def.skill ? ` <span style="color:${g.color};font-size:10.5px">[${def.skill.type}]</span>` : "";
+      // v15ff: 등급 재료(anyNeed)를 쓰는 조합은 히든 탭과 같은 형식으로 —
+      //   제목에 만들어지는 캐릭터 이름을 넣고, 나머지는 재료를 한 줄씩 나열한다.
+      const formulaStyle = !!r.anyNeed;
+      const title = formulaStyle ? `${GRADE_ICON[def.grade]||""} ${def.name}` : def.name;
+      const dmgTxt = `공격력 ${def.dmg}`;
+      if(formulaStyle){
         // 히든 탭과 동일한 배치: 제목 + 재료를 한 줄씩 나열
         const lines = [];
         r.mats.forEach(id=>{
@@ -8019,41 +8031,7 @@ function refreshUI(){
           </div>
           <button ${ok?"":"disabled"}>⚡</button>`;
       }
-      // v15fd: 랜덤 결과 카드는 "결과 등급"의 초상화를 겹쳐 보여준다.
-      //   앞서는 지정 태초 재료의 얼굴을 썼는데, 태초 13명 중 니카/이무/로저/흰수염/샹크스는
-      //   패왕에도 같은 인물이 있어서 "왜 태초 그림이 나오냐"는 혼동을 만들었다.
-      //   결과가 랜덤이라 한 명만 그리면 "저게 나온다"고 오해하므로, 후보 중 3명을
-      //   살짝 겹쳐 배치해 "여러 명 중 하나"라는 뜻이 그림만으로 읽히게 한다.
-      //   카드마다 다른 3명을 뽑도록 인덱스를 밀어서 목록이 단조로워 보이지 않게 했다.
-      if(isRandom){
-        const box = document.createElement("div");
-        box.style.cssText = "position:relative;width:44px;height:48px;";
-        const pool = GRADE_POOL[r.randomGrade] || [];
-        const seed = RECIPE_LIST.indexOf(r);
-        const LAYOUT = [
-          { x:-13, y:2, s:0.62, a:0.55, z:1 },
-          { x: 13, y:2, s:0.62, a:0.55, z:1 },
-          { x:  0, y:0, s:0.86, a:1,    z:2 },
-        ];
-        LAYOUT.forEach((L, k)=>{
-          const id = pool[(seed*3 + k) % pool.length];
-          if(!id) return;
-          const c = makePortrait(id);
-          c.style.cssText = `position:absolute;left:50%;top:0;`
-            + `transform:translateX(-50%) translate(${L.x}px, ${L.y}px) scale(${L.s});`
-            + `opacity:${L.a};z-index:${L.z};`;
-          box.appendChild(c);
-        });
-        const badge = document.createElement("div");
-        badge.textContent = GRADE_ICON[r.randomGrade] || "?";
-        badge.style.cssText = "position:absolute;right:-4px;bottom:-2px;width:20px;height:20px;z-index:3;"
-          + `display:flex;align-items:center;justify-content:center;font-size:12px;`
-          + `border-radius:50%;background:${g.color};color:#1a1206;border:1.5px solid #0b1220;`;
-        box.appendChild(badge);
-        div.querySelector(".portrait").appendChild(box);
-      }else{
-        div.querySelector(".portrait").appendChild(makePortrait(r.result));
-      }
+      div.querySelector(".portrait").appendChild(makePortrait(r.result));
       div.querySelector("button").addEventListener("click", ()=>craftRecipe(r, false));
       rl.appendChild(div);
     });
