@@ -6056,6 +6056,10 @@ const ULT_FX_VIEW = {
   chain_boom:   { mode:"point", size:190 },    // 가반 - 몬스터 처치 위치마다
   lottery:      { mode:"above", size:120 },    // 버기 - 캐릭터 위 작게
   summon:       { mode:"point", size:160 },    // 니카 루피 - 소환 위치
+  // v15fi: 이무는 기본값(기타 원형)에 묻혀 있어서 전용 규격으로 분리했다.
+  //   이펙트 원본(Shanks Kamusari 2)이 가로로 뻗는 충격파라 밀어내는 연출과 맞고,
+  //   좌우로 넓게 보이도록 다른 원형기(380)보다 조금 키웠다.
+  knockback:    { mode:"self",  size:440 },    // 이무 - 강제 후퇴
 };
 const ULT_FX_VIEW_DEFAULT = { mode:"self", size:380 };   // 나머지 - 시전자 주변 원형
 function ultFxView(kind){ return ULT_FX_VIEW[kind] || ULT_FX_VIEW_DEFAULT; }
