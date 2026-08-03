@@ -5947,6 +5947,73 @@ Object.keys(ROLE_TAGS).forEach(nm=>{
     + `최소 ${MIN_RANGE_CELLS}칸=${MIN_PX}px | 사거리 상향 ${rangeUp}명, 스킬반경 상향 ${radiusUp}개`);
 })();
 
+// =========================================================
+//  v15fk: [전 등급 공통] 타격 폭에 따른 스킬 배율 재조정
+// =========================================================
+// 문제: 단일 대상 스킬과 필드 전체를 쓸어담는 스킬의 배율이 거의 같았다.
+//   실측(수정 전 등급별 평균 배율)
+//     절대자   단일 6.50 / 다중타 5.32 / 광역 4.97   → 격차 겨우 1.3배
+//     초절대자 단일 10.50 / 다중타 7.00 / 광역 7.80  → 광역이 다중타보다 높음(역전)
+//     패왕     단일 10.75 / 다중타 7.50 / 광역 9.17  → 역시 역전
+//   이러면 같은 등급에서 단일딜을 뽑을 이유가 없다. 무조건 광역이 이득이다.
+//
+// 해법: "좁게 때릴수록 한 대가 세다"는 계수를 등급과 무관하게 일괄 적용한다.
+//   등급별 평균 배율(= 그 등급의 총 화력)은 그대로 두고 분배만 바꾸므로,
+//   등급 간 파워 커브는 흔들리지 않는다.
+const SCOPE_FACTOR = {
+  single: 1.00,   // 단일~2타      — 기준
+  few:    0.80,   // 3~6타
+  many:   0.60,   // 7~15타
+  spam:   0.45,   // 16타 이상
+  r_s:    0.70,   // 반경 ~200
+  r_m:    0.55,   // 반경 201~350
+  r_l:    0.42,   // 반경 351~600
+  r_xl:   0.32,   // 반경 600 초과
+  field:  0.28,   // 필드 전체
+};
+function scopeOf(sk){
+  if(sk.ult === "field_nuke") return "field";
+  if(sk.radius && sk.radius >= 9999) return "field";
+  if(sk.radius){
+    if(sk.radius <= 200) return "r_s";
+    if(sk.radius <= 350) return "r_m";
+    if(sk.radius <= 600) return "r_l";
+    return "r_xl";
+  }
+  const h = sk.hits || 1;
+  if(h <= 2)  return "single";
+  if(h <= 6)  return "few";
+  if(h <= 15) return "many";
+  return "spam";
+}
+(function rebalanceByScope(){
+  // 스킬 객체는 여러 유닛이 공유할 수 있으므로 중복 적용을 막는다.
+  const seen = new Set();
+  const byGrade = {};
+  Object.values(UNIT_DEFS).forEach(def=>{
+    [def.skill, def.skill2, def.skill3].forEach(sk=>{
+      if(!sk || seen.has(sk)) return;
+      if(!(sk.mult > 0)) return;          // 배율 0(버프/디버프/동결 등)은 대상 아님
+      seen.add(sk);
+      (byGrade[def.grade] = byGrade[def.grade] || []).push(sk);
+    });
+  });
+  let changed = 0;
+  Object.keys(byGrade).forEach(g=>{
+    const list = byGrade[g];
+    const sumOld = list.reduce((s,sk)=>s + sk.mult, 0);
+    const sumFac = list.reduce((s,sk)=>s + SCOPE_FACTOR[scopeOf(sk)], 0);
+    if(sumFac <= 0) return;
+    // 등급 총합을 보존하면서 계수 비율대로 재분배
+    const k = sumOld / sumFac;
+    list.forEach(sk=>{
+      const next = Math.round(SCOPE_FACTOR[scopeOf(sk)] * k * 100) / 100;
+      if(next !== sk.mult){ sk.mult = next; changed++; }
+    });
+  });
+  console.log(`[원랜디] 타격 폭 기준 스킬 배율 재조정 — ${changed}개 스킬`);
+})();
+
 // v15ae: 히든 등급 중 방감 없는 캐릭터(에넬/가프/스튜시/로/샤카/에디슨/릴리스/요크 등) 채워넣기 — 히든은 전원 근접범위 디버프형이라 근접 보너스 포함
 GRADE_POOL.hidden.forEach(id=>{
   const d = UNIT_DEFS[id];
@@ -6062,6 +6129,9 @@ const ULT_FX_VIEW = {
   knockback:    { mode:"self",  size:440 },    // 이무 - 강제 후퇴
 };
 const ULT_FX_VIEW_DEFAULT = { mode:"self", size:380 };   // 나머지 - 시전자 주변 원형
+// v15fj: 이펙트 표시 시간. 0.75초는 눈 깜빡하면 놓쳐서 "이펙트가 안 나온다"는 인상을 줬다.
+const ULT_FX_DUR = 1.5;          // 시전 이펙트
+const ULT_FX_DUR_POINT = 1.0;    // 낙하/폭발처럼 여러 개가 동시에 뜨는 것 (겹침이 심해 조금 짧게)
 function ultFxView(kind){ return ULT_FX_VIEW[kind] || ULT_FX_VIEW_DEFAULT; }
 
 // 시전자 중심(또는 지정 좌표)에 고유기 이펙트를 띄운다.
@@ -6098,13 +6168,16 @@ function fireSkill(u, def, sk){
   }
   // ── v15f2: 패왕 고유기 ────────────────────────────────────────────
   if(sk.ult){
-    if(state.monsters.length === 0) return false;      // 빈 필드에 낭비하지 않는다
+    // v15fj: 예전엔 필드가 비어 있으면 발동 자체를 취소했다. 그런데 패왕이 세서 몹이
+    //   나오는 족족 즉사하면 필드가 계속 비어 있고, 그 결과 고유기가 영영 안 터졌다.
+    //   (실측: 패왕 4명 투입 후 12초간 발동 0회, 쿨은 전부 0초로 대기 중)
+    //   피해 계산은 대상이 없으면 자연히 0이 되므로, 발동과 이펙트는 그대로 진행한다.
     const R = sk.radius || 400;
     const inR = ()=> state.monsters.filter(m=>{
       const p = pathPos(m.d), dx = p.x - u.x, dy = p.y - u.y;
       return dx*dx + dy*dy <= R*R;
     });
-    _ultFx(u.x, u.y, sk.color, sk.ult, 0.75);
+    _ultFx(u.x, u.y, sk.color, sk.ult, ULT_FX_DUR);
     state.shake = Math.max(state.shake, 12);
     SFX.skill();
     switch(sk.ult){
@@ -6185,7 +6258,7 @@ function fireSkill(u, def, sk){
           const nu = { defId:src.defId, x:slot.x, y:slot.y, cd:0, skillCd:1, skillCd2:2, skillCd3:99999,
                        slot, locked:false, tempUntil: state.time + (sk.dur || 12) };
           slot.unit = nu; state.units.push(nu); recalcSynergy();
-          _ultFx(slot.x, slot.y, sk.color, "summon", 0.7, true);   // 소환 위치에 이펙트
+          _ultFx(slot.x, slot.y, sk.color, "summon", ULT_FX_DUR, true);   // 소환 위치에 이펙트
           addLog(`✨ <b style="color:${sk.color}">${sk.type}</b> — ${UNIT_DEFS[src.defId].name} ${sk.dur}초간 소환!`);
         }
         break;
@@ -6210,7 +6283,7 @@ function fireSkill(u, def, sk){
               _ultStun(m, 1, sk.stun || 1.5);
             }
           });
-          _ultFx(c.x, c.y, sk.color, sk.ult, 0.5, true);   // 낙하지점마다 운석 이펙트
+          _ultFx(c.x, c.y, sk.color, sk.ult, ULT_FX_DUR_POINT, true);   // 낙하지점마다 운석 이펙트
         }
         break;
       }
@@ -6832,7 +6905,7 @@ function update(dt){
         const p = pathPos(o.d), dx = p.x - cp.x, dy = p.y - cp.y;
         if(dx*dx + dy*dy <= CR*CR) o.hp -= Math.round(o.maxHp * 0.015 * _chainBoomMult);
       });
-      _ultFx(cp.x, cp.y, "#ffb02e", "chain_boom", 0.4, true);   // 처치 위치마다 폭발 이펙트
+      _ultFx(cp.x, cp.y, "#ffb02e", "chain_boom", ULT_FX_DUR_POINT, true);   // 처치 위치마다 폭발 이펙트
     }
     m.bounty = false;
     removeLapCounted(m);
@@ -8436,6 +8509,7 @@ function startAssetPreload(){
 // v15dn: 게임 로직은 준비됐지만, 이미지 전량 프리로드가 끝난 뒤에 __gameReady=true 가 된다.
 initUiStageFit();   // v15e2: 시작/난이도 화면 배경을 화면 크기에 맞춰 최대로 확대
 startAssetPreload();
+
 </script>
 </body>
 </html>
