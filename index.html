@@ -1676,6 +1676,28 @@ OVERLORD_PREMIUM_DEFS.forEach(([resultName, ultras, supremalName])=>{
   }
 });
 
+
+// v15f7: 패왕 "태초 지정" 루트 — 초절대자 1(아무나) + 절대자 2(아무나) + 지정 태초 1 → 랜덤 패왕
+//   기존 13종 지정 조합은 특정 초절대자/절대자를 콕 집어 요구해서 재료가 안 맞으면 영영 막힌다.
+//   이 루트는 등급만 맞으면 되고 대신 "어떤 태초를 넣느냐"로 13갈래를 나눈다.
+//   결과가 랜덤이라 지정 조합보다 운이 필요한 대신, 재료 접근성이 훨씬 높다.
+const OVERLORD_ORIGIN_ROUTE_NAMES = [
+  "갓 에넬", "태양신 니카", "세계왕 이무", "해적왕 로저", "최강 흰 수염",
+  "검신 미호크", "패왕 샹크스", "용신 카이도", "태초의 조이보이", "사막왕 크로커다일",
+  "각성 유스타스 캡틴 키드", "백수해적단 잭", "해신왕 넵튠",
+];
+OVERLORD_ORIGIN_ROUTE_NAMES.forEach(originName=>{
+  const oid = findByName("origin", originName);
+  if(!oid) return;
+  RECIPE_LIST.push({
+    result: null,                 // 랜덤 — craftRecipe 가 randomGrade 로 뽑는다
+    randomGrade: "overlord",
+    mats: [oid],
+    anyNeed: [ { grade:"ultramaximal", n:1 }, { grade:"supremal", n:2 } ],
+    target: "overlord",
+  });
+});
+
 // =========================================================
 //  사운드 (WebAudio - 외부 리소스 없음)
 // =========================================================
@@ -4512,6 +4534,8 @@ function canCraft(r){
   const need = {};
   r.mats.forEach(id=>{ need[id]=(need[id]||0)+1; });
   if(!Object.entries(need).every(([id,n]) => (c[id]||0) >= n)) return false;
+  // v15f7: 등급만 맞으면 되는 재료 (이름 지정 없음)
+  if(r.anyNeed && !r.anyNeed.every(a => gradeAvail(a.grade) >= a.n)) return false;
   if(r.altGroups && r.altGroups.length){
     const used = Object.assign({}, need);
     for(const g of r.altGroups){
@@ -4537,6 +4561,8 @@ function matsOwned(r){
       if(pick){ owned++; used[pick] = (used[pick]||0) + 1; }
     });
   }
+  // v15f7: 등급 재료도 갖춘 만큼 진행도에 센다 (조합 가능한 것부터 위로 정렬되게)
+  if(r.anyNeed) r.anyNeed.forEach(a=>{ owned += Math.min(a.n, gradeAvail(a.grade)); });
   return owned;
 }
 // 레시피의 총 재료 칸 수 (택1 그룹도 1칸으로 계산)
@@ -4561,8 +4587,21 @@ function craftRecipe(r, silent){
       }
     });
   }
-  const where = placeResult(r.result, resultSlot);
-  const def = UNIT_DEFS[r.result];
+  // v15f7: 등급 재료 소모 (이름 지정 없음)
+  if(r.anyNeed){
+    r.anyNeed.forEach(a=>{
+      const slot = consumeGrade([a.grade], a.n);
+      if(slot) resultSlot = slot;
+    });
+  }
+  // v15f7: 결과가 랜덤인 조합 (태초 지정 패왕 루트)
+  const resultId = r.result || (()=>{
+    const pool = GRADE_POOL[r.randomGrade] || [];
+    return pool[Math.floor(Math.random()*pool.length)];
+  })();
+  if(!resultId) return false;
+  const where = placeResult(resultId, resultSlot);
+  const def = UNIT_DEFS[resultId];
   const g = GRADES[def.grade];
   addLog(`[조합 성공] <b style="color:${g.color}">${def.name} (${g.name})</b> 탄생!${where==="storage"?" → 📦 보관함":""}`);
   state.roundCrafts++; checkMissionProgress();
@@ -4679,6 +4718,8 @@ function originAvailable(){ return unitsOfGrade("origin").length + storageGradeC
 function transAvailable(){ return unitsOfGrade("transcend").length + storageGradeCount("transcend"); }
 function absAvail(){ return unitsOfGrade("absolute").length + storageGradeCount("absolute"); }
 function suprAvail(){ return unitsOfGrade("supremal").length + storageGradeCount("supremal"); }
+// v15f7: 등급 문자열로 보유 수를 조회 (필드 + 보관함)
+function gradeAvail(g){ return unitsOfGrade(g).length + storageGradeCount(g); }
 
 // 태초급 등장 → 2분 보호
 // v15ag: 예전엔 여기서 state.autoStashGrade를 몰래 "legend"로 확장했는데, 사용자가 체크하지 않은 등급까지
@@ -5164,15 +5205,17 @@ function blackbeardUltraIds(){
   return GRADE_POOL.ultramaximal.filter(id => BLACKBEARD_ULTRA_NAMES.includes(UNIT_DEFS[id].name));
 }
 
-// 검은수염 루트: 절대자 x4 + 태초 x2 (밀짚모자 루트보다 재료가 비싼 대신 풀이 8종으로 좁다)
+// 검은수염 루트: 절대자 x3 + 태초 x1
+// v15f7: 예전엔 x4/x2 로 더 비쌌는데, 두 루트를 같은 비용으로 통일한다.
+//   풀이 분리돼 있다는 것만으로 패왕 조합 확률은 이미 보존되므로 비용까지 차등할 이유가 없다.
 function craftBlackbeardUltra(){
   if(!state.started || state.over) return false;
-  if(suprAvail() < 4 || originAvailable() < 2) return false;
+  if(suprAvail() < 3 || originAvailable() < 1) return false;
   const pool = blackbeardUltraIds();
   if(!pool.length) return false;
   const resultId = pool[Math.floor(Math.random()*pool.length)];
-  consumeGrade(["supremal"], 4);
-  const slot = consumeGrade(["origin"], 2);
+  consumeGrade(["supremal"], 3);
+  const slot = consumeGrade(["origin"], 1);
   const where = placeResult(resultId, slot);
   const def = UNIT_DEFS[resultId];
   const quote = ULTRAMAXIMAL_QUOTES[def.name] || "";
@@ -7911,10 +7954,10 @@ function refreshUI(){
       <div class="combineCard" style="border-left:3px solid #6a2ca0">
         <div class="info">
           <b style="color:#a95cff">🏴‍☠️ 초절대자 (검은수염 해적단 8인)</b>
-          <div class="formula">절대자 x4 : <b class="${suprAvail()>=4?'matOk':'matNo'}">${suprAvail()}/4</b> · 태초 x2 : <b class="${originAvailable()>=2?'matOk':'matNo'}">${originAvailable()}/2</b> → 검은수염 랜덤 1<br>
+          <div class="formula">절대자 x3 : <b class="${suprAvail()>=3?'matOk':'matNo'}">${suprAvail()}/3</b> · 태초 x1 : <b class="${originAvailable()>=1?'matOk':'matNo'}">${originAvailable()}/1</b> → 검은수염 랜덤 1<br>
           <span style="opacity:.75">밀짚모자 풀과 분리되어 있어 패왕 조합 확률에 영향을 주지 않습니다</span></div>
         </div>
-        <button id="bbUltraBtn" ${(suprAvail()>=4&&originAvailable()>=2)?"":"disabled"}>🏴‍☠️ 강림</button>
+        <button id="bbUltraBtn" ${(suprAvail()>=3&&originAvailable()>=1)?"":"disabled"}>🏴‍☠️ 강림</button>
       </div>`);
     rl.querySelector("#supBtn")?.addEventListener("click", craftSupremal);
     rl.querySelector("#ultraBtn")?.addEventListener("click", craftUltramaximal);
@@ -7945,7 +7988,10 @@ function refreshUI(){
         return cb-ca || matsOwned(b)-matsOwned(a);
       });
     list2.forEach(r=>{
-      const def = UNIT_DEFS[r.result], g = GRADES[def.grade];
+      // v15f7: 결과가 랜덤인 조합은 특정 캐릭터가 아니라 등급으로 표시한다
+      const isRandom = !r.result;
+      const def = isRandom ? null : UNIT_DEFS[r.result];
+      const g = isRandom ? GRADES[r.randomGrade] : GRADES[def.grade];
       const ok = canCraft(r);
       const seen = {};
       const matsParts = r.mats.map(id=>{
@@ -7965,21 +8011,39 @@ function refreshUI(){
           matsParts.push(`<span style="opacity:.7">(</span>${inner}<span style="opacity:.7">)</span>`);
         });
       }
+      // v15f7: 등급만 맞으면 되는 재료는 "초절대자 아무나 x1" 형태로 표기
+      if(r.anyNeed){
+        r.anyNeed.forEach(a=>{
+          const have = gradeAvail(a.grade);
+          matsParts.push(`<span class="${have>=a.n?'matOk':'matNo'}">${GRADES[a.grade].name} 아무나 x${a.n} <span style="opacity:.7">(${have}/${a.n})</span></span>`);
+        });
+      }
       const matsHtml = matsParts.join(" + ");
       const div = document.createElement("div");
       div.className = "recipeCard";
       div.style.borderLeft = "3px solid "+g.color;
-      const skillTag = def.skill ? ` <span style="color:${g.color};font-size:10.5px">[${def.skill.type}]</span>` : "";
+      const skillTag = (!isRandom && def.skill) ? ` <span style="color:${g.color};font-size:10.5px">[${def.skill.type}]</span>` : "";
+      const title = isRandom ? `${g.name} 랜덤 1명` : def.name;
+      const dmgTxt = isRandom ? `${GRADE_POOL[r.randomGrade].length}종 중 랜덤` : `공격력 ${def.dmg}`;
       div.innerHTML = `
         <div class="portrait"></div>
         <div class="info">
-          <b style="color:${g.color}">${def.name}</b>
+          <b style="color:${g.color}">${title}</b>
           <span class="grade-tag" style="background:${g.color}">${g.name}</span>${skillTag}
-          <span style="color:var(--text-dim);font-size:11px"> 공격력 ${def.dmg}</span>
+          <span style="color:var(--text-dim);font-size:11px"> ${dmgTxt}</span>
           <div class="mats">= ${matsHtml}</div>
         </div>
         <button ${ok?"":"disabled"}>⚡</button>`;
-      div.querySelector(".portrait").appendChild(makePortrait(r.result));
+      // 랜덤 결과는 대표 초상화를 못 정하므로 물음표 아이콘으로 대체
+      if(isRandom){
+        const q = document.createElement("div");
+        q.style.cssText = `width:58px;height:64px;display:flex;align-items:center;justify-content:center;`
+          + `font-size:30px;color:${g.color};border:2px dashed ${g.color};border-radius:50%;opacity:.85;`;
+        q.textContent = "?";
+        div.querySelector(".portrait").appendChild(q);
+      }else{
+        div.querySelector(".portrait").appendChild(makePortrait(r.result));
+      }
       div.querySelector("button").addEventListener("click", ()=>craftRecipe(r, false));
       rl.appendChild(div);
     });
