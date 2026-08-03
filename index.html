@@ -7986,27 +7986,39 @@ function refreshUI(){
       div.className = "recipeCard";
       div.style.borderLeft = "3px solid "+g.color;
       const skillTag = (!isRandom && def.skill) ? ` <span style="color:${g.color};font-size:10.5px">[${def.skill.type}]</span>` : "";
-      const title = isRandom ? `${g.name} 랜덤 1명` : def.name;
-      // v15fe: 랜덤 결과라도 "누가 나올 수 있는지" 이름을 다 보여준다.
-      //   그림 3장만으로는 후보를 알 수 없어 "이름은 왜 안 나오냐"는 지적이 나왔다.
-      const dmgTxt = isRandom
-        ? `${GRADE_POOL[r.randomGrade].length}종 중 랜덤`
-        : `공격력 ${def.dmg}`;
-      const randomPoolHtml = isRandom
-        ? `<div class="mats" style="opacity:.8;font-size:10.5px;line-height:1.5">후보 — `
-          + GRADE_POOL[r.randomGrade].map(id=>`<span style="color:${g.color}">${UNIT_DEFS[id].name}</span>`).join(" · ")
-          + `</div>`
-        : "";
-      div.innerHTML = `
-        <div class="portrait"></div>
-        <div class="info">
-          <b style="color:${g.color}">${title}</b>
-          <span class="grade-tag" style="background:${g.color}">${g.name}</span>${skillTag}
-          <span style="color:var(--text-dim);font-size:11px"> ${dmgTxt}</span>
-          <div class="mats">= ${matsHtml}</div>
-          ${randomPoolHtml}
-        </div>
-        <button ${ok?"":"disabled"}>⚡</button>`;
+      // v15ff: 랜덤 결과 카드는 히든 탭과 같은 형식으로 — 제목은 등급 이름만,
+      //   나머지는 전부 조합식으로 보여준다. ("랜덤 1명", "N종 중 랜덤", 후보 나열은 제거)
+      const title = isRandom ? `${GRADE_ICON[r.randomGrade]||""} ${g.name}` : def.name;
+      const dmgTxt = isRandom ? "" : `공격력 ${def.dmg}`;
+      if(isRandom){
+        // 히든 탭과 동일한 배치: 제목 + 재료를 한 줄씩 나열
+        const lines = [];
+        r.mats.forEach(id=>{
+          const md = UNIT_DEFS[id], have = (counts2[id]||0) >= 1;
+          lines.push(`${GRADES[md.grade].name} ${md.name} : <b class="${have?'matOk':'matNo'}">${have?'✓':'✗'}</b>`);
+        });
+        (r.anyNeed||[]).forEach(a=>{
+          const have = gradeAvail(a.grade);
+          lines.push(`${GRADES[a.grade].name} 아무나 x${a.n} : <b class="${have>=a.n?'matOk':'matNo'}">${have}/${a.n}</b>`);
+        });
+        div.innerHTML = `
+          <div class="info">
+            <b style="color:${g.color}">${title}</b>
+            <div class="formula">${lines.join("<br>")}</div>
+          </div>
+          <div class="portrait" style="width:44px;height:44px;"></div>
+          <button ${ok?"":"disabled"}>⚡</button>`;
+      }else{
+        div.innerHTML = `
+          <div class="portrait"></div>
+          <div class="info">
+            <b style="color:${g.color}">${title}</b>
+            <span class="grade-tag" style="background:${g.color}">${g.name}</span>${skillTag}
+            <span style="color:var(--text-dim);font-size:11px"> ${dmgTxt}</span>
+            <div class="mats">= ${matsHtml}</div>
+          </div>
+          <button ${ok?"":"disabled"}>⚡</button>`;
+      }
       // v15fd: 랜덤 결과 카드는 "결과 등급"의 초상화를 겹쳐 보여준다.
       //   앞서는 지정 태초 재료의 얼굴을 썼는데, 태초 13명 중 니카/이무/로저/흰수염/샹크스는
       //   패왕에도 같은 인물이 있어서 "왜 태초 그림이 나오냐"는 혼동을 만들었다.
@@ -8015,7 +8027,7 @@ function refreshUI(){
       //   카드마다 다른 3명을 뽑도록 인덱스를 밀어서 목록이 단조로워 보이지 않게 했다.
       if(isRandom){
         const box = document.createElement("div");
-        box.style.cssText = "position:relative;width:58px;height:64px;";
+        box.style.cssText = "position:relative;width:44px;height:48px;";
         const pool = GRADE_POOL[r.randomGrade] || [];
         const seed = RECIPE_LIST.indexOf(r);
         const LAYOUT = [
