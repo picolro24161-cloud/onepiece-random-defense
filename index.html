@@ -2222,7 +2222,7 @@ const AI_SPRITES = {
   "supremal|대해적왕 흰수염": {url:"assets/img/6ce607d25f71.png",cols:3,rows:2,c:0,r:1},
   "supremal|검신 미호크":     {url:"assets/img/6ce607d25f71.png",cols:3,rows:2,c:1,r:1},
   "supremal|전성기 아카이누": {url:"assets/img/75b48fc0b85a.jpg",cols:1,rows:1,c:0,r:0},
-  "supremal|좌익왕 가반":     {url:"assets/img/749daeedc1e9.png",cols:3,rows:2,c:0,r:0},
+  "supremal|좌익왕 가반":     "assets/img/2b0c7c432130.jpg",   // v15ft: 원피스와 무관한 그림이라 전용 이미지로 교체
   "supremal|명왕 레일리":     {url:"assets/img/749daeedc1e9.png",cols:3,rows:2,c:1,r:0},
   "supremal|천룡왕 샴록": "assets/img/f86ec6de6bd5.png",
   "supremal|다이아몬드 조즈": "assets/img/ae00327ce32a.jpg",
@@ -6012,6 +6012,31 @@ Object.keys(ROLE_TAGS).forEach(nm=>{
 //   ③ 역할별 하드코딩 (근접 140 / 원거리 480) + 스킬 반경 (근접단일 140, 원거리단일 130, 역할 표준 등)
 // 셋 다 지나간 뒤에 한 번만 걸어야 하한이 실제로 유지된다.
 // 이미 2칸 이상인 값은 손대지 않는다. radius:9999(필드 전체 버프)도 자연히 제외된다.
+// v15ft: 등급별 캐릭터 표시 크기 상한.
+//   절대(최대 2.20) / 절대자(2.15) 가 초절대자(2.30)·패왕(2.25) 과 거의 같아
+//   등급이 올라가도 커 보이지 않았다. 초절대자·패왕을 같은 상한(2.30)으로 맞추고
+//   그 아래 등급은 단계적으로 더 작게 눌러 서열이 한눈에 보이게 한다.
+//   이미 상한보다 작은 캐릭터는 건드리지 않는다(개체 차이 유지).
+const GRADE_SCALE_CAP = {
+  // 최상위 둘은 같은 상한. 패왕 최대가 2.25 라 여기에 맞춰야 둘이 정확히 같아진다
+  // (상한은 줄이기만 하므로 2.30 으로 두면 초절대자만 커진다)
+  overlord: 2.25, ultramaximal: 2.25,
+  supremal: 2.05, hidden: 1.95, absolute: 1.85,
+  origin: 1.70, mythic: 1.55,
+  limit: 1.25, immortal: 1.25, eternal: 1.25, transcend: 1.20,
+  legend: 1.15, rare: 1.10, special: 1.10, uncommon: 1.05, common: 1.05,
+};
+(function applyScaleCap(){
+  let capped = 0;
+  Object.values(UNIT_DEFS).forEach(def=>{
+    const cap = GRADE_SCALE_CAP[def.grade];
+    if(cap == null || !def.cfg) return;
+    const cur = def.cfg.scale || 1;
+    if(cur > cap){ def.cfg.scale = cap; capped++; }
+  });
+  console.log(`[원랜디] 캐릭터 크기 상한 적용 — ${capped}명 축소`);
+})();
+
 (function applyMinRange(){
   let rangeUp = 0, radiusUp = 0;
   const MIN_PX = Math.round(MIN_RANGE_PX);
@@ -6222,17 +6247,22 @@ function _ultStun(m, value, dur){ _pushStun(m, value, dur); }
 //   dy: 시전자 토큰(패왕은 지름 216px)에 가려지지 않도록 위로 띄우는 양.
 //       예전엔 이펙트 알맹이가 토큰 뒤에 숨어 "이펙트가 안 나온다"고 느껴졌다.
 const ULT_FX_VIEW = {
-  field_nuke:   { mode:"field", alpha:0.38 },   // 흰수염 - 필드 전체(가장 옅게)
-  gravity:      { mode:"self",  size:230 },     // 검은수염 - 중간 원형
-  freeze:       { mode:"self",  size:250 },     // 오뎅 - 원형
-  meteor:       { mode:"point", size:170 },     // 료쿠규 - 낙하지점마다
-  chain_boom:   { mode:"point", size:150 },     // 가반 - 처치 위치마다
-  lottery:      { mode:"above", size:115 },     // 버기 - 캐릭터 위 작게
-  summon:       { mode:"point", size:140 },     // 니카 루피 - 소환 위치
-  knockback:    { mode:"self",  size:280 },     // 이무 - 가로로 뻗는 충격파
+  field_nuke:   { mode:"field" },               // 흰수염 - 필드 전체
+  gravity:      { mode:"self",  size:360 },     // 검은수염 - 중간 원형
+  freeze:       { mode:"self",  size:400 },     // 오뎅 - 원형
+  meteor:       { mode:"point", size:230 },     // 료쿠규 - 낙하지점마다
+  chain_boom:   { mode:"point", size:190 },     // 가반 - 처치 위치마다
+  lottery:      { mode:"above", size:120 },     // 버기 - 캐릭터 위 작게
+  summon:       { mode:"point", size:160 },     // 니카 루피 - 소환 위치
+  knockback:    { mode:"self",  size:440 },     // 이무 - 가로로 뻗는 충격파
 };
-const ULT_FX_VIEW_DEFAULT = { mode:"self", size:240 };   // 나머지 - 시전자 주변 원형
-const ULT_FX_ALPHA = 0.72;   // 기본 투명도 (예전 0.95 는 너무 밝았다)
+const ULT_FX_VIEW_DEFAULT = { mode:"self", size:380 };   // 나머지 - 시전자 주변 원형
+// v15ft: 패왕 고유기는 "한 방 연출"이라 크기·밝기를 건드리지 않는다(원래 값 유지).
+//   눈뽕의 원인은 패왕이 아니라, 캐릭터 수십 명이 매 스킬마다 뿜는 일반 원형 이펙트였다.
+const ULT_FX_ALPHA = 0.95;
+// 일반 스킬의 원형 이펙트 표시 배율/투명도 — 스킬 판정 범위와 무관하게 겉모습만 줄인다.
+const RING_FX_SCALE = 0.55;
+const RING_FX_ALPHA = 0.45;
 // v15fj: 이펙트 표시 시간. 0.75초는 눈 깜빡하면 놓쳐서 "이펙트가 안 나온다"는 인상을 줬다.
 const ULT_FX_DUR = 1.5;          // 시전 이펙트
 const ULT_FX_DUR_POINT = 1.0;    // 낙하/폭발처럼 여러 개가 동시에 뜨는 것 (겹침이 심해 조금 짧게)
@@ -7574,12 +7604,12 @@ function draw(){
     }
 
     if(f.kind === "ring"){
+      // v15ft: 눈뽕의 진짜 원인. 캐릭터 수십 명이 매 스킬마다 반경 300~600 짜리 원을
+      //   두 겹씩 그려서 화면이 원으로 뒤덮였다. 스킬의 실제 판정 범위는 그대로 두고
+      //   "보이는 원"만 줄인다 — 반경 55%, 선 얇게, 안쪽 겹선 제거, 더 옅게.
+      ctx.globalAlpha = (1 - prog) * RING_FX_ALPHA;
       ctx.beginPath();
-      ctx.arc(f.x, f.y, f.max * prog, 0, Math.PI*2);
-      ctx.strokeStyle = f.color; ctx.lineWidth = 4;
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.arc(f.x, f.y, f.max * prog * 0.7, 0, Math.PI*2);
+      ctx.arc(f.x, f.y, f.max * RING_FX_SCALE * prog, 0, Math.PI*2);
       ctx.strokeStyle = f.color; ctx.lineWidth = 2;
       ctx.stroke();
     }else if(f.lines){
@@ -7703,15 +7733,15 @@ function draw(){
       if(f.fxMode === "field"){
         ctx.drawImage(im, 0, 0, W, H);
       }else{
-        const sz = f.max * (0.95 + prog * 0.10);
+        const sz = f.max * (0.92 + prog * 0.22);
         ctx.drawImage(im, f.x - sz/2, f.y - sz/2, sz, sz);
       }
     }
     if(f.fxMode !== "field"){
-      ctx.globalAlpha = (1 - prog) * 0.35;
+      ctx.globalAlpha = (1 - prog) * 0.6;
       ctx.beginPath();
-      ctx.arc(f.x, f.y, f.max * 0.45 * prog, 0, Math.PI*2);
-      ctx.strokeStyle = f.color; ctx.lineWidth = 2; ctx.stroke();
+      ctx.arc(f.x, f.y, f.max * 0.5 * prog, 0, Math.PI*2);
+      ctx.strokeStyle = f.color; ctx.lineWidth = 3; ctx.stroke();
     }
     ctx.restore();
   });
