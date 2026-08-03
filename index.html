@@ -7997,19 +7997,35 @@ function refreshUI(){
           <div class="mats">= ${matsHtml}</div>
         </div>
         <button ${ok?"":"disabled"}>⚡</button>`;
-      // v15fb: 랜덤 결과 카드도 초상화를 보여준다.
-      //   결과는 랜덤이라 특정 패왕을 그리면 "저게 나온다"고 오해하게 된다.
-      //   대신 그 카드를 구분 짓는 요소인 "지정 태초 재료"의 초상화를 쓰고
-      //   등급 아이콘을 겹쳐 결과 등급을 표시한다. 카드마다 그림이 달라 구분도 쉽다.
+      // v15fd: 랜덤 결과 카드는 "결과 등급"의 초상화를 겹쳐 보여준다.
+      //   앞서는 지정 태초 재료의 얼굴을 썼는데, 태초 13명 중 니카/이무/로저/흰수염/샹크스는
+      //   패왕에도 같은 인물이 있어서 "왜 태초 그림이 나오냐"는 혼동을 만들었다.
+      //   결과가 랜덤이라 한 명만 그리면 "저게 나온다"고 오해하므로, 후보 중 3명을
+      //   살짝 겹쳐 배치해 "여러 명 중 하나"라는 뜻이 그림만으로 읽히게 한다.
+      //   카드마다 다른 3명을 뽑도록 인덱스를 밀어서 목록이 단조로워 보이지 않게 했다.
       if(isRandom){
         const box = document.createElement("div");
         box.style.cssText = "position:relative;width:58px;height:64px;";
-        const keyMat = r.mats && r.mats.length ? r.mats[0] : null;
-        if(keyMat) box.appendChild(makePortrait(keyMat));
+        const pool = GRADE_POOL[r.randomGrade] || [];
+        const seed = RECIPE_LIST.indexOf(r);
+        const LAYOUT = [
+          { x:-13, y:2, s:0.62, a:0.55, z:1 },
+          { x: 13, y:2, s:0.62, a:0.55, z:1 },
+          { x:  0, y:0, s:0.86, a:1,    z:2 },
+        ];
+        LAYOUT.forEach((L, k)=>{
+          const id = pool[(seed*3 + k) % pool.length];
+          if(!id) return;
+          const c = makePortrait(id);
+          c.style.cssText = `position:absolute;left:50%;top:0;`
+            + `transform:translateX(-50%) translate(${L.x}px, ${L.y}px) scale(${L.s});`
+            + `opacity:${L.a};z-index:${L.z};`;
+          box.appendChild(c);
+        });
         const badge = document.createElement("div");
         badge.textContent = GRADE_ICON[r.randomGrade] || "?";
-        badge.style.cssText = "position:absolute;right:-2px;bottom:0;width:22px;height:22px;"
-          + `display:flex;align-items:center;justify-content:center;font-size:13px;`
+        badge.style.cssText = "position:absolute;right:-4px;bottom:-2px;width:20px;height:20px;z-index:3;"
+          + `display:flex;align-items:center;justify-content:center;font-size:12px;`
           + `border-radius:50%;background:${g.color};color:#1a1206;border:1.5px solid #0b1220;`;
         box.appendChild(badge);
         div.querySelector(".portrait").appendChild(box);
