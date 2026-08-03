@@ -6044,10 +6044,39 @@ function _ultStun(m, value, dur){
   if(!m.stunPulses) m.stunPulses = [];
   m.stunPulses.push({ value, until: state.time + dur });
 }
-function _ultFx(x, y, color, kind, radius, dur){
+// v15fh: 고유기 이펙트의 "보이는 범위" 규격. 스킬의 실제 판정 범위(sk.radius)와는 별개다.
+//   판정 범위를 그대로 그리면 필드를 뒤덮어 캐릭터가 안 보이고, 반대로 너무 작으면
+//   시전자 토큰(패왕은 지름 216px)에 통째로 가려져 "이펙트가 안 나온다"고 느껴진다.
+//   mode: field=필드 전체 / self=시전자 중심 원형 / above=시전자 위 작게 / point=지정 좌표
+const ULT_FX_VIEW = {
+  field_nuke:   { mode:"field" },              // 흰수염 - 필드 전체
+  gravity:      { mode:"self",  size:360 },    // 검은수염 - 중간 원형
+  freeze:       { mode:"self",  size:400 },    // 오뎅 - 원형
+  meteor:       { mode:"point", size:230 },    // 료쿠규 - 낙하지점마다
+  chain_boom:   { mode:"point", size:190 },    // 가반 - 몬스터 처치 위치마다
+  lottery:      { mode:"above", size:120 },    // 버기 - 캐릭터 위 작게
+  summon:       { mode:"point", size:160 },    // 니카 루피 - 소환 위치
+};
+const ULT_FX_VIEW_DEFAULT = { mode:"self", size:380 };   // 나머지 - 시전자 주변 원형
+function ultFxView(kind){ return ULT_FX_VIEW[kind] || ULT_FX_VIEW_DEFAULT; }
+
+// 시전자 중심(또는 지정 좌표)에 고유기 이펙트를 띄운다.
+function _ultFx(x, y, color, kind, dur, forcePoint){
+  const v = ultFxView(kind);
   const fx = poolGet(fxPool);
   fx.kind = kind; fx.color = color; fx.t = 0; fx.dur = dur || 0.7;
-  fx.x = x; fx.y = y; fx.lines = null; fx.max = radius || 300;
+  fx.lines = null;
+  fx.fxMode = forcePoint ? "point" : v.mode;
+  fx.max = v.size || 300;
+  fx.x = x;
+  fx.y = (fx.fxMode === "above") ? y - 80 : y;
+  state.fx.push(fx);
+}
+// 이미지 없이 얇은 링만 남기는 보조 이펙트 (연쇄 튕김 경로 표시용)
+function _ringFx(x, y, color, radius, dur){
+  const fx = poolGet(fxPool);
+  fx.kind = "ring"; fx.color = color; fx.t = 0; fx.dur = dur || 0.35;
+  fx.x = x; fx.y = y; fx.lines = null; fx.max = radius; fx.fxMode = null;
   state.fx.push(fx);
 }
 function fireSkill(u, def, sk){
@@ -6071,7 +6100,7 @@ function fireSkill(u, def, sk){
       const p = pathPos(m.d), dx = p.x - u.x, dy = p.y - u.y;
       return dx*dx + dy*dy <= R*R;
     });
-    _ultFx(u.x, u.y, sk.color, sk.ult, Math.min(R, 620), 0.75);
+    _ultFx(u.x, u.y, sk.color, sk.ult, 0.75);
     state.shake = Math.max(state.shake, 12);
     SFX.skill();
     switch(sk.ult){
@@ -6152,6 +6181,7 @@ function fireSkill(u, def, sk){
           const nu = { defId:src.defId, x:slot.x, y:slot.y, cd:0, skillCd:1, skillCd2:2, skillCd3:99999,
                        slot, locked:false, tempUntil: state.time + (sk.dur || 12) };
           slot.unit = nu; state.units.push(nu); recalcSynergy();
+          _ultFx(slot.x, slot.y, sk.color, "summon", 0.7, true);   // 소환 위치에 이펙트
           addLog(`✨ <b style="color:${sk.color}">${sk.type}</b> — ${UNIT_DEFS[src.defId].name} ${sk.dur}초간 소환!`);
         }
         break;
@@ -6176,7 +6206,7 @@ function fireSkill(u, def, sk){
               _ultStun(m, 1, sk.stun || 1.5);
             }
           });
-          _ultFx(c.x, c.y, sk.color, "ring", rr, 0.5);
+          _ultFx(c.x, c.y, sk.color, sk.ult, 0.5, true);   // 낙하지점마다 운석 이펙트
         }
         break;
       }
@@ -6195,7 +6225,7 @@ function fireSkill(u, def, sk){
           hit.add(best);
           applyCombatDmg(def, best, _ultDmg(def, best, sk.mult));
           const bp = pathPos(best.d);
-          _ultFx(bp.x, bp.y, sk.color, "ring", 90, 0.35);
+          _ringFx(bp.x, bp.y, sk.color, 90, 0.35);   // 튕김 경로는 얇은 링만
           cur = bp;
         }
         break;
@@ -6798,7 +6828,7 @@ function update(dt){
         const p = pathPos(o.d), dx = p.x - cp.x, dy = p.y - cp.y;
         if(dx*dx + dy*dy <= CR*CR) o.hp -= Math.round(o.maxHp * 0.015 * _chainBoomMult);
       });
-      _ultFx(cp.x, cp.y, "#ffb02e", "ring", CR, 0.35);
+      _ultFx(cp.x, cp.y, "#ffb02e", "chain_boom", 0.4, true);   // 처치 위치마다 폭발 이펙트
     }
     m.bounty = false;
     removeLapCounted(m);
@@ -7344,17 +7374,23 @@ function draw(){
       if(im && im.complete && im.naturalWidth){
         // 이펙트 원본은 검은 배경 JPG(알파 없음)라 그대로 그리면 검은 사각형이 얹힌다.
         // 가산 합성(lighter)으로 올리면 검은 부분이 자연히 투명해진다.
-        const sz = Math.min(f.max, 300) * (0.9 + prog * 0.8);
         ctx.save();
         ctx.globalCompositeOperation = "lighter";
         ctx.globalAlpha = (1 - prog) * 0.95;
-        ctx.drawImage(im, f.x - sz/2, f.y - sz/2, sz, sz);
+        if(f.fxMode === "field"){
+          ctx.drawImage(im, 0, 0, W, H);          // 필드 전체 (흰수염)
+        }else{
+          const sz = f.max * (0.92 + prog * 0.22);
+          ctx.drawImage(im, f.x - sz/2, f.y - sz/2, sz, sz);
+        }
         ctx.restore();
       }
-      ctx.globalAlpha = (1 - prog) * 0.6;
-      ctx.beginPath();
-      ctx.arc(f.x, f.y, Math.min(f.max, 300) * prog, 0, Math.PI*2);
-      ctx.strokeStyle = f.color; ctx.lineWidth = 3; ctx.stroke();
+      if(f.fxMode !== "field"){
+        ctx.globalAlpha = (1 - prog) * 0.6;
+        ctx.beginPath();
+        ctx.arc(f.x, f.y, f.max * 0.5 * prog, 0, Math.PI*2);
+        ctx.strokeStyle = f.color; ctx.lineWidth = 3; ctx.stroke();
+      }
       ctx.globalAlpha = 1;
       return;
     }
