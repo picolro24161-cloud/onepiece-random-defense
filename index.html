@@ -5732,6 +5732,11 @@ function pulseHiddenBuff(u, key, value, until){
 // 스턴 수치는 몬스터별로 중첩 합산되고(펄스 배열), 합계가 3 이상이면 완전 정지. 이감(slow)과는 별개 시스템.
 const STUN_FREEZE_RADIUS = 80;
 const STUN_FREEZE_THRESHOLD = 3;
+// v15fl: 스턴 지속. 예전 2.5초는 히든 스킬 쿨(3.8초)보다 짧아서 같은 캐릭터의 스턴이
+//   절대 겹치지 않았고, 그 결과 누적이 2를 넘지 못해 임계값 3에 영영 도달하지 못했다.
+//   (실측: 히든 6명 x 8초 → 누적 3 도달 몬스터 0/20)
+//   쿨보다 길게 잡아야 여러 명이 같은 지점을 때렸을 때 누적이 실제로 쌓인다.
+const STUN_PULSE_DUR = 4.2;
 function applyStunAOE(cx, cy, value, duration){
   state.monsters.forEach(m=>{
     const p = pathPos(m.d);
@@ -5747,12 +5752,12 @@ function monsterStunTotal(m){
   m.stunPulses = m.stunPulses.filter(p=>p.until > state.time);
   return m.stunPulses.reduce((s,p)=>s+p.value, 0);
 }
-// v15c8: 스턴은 "합계 3이면 완전정지"라는 이분법이 아니라, 누적 수치에 비례한 감속으로 변경.
-// 설계 기준 — 스턴 합계 3(=속도 10%) + 이감 35% 이상 => 실효 6.5% 속도로 "거의 멈춰 있는 것처럼" 보임.
-//   스턴 1 -> 70% / 2 -> 40% / 3 이상 -> 10% (하한)
+// v15fl: 스턴은 "그 순간 멈추는" 것이다. 이동속도 감소(slow)는 완전히 별개 시스템이다.
+//   v15c8 에서 누적 비례 감속(1→70% / 2→40% / 3→10%)으로 바꿔놨는데, 그러면 히든(스턴)
+//   등급이 스턴이 아니라 둔화로 동작한다. 원래 설계대로 임계값 이상이면 완전 정지로 되돌린다.
+//   임계 미만은 아무 효과도 주지 않는다 — 스턴은 감속이 아니기 때문이다.
 function monsterStunSpeedMult(m){
-  const t = Math.min(STUN_FREEZE_THRESHOLD, monsterStunTotal(m));
-  return Math.max(0.10, 1 - t * 0.30);
+  return monsterStunTotal(m) >= STUN_FREEZE_THRESHOLD ? 0 : 1;
 }
 // ---------- v15n: 역할 기반 사거리/스킬반경/방감/버프 자동 재조정 (신화 이상, 히든 제외) ----------
 // v15ae: 신화~태초 방감 범위 신설 + 히든 방감(누락분) 채우기용 범위 — 티어가 올라갈수록 점진 상승
@@ -6407,7 +6412,7 @@ function fireSkill(u, def, sk){
       const dealt = Math.round((skillDmgBase * state.synDmg * (1+state.aura.atk) * (1+state.aura.skillDmg) * sk.mult + pctMaxHpDmg(ndTarget, pctOf(ndTarget))) * (1+state.aura.dmgTaken) * combatDmgMult(def, ndTarget));
       applyCombatDmg(def, ndTarget, dealt);
       const tp = pathPos(ndTarget.d);
-      applyStunAOE(tp.x, tp.y, 1, 2.5);
+      applyStunAOE(tp.x, tp.y, sk.stun || 1, STUN_PULSE_DUR);   // v15fl: 히든 - 타겟 지점 기준 반경 80 스턴
     }
     // v15n: 슬로우/방어감소는 %수치 임시 aura 펄스로 반영 (시전자별 개별 추적 -> armorRed 등 중첩 가능)
     // v15c7: 디버프도 지속시간 = 스킬 쿨의 절반 (이감=최고값 1개, 방감=합산 누적은 기존 규칙 유지)
@@ -7134,12 +7139,12 @@ function update(dt){
       // v15c7: ① 근접단일딜 = 타격범위 스턴 — 평타 명중 지점 기준 반경 80 내 전체에 티어별 스턴 수치 (필드 전체 아님)
       if(_role === "근접단일딜"){
         const _sv = ROLE_TIER_SCALE.meleeSingleStun[def.grade];
-        if(_sv) applyStunAOE(tp.x, tp.y, _sv, 2.5);
+        if(_sv) applyStunAOE(tp.x, tp.y, _sv, STUN_PULSE_DUR);
       }
       // v15c7: ⑥ 서포터(절대자 이상)도 평타 명중 시 반경 80 스턴 수치 부여
       if(_role === "서포터"){
         const _sv = ROLE_TIER_SCALE.supportStun[def.grade];
-        if(_sv) applyStunAOE(tp.x, tp.y, _sv, 2.5);
+        if(_sv) applyStunAOE(tp.x, tp.y, _sv, STUN_PULSE_DUR);
       }
       // v15ax: 2프레임 캐릭터는 평타 순간에도 잠깐 f2로 전환 (공격 모션처럼 보이게)
       if(def.frame2) u.frame2Until = state.time + 0.18;
