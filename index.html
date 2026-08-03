@@ -4083,6 +4083,14 @@ let LATE_BOSS_HP_K = [[45,13],[50,14.5],[55,8.5],[60,15.5],[65,12.5],[70,10.5],[
 //   EASY 19~27s / NORMAL 22~35s / HARD 25~41s / HELL 26~46s (보스 제한시간 60초)
 //   R55는 보스와 함께 잡몹 8마리가 추가 스폰되는 설계라 배율이 낮아도 TTK가 길게 나온다.
 const BOSS_SPAWN_D = 150;   // v15f5: 좌상단 모서리(d=0)에서 오른쪽으로 150px 들어온 지점
+// v15fb: 보스 처치 제한시간. R40 까지는 60초 고정, R41 부터 라운드당 +1초.
+//   R41=61초 / R50=70초 / R90=110초. 후반 보스는 체력이 기하급수로 커지는데
+//   제한시간만 고정이라 "잡을 수는 있는데 시간이 모자라" 죽는 경우가 늘어서 완화한다.
+const BOSS_TIME_BASE = 60;
+const BOSS_TIME_FROM = 40;
+function bossTimeLimit(round){
+  return BOSS_TIME_BASE + Math.max(0, round - BOSS_TIME_FROM);
+}
 function spawnBoss(round){
   const s = monsterStats(round);
   const m = poolGet(monsterPool);
@@ -4177,7 +4185,7 @@ function spawnBoss(round){
   // v15q: 브금 정지 후 보스 등장 음악(처음부터) + 처치 제한시간 60초 시작
   stopBgm();
   playBossMusic();
-  state.bossTimer = 60;
+  state.bossTimer = bossTimeLimit(round);
   const quote = BOSS_QUOTES[round] || "";
   if(quote) SFX.talk(quote, 0.7);   // 보스는 낮은 피치로
   state.banner = { text:`⚠ BOSS 출현 — ${m.name}!${quote ? '  "'+quote+'"' : ''}`, t:4.5, boss:true };
@@ -8062,13 +8070,22 @@ function refreshUI(){
           <div class="mats">= ${matsHtml}</div>
         </div>
         <button ${ok?"":"disabled"}>⚡</button>`;
-      // 랜덤 결과는 대표 초상화를 못 정하므로 물음표 아이콘으로 대체
+      // v15fb: 랜덤 결과 카드도 초상화를 보여준다.
+      //   결과는 랜덤이라 특정 패왕을 그리면 "저게 나온다"고 오해하게 된다.
+      //   대신 그 카드를 구분 짓는 요소인 "지정 태초 재료"의 초상화를 쓰고
+      //   등급 아이콘을 겹쳐 결과 등급을 표시한다. 카드마다 그림이 달라 구분도 쉽다.
       if(isRandom){
-        const q = document.createElement("div");
-        q.style.cssText = `width:58px;height:64px;display:flex;align-items:center;justify-content:center;`
-          + `font-size:30px;color:${g.color};border:2px dashed ${g.color};border-radius:50%;opacity:.85;`;
-        q.textContent = "?";
-        div.querySelector(".portrait").appendChild(q);
+        const box = document.createElement("div");
+        box.style.cssText = "position:relative;width:58px;height:64px;";
+        const keyMat = r.mats && r.mats.length ? r.mats[0] : null;
+        if(keyMat) box.appendChild(makePortrait(keyMat));
+        const badge = document.createElement("div");
+        badge.textContent = GRADE_ICON[r.randomGrade] || "?";
+        badge.style.cssText = "position:absolute;right:-2px;bottom:0;width:22px;height:22px;"
+          + `display:flex;align-items:center;justify-content:center;font-size:13px;`
+          + `border-radius:50%;background:${g.color};color:#1a1206;border:1.5px solid #0b1220;`;
+        box.appendChild(badge);
+        div.querySelector(".portrait").appendChild(box);
       }else{
         div.querySelector(".portrait").appendChild(makePortrait(r.result));
       }
