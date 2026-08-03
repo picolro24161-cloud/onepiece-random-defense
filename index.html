@@ -5766,7 +5766,16 @@ function applySlow(m, power, dur){
 function monsterSlowPower(m){
   return (m.slowUntil && state.time < m.slowUntil) ? (m.slowPower || 0) : 0;
 }
+// v15fq: 몬스터 한 기에 펄스를 딱 하나만 넣는다.
+//   범위 스킬 안에서 몬스터마다 applyStunAOE 를 부르면, 몬스터가 뭉쳐 있을 때
+//   서로의 범위에 겹쳐 들어가 N배로 중복 적용된다(6기 뭉침 = 0.2가 1.2로).
+function _pushStun(m, value, duration){
+  if(!(value > 0)) return;
+  if(!m.stunPulses) m.stunPulses = [];
+  m.stunPulses.push({ value, until: state.time + duration });
+}
 function applyStunAOE(cx, cy, value, duration){
+  if(!(value > 0)) return;   // v15fo: 스턴 없는 등급은 펄스를 만들지 않는다
   state.monsters.forEach(m=>{
     const p = pathPos(m.d);
     const _dx = p.x-cx, _dy = p.y-cy;
@@ -5796,15 +5805,26 @@ function monsterStunSpeedMult(m){
 //   히든  = 스턴 전문 등급이라 "평타마다" 0.8~1.0 을 넣는다 (이름 해시로 개체차)
 //   패왕  = 히든보다 높아도 된다 (1.15~1.35)
 //   그 외 = 스킬에 스턴이 붙은 캐릭터만, 히든보다 확실히 낮게 (등급 계수)
-const STUN_TIER_SCALE = {
-  transcend:0.20, eternal:0.25, immortal:0.28, limit:0.30,
-  mythic:0.35, origin:0.42, absolute:0.50, supremal:0.58, ultramaximal:0.68,
-};
+// v15fo: 스턴은 '절대' 등급 이상만 보유한다. 그 아래 등급은 스턴을 아예 갖지 않는다.
+//   다만 원작에서 패왕색을 쓰는 상징적인 6명(태초 3 / 신화 3)만 예외로 아주 약한 스턴을 남긴다.
+const STUN_MIN_GRADE = "absolute";
+const STUN_EXCEPTION_POWER = 0.2;
+const STUN_TO_SLOW_POWER = 0.25;   // 절대 미만에서 스턴을 뺀 자리에 넣는 이속감소율
+const STUN_EXCEPTION_NAMES = [
+  "태양신 니카", "패왕 샹크스", "태초의 조이보이",   // 태초 3
+  "니카 루피", "최강해적 록스", "다크킹 레일리",      // 신화 3
+];
+const STUN_TIER_SCALE = { absolute:0.50, supremal:0.58, ultramaximal:0.68 };
+function hasStunGrade(g){
+  return GRADE_ORDER.indexOf(g) >= GRADE_ORDER.indexOf(STUN_MIN_GRADE);
+}
 function stunPowerOf(def){
   const g = def.grade;
-  if(g === "hidden")   return 0.8 + (_hash01(def.name + "@stun") * 0.2);    // 0.8 ~ 1.0
-  if(g === "overlord") return 1.15 + (_hash01(def.name + "@stun") * 0.2);   // 1.15 ~ 1.35
-  return STUN_TIER_SCALE[g] || 0.25;
+  if(STUN_EXCEPTION_NAMES.includes(def.name.replace("★",""))) return STUN_EXCEPTION_POWER;
+  if(!hasStunGrade(g)) return 0;                                           // 절대 미만 = 스턴 없음
+  if(g === "hidden")   return 0.8 + (_hash01(def.name + "@stun") * 0.2);   // 0.8 ~ 1.0
+  if(g === "overlord") return 1.15 + (_hash01(def.name + "@stun") * 0.2);  // 1.15 ~ 1.35
+  return STUN_TIER_SCALE[g] || 0.5;
 }
 // 이름 기반 0~1 난수(매 실행 동일). 개체마다 조금씩 다른 값을 주기 위한 것.
 function _hash01(s){
@@ -6048,15 +6068,27 @@ function scopeOf(sk){
 //   스턴이 있으면 이속감소를 떼고, 이속감소만 있으면 그대로 둔다.
 //   (히든 6명이 stun + slow 를 같이 갖고 있었다 — 스턴 등급이므로 스턴만 남긴다)
 (function splitStunAndSlow(){
-  const seen = new Set(); let dropped = 0;
+  const seen = new Set(); let dropped = 0, stunStripped = 0;
   Object.values(UNIT_DEFS).forEach(def=>{
     [def.skill, def.skill2, def.skill3].forEach(sk=>{
       if(!sk || seen.has(sk)) return;
       seen.add(sk);
+      // v15fp: 절대 미만 등급의 스턴은 이속감소로 바꾼다.
+      //   스턴을 그냥 없애면 그 스킬이 밋밋해지므로, 같은 '발을 묶는' 역할을
+      //   이속감소로 넘겨준다. 예외 6명(태초3/신화3)은 약한 스턴을 그대로 둔다.
+      const _isExc = STUN_EXCEPTION_NAMES.includes(def.name.replace("★",""));
+      // v15fp: 예외 캐릭터인데 주력 스킬에 stun 이 없으면(검격형 등) 붙여준다.
+      //   "스킬에 스턴이 있는 캐릭터만 스턴을 준다"는 규칙을 그대로 지키기 위함이다.
+      if(_isExc && sk === def.skill && !sk.stun) sk.stun = STUN_EXCEPTION_POWER;
+      if(sk.stun && !hasStunGrade(def.grade) && !_isExc){
+        delete sk.stun;
+        if(!sk.slow) sk.slow = STUN_TO_SLOW_POWER;
+        stunStripped++;
+      }
       if(sk.stun && sk.slow){ delete sk.slow; dropped++; }
     });
   });
-  console.log(`[원랜디] 스턴+이속감소 중복 정리 — 이속감소 제거 ${dropped}개`);
+  console.log(`[원랜디] 스턴 정리 — 절대 미만 스턴 제거 ${stunStripped}개, 스턴+이속감소 중복 해소 ${dropped}개`);
 })();
 
 (function rebalanceByScope(){
@@ -6180,10 +6212,7 @@ function _ultDmg(def, m, mult){
   return Math.round((base + pctMaxHpDmg(m, pct)) * (1 + A.dmgTaken) * combatDmgMult(def, m));
 }
 // 스턴은 pulse 누적 방식(합계 3이면 최저속). 완전 정지를 원하면 value 3 을 넣는다.
-function _ultStun(m, value, dur){
-  if(!m.stunPulses) m.stunPulses = [];
-  m.stunPulses.push({ value, until: state.time + dur });
-}
+function _ultStun(m, value, dur){ _pushStun(m, value, dur); }
 // v15fh: 고유기 이펙트의 "보이는 범위" 규격. 스킬의 실제 판정 범위(sk.radius)와는 별개다.
 //   판정 범위를 그대로 그리면 필드를 뒤덮어 캐릭터가 안 보이고, 반대로 너무 작으면
 //   시전자 토큰(패왕은 지름 216px)에 통째로 가려져 "이펙트가 안 나온다"고 느껴진다.
@@ -6428,7 +6457,7 @@ function fireSkill(u, def, sk){
         // v15fn: 예전엔 m.stun(초 단위 완전정지)이라 스턴 축이 둘로 나뉘어 있었다.
         //   같은 누적 스턴 체계로 합친다. 지속은 공용값을 쓴다 —
         //   sk.stun 을 지속으로 재사용하면 수치(파워)와 지속에 이중으로 반영돼 과해진다.
-        applyStunAOE(p.x, p.y, stunPowerOf(def), STUN_PULSE_DUR);
+        _pushStun(m, stunPowerOf(def), STUN_PULSE_DUR);   // v15fq: 대상마다 1펄스
       }
     });
     fx.dur = 0.7;
@@ -6466,6 +6495,8 @@ function fireSkill(u, def, sk){
           const dealt = Math.round((skillDmgBase * state.synDmg * (1+state.aura.atk) * (1+state.aura.skillDmg) * sk.mult + pctMaxHpDmg(m, pctOf(m))) * (1+state.aura.dmgTaken) * combatDmgMult(def, m));
           applyCombatDmg(def, m, dealt);
           if(sk.slow) applySlow(m, _slowPowerOf(sk.slow));   // v15fm: 최고값 1개만
+          // v15fp: ring 계열도 stun 속성이 있으면 스턴을 넣는다(haki 계열만 걸리던 문제)
+          if(sk.stun) _pushStun(m, stunPowerOf(def), STUN_PULSE_DUR);   // v15fq: 대상마다 1펄스
         }
       });
     }
@@ -6549,6 +6580,13 @@ function fireSkill(u, def, sk){
     });
     fx.dur = 0.35;
     state.shake = Math.max(state.shake, sk.hits >= 10 ? 5 : 2);
+  }
+  // v15fp: bolt/slash 등 나머지 스킬도 stun 속성이 있으면 명중 지점에 스턴을 넣는다.
+  //   예전엔 haki / near_debuff 계열만 스턴이 걸려서, 검격·탄환형 스턴 보유자는
+  //   스킬 정의에 stun 이 있어도 효과가 전혀 없었다.
+  if(sk.stun && !sk.ult && sk.kind !== "haki" && sk.kind !== "near_debuff" && sk.kind !== "ring"){
+    const _sp = inRange[0] ? pathPos(inRange[0].d) : { x:u.x, y:u.y };
+    applyStunAOE(_sp.x, _sp.y, stunPowerOf(def), STUN_PULSE_DUR);
   }
   state.fx.push(fx);
   // 태초/절대: 시전 연출 대폭 강화 (강진동 + 섬광 링)
