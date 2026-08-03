@@ -614,7 +614,7 @@ document.getElementById("introVideo").src = "assets/video/20c96fbfc0f2.mp4";
      그 아래 등급은 코드 기반 모션(기울임/스케일 변화)으로 처리, 이미지 추가 없음.
 
    [역할군 시스템]
-   - 딜러(메인/라인) / 버퍼 / 디버퍼 / 컨트롤러(둔화·스턴, 탱커 대체—이 게임엔
+   - 딜러(메인/라인) / 버퍼 / 디버퍼 / 컨트롤러(이속감소·스턴, 탱커 대체—이 게임엔
      아군 피격 시스템이 없으므로 "버티기"가 아니라 "적 진행 지연"이 탱커 역할)
    - 서포터류는 공격력을 딜러의 30~50%로 낮추는 대신 버프/디버프 효과량을 크게
 
@@ -870,7 +870,7 @@ const PASSIVES = {
 };
 const PASSIVE_LABEL = {
   atk:"공격", aspd:"공속", cdr:"쿨감", crit:"치명", critDmg:"치명뎀",
-  gold:"골드⏱", armorRed:"방깎", dmgTaken:"받피증", slow:"둔화", slowBoss:"보스둔화", skillDmg:"스킬뎀",
+  gold:"골드⏱", armorRed:"방깎", dmgTaken:"받피증", slow:"이속감소", slowBoss:"보스이속감소", skillDmg:"스킬뎀",
   hiddenStun:"필드스턴",   // v15bf: 히든 스턴 패시브 - 필드 전체 대상
 };
 const ROLE_GRADES = ["mythic","origin","absolute","hidden","supremal","ultramaximal","overlord"];   // 역할군 시스템 적용 등급
@@ -3809,7 +3809,8 @@ function spawnMonster(){
   m.spawnD = m.d; m.lapCounted = false;   // v15bs: 완주(1바퀴) 판정 기준점
   m.hp=s.hp; m.maxHp=s.hp; m.speed=s.speed; m.reward=s.reward;
   m.armor=s.armor; m.rank=s.rank; m.boss=false; m.slow=0; m.stun=0;
-  m.stunPulses = null; m.slowStrongUntil = 0; m._armorSave = null; m._armorCurseUntil = 0;   // v15f2: 고유기 잔여 상태 초기화 (몬스터 풀 재사용 대비)
+  m.stunPulses = null; m.slowStrongUntil = 0; m._armorSave = null; m._armorCurseUntil = 0;
+  m.slowPower = 0; m.slowUntil = 0;   // v15fm: 이속감소 상태 초기화   // v15f2: 고유기 잔여 상태 초기화 (몬스터 풀 재사용 대비)
   m.midBoss = false; m.midBossRound = 0;   // v15f8: 풀 재사용 시 중간보스 표식이 남아 보상이 반복되던 버그
   m.name=""; m.bossColor=""; m.elite=false; m.finalBoss=false;
   // 아크별 혼성 비율 + 병종 이름 할당
@@ -4049,6 +4050,7 @@ function spawnBoss(round){
   m.rank = rankOf(round);
   m.boss = true; m.slow = 0; m.stun = 0; m.elite = false; m.faction = "marine";
   m.stunPulses = null; m.slowStrongUntil = 0; m._armorSave = null; m._armorCurseUntil = 0;
+  m.slowPower = 0; m.slowUntil = 0;   // v15fm: 이속감소 상태 초기화
   m.midBoss = false; m.midBossRound = 0;   // v15f8: 풀 재사용 시 중간보스 표식이 남아 보상이 반복되던 버그   // v15f2: 고유기 잔여 상태 초기화 (몬스터 풀 재사용 대비)
   m.name = BOSSES[round] || "해군 본부";
   m.bossColor = BOSS_COLORS[round] || "#2b3c54";
@@ -5623,7 +5625,8 @@ function spawnMidBoss(round){
   m.armor = Math.round(s.armor * 2.8 * 1.25);             // v15k: 중간보스 25% 강화
   m.rank = rankOf(round);
   m.boss = false; m.slow = 0; m.stun = 0; m.finalBoss = false;
-  m.stunPulses = null; m.slowStrongUntil = 0; m._armorSave = null; m._armorCurseUntil = 0;   // v15f2: 고유기 잔여 상태 초기화 (몬스터 풀 재사용 대비)
+  m.stunPulses = null; m.slowStrongUntil = 0; m._armorSave = null; m._armorCurseUntil = 0;
+  m.slowPower = 0; m.slowUntil = 0;   // v15fm: 이속감소 상태 초기화   // v15f2: 고유기 잔여 상태 초기화 (몬스터 풀 재사용 대비)
   m.midBoss = false; m.midBossRound = 0;   // v15f8: 풀 재사용 시 중간보스 표식이 남아 보상이 반복되던 버그
   m.elite = true; m.bounty = true;
   m.faction = Math.random() < 0.5 ? "marine" : "pirate";
@@ -5650,7 +5653,8 @@ function triggerEvent(){
     m.d=0; m.spawnD=0; m.lapCounted=false; m.hp=m.maxHp=s.hp*10; m.speed=s.speed*0.7;
     m.armor=Math.round(s.armor*2); m.rank=s.rank;
     m.boss=false; m.slow=0; m.stun=0; m.elite=true; m.finalBoss=false;
-    m.stunPulses = null; m.slowStrongUntil = 0; m._armorSave = null; m._armorCurseUntil = 0;   // v15f2: 고유기 잔여 상태 초기화
+    m.stunPulses = null; m.slowStrongUntil = 0; m._armorSave = null; m._armorCurseUntil = 0;
+  m.slowPower = 0; m.slowUntil = 0;   // v15fm: 이속감소 상태 초기화   // v15f2: 고유기 잔여 상태 초기화
   m.midBoss = false; m.midBossRound = 0;   // v15f8: 풀 재사용 시 중간보스 표식이 남아 보상이 반복되던 버그
     m.faction = "pirate";
     m.name = getBountyName();
@@ -5731,12 +5735,37 @@ function pulseHiddenBuff(u, key, value, until){
 // v15bv: 신규 스턴 시스템 - 공격/스킬은 단일 타겟에게만 딜, 명중 위치 기준 반경 80 내 몬스터 "전체"에게 스턴 수치만 적용.
 // 스턴 수치는 몬스터별로 중첩 합산되고(펄스 배열), 합계가 3 이상이면 완전 정지. 이감(slow)과는 별개 시스템.
 const STUN_FREEZE_RADIUS = 80;
-const STUN_FREEZE_THRESHOLD = 3;
-// v15fl: 스턴 지속. 예전 2.5초는 히든 스킬 쿨(3.8초)보다 짧아서 같은 캐릭터의 스턴이
-//   절대 겹치지 않았고, 그 결과 누적이 2를 넘지 못해 임계값 3에 영영 도달하지 못했다.
-//   (실측: 히든 6명 x 8초 → 누적 3 도달 몬스터 0/20)
-//   쿨보다 길게 잡아야 여러 명이 같은 지점을 때렸을 때 누적이 실제로 쌓인다.
-const STUN_PULSE_DUR = 4.2;
+// v15fm: 스턴 누적 상한. 여기까지 쌓이면 "사실상 못 움직이는" 상태가 된다.
+const STUN_FREEZE_THRESHOLD = 3.5;
+const STUN_MIN_SPEED = 0.04;        // 상한 도달 시 남는 속도 (완전 0 은 아니지만 사실상 정지)
+// v15fn: 스턴 지속. 4.2초로 길게 잡았더니 실전 편성(히든2 + 스킬스턴7 + 이속감소5)에서
+//   누적이 29~53 까지 치솟아 임계값 3.5 의 8~15배가 됐고, 몬스터 24기 전원이 상시 정지했다.
+//   평타 주기보다 짧게 잡아야 "쌓였다가 풀리는" 리듬이 생긴다.
+const STUN_PULSE_DUR = 1.6;
+// 한 몬스터에 쌓이는 누적 상한. 임계값을 넘긴 초과분은 버려서 폭주를 막는다.
+//   상한이 없으면 스턴이 한 번 걸린 뒤 영영 안 풀린다.
+const STUN_STACK_CAP = 5.0;
+// v15fm: 이속감소는 스턴과 완전 별개이며 "가장 강한 것 하나만" 적용된다(중첩 없음).
+//   기존엔 m.slow 가 '지속시간'이었고 효과는 50% 고정이었다. 그래서 near_debuff 의
+//   slow:0.25 같은 값이 "0.25초간 50% 감속"으로 잘못 먹히고 있었다.
+//   이제 power(감속률 0~1)와 지속을 분리해서 관리한다.
+const SLOW_DEFAULT_DUR = 3.0;
+// 옛 표기 호환: slow 값이 1 이상이면 '지속 초'를 뜻하던 구표기라 감속률 0.5 로 환산한다.
+//   1 미만이면 그대로 감속률(0~1)로 쓴다.
+function _slowPowerOf(v){ return v >= 1 ? 0.5 : v; }
+function applySlow(m, power, dur){
+  if(!(power > 0)) return;
+  const now = state.time;
+  const cur = (m.slowUntil && now < m.slowUntil) ? (m.slowPower || 0) : 0;
+  if(power >= cur){                       // 더 강한 것만 덮어쓴다
+    m.slowPower = power;
+    m.slowUntil = now + (dur || SLOW_DEFAULT_DUR);
+  }
+}
+// 현재 적용 중인 이속감소율 (0~1). 여러 개가 걸려도 최고값 1개만 유효하다.
+function monsterSlowPower(m){
+  return (m.slowUntil && state.time < m.slowUntil) ? (m.slowPower || 0) : 0;
+}
 function applyStunAOE(cx, cy, value, duration){
   state.monsters.forEach(m=>{
     const p = pathPos(m.d);
@@ -5750,14 +5779,38 @@ function applyStunAOE(cx, cy, value, duration){
 function monsterStunTotal(m){
   if(!m.stunPulses || m.stunPulses.length === 0) return 0;
   m.stunPulses = m.stunPulses.filter(p=>p.until > state.time);
-  return m.stunPulses.reduce((s,p)=>s+p.value, 0);
+  const sum = m.stunPulses.reduce((s,p)=>s+p.value, 0);
+  return Math.min(STUN_STACK_CAP, sum);   // v15fn: 폭주 방지 상한
 }
-// v15fl: 스턴은 "그 순간 멈추는" 것이다. 이동속도 감소(slow)는 완전히 별개 시스템이다.
-//   v15c8 에서 누적 비례 감속(1→70% / 2→40% / 3→10%)으로 바꿔놨는데, 그러면 히든(스턴)
-//   등급이 스턴이 아니라 둔화로 동작한다. 원래 설계대로 임계값 이상이면 완전 정지로 되돌린다.
-//   임계 미만은 아무 효과도 주지 않는다 — 스턴은 감속이 아니기 때문이다.
+// v15fm: 스턴은 누적값이 쌓일수록 무거워지고, 3.5 에 도달하면 사실상 멈춘다.
+//   누적 0 → 100% / 1 → 73% / 2 → 45% / 3 → 18% / 3.5 이상 → 4%(사실상 정지)
+//   이속감소(slow)와는 계산 축이 완전히 분리돼 있어 서로 간섭하지 않는다.
 function monsterStunSpeedMult(m){
-  return monsterStunTotal(m) >= STUN_FREEZE_THRESHOLD ? 0 : 1;
+  const tot = monsterStunTotal(m);
+  if(tot <= 0) return 1;
+  if(tot >= STUN_FREEZE_THRESHOLD) return STUN_MIN_SPEED;
+  return 1 - (1 - STUN_MIN_SPEED) * (tot / STUN_FREEZE_THRESHOLD);
+}
+
+// v15fm: 캐릭터별 스턴 수치.
+//   히든  = 스턴 전문 등급이라 "평타마다" 0.8~1.0 을 넣는다 (이름 해시로 개체차)
+//   패왕  = 히든보다 높아도 된다 (1.15~1.35)
+//   그 외 = 스킬에 스턴이 붙은 캐릭터만, 히든보다 확실히 낮게 (등급 계수)
+const STUN_TIER_SCALE = {
+  transcend:0.20, eternal:0.25, immortal:0.28, limit:0.30,
+  mythic:0.35, origin:0.42, absolute:0.50, supremal:0.58, ultramaximal:0.68,
+};
+function stunPowerOf(def){
+  const g = def.grade;
+  if(g === "hidden")   return 0.8 + (_hash01(def.name + "@stun") * 0.2);    // 0.8 ~ 1.0
+  if(g === "overlord") return 1.15 + (_hash01(def.name + "@stun") * 0.2);   // 1.15 ~ 1.35
+  return STUN_TIER_SCALE[g] || 0.25;
+}
+// 이름 기반 0~1 난수(매 실행 동일). 개체마다 조금씩 다른 값을 주기 위한 것.
+function _hash01(s){
+  let h = 2166136261;
+  for(let i=0;i<s.length;i++){ h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
+  return ((h >>> 0) % 1000) / 1000;
 }
 // ---------- v15n: 역할 기반 사거리/스킬반경/방감/버프 자동 재조정 (신화 이상, 히든 제외) ----------
 // v15ae: 신화~태초 방감 범위 신설 + 히든 방감(누락분) 채우기용 범위 — 티어가 올라갈수록 점진 상승
@@ -5991,6 +6044,21 @@ function scopeOf(sk){
   if(h <= 15) return "many";
   return "spam";
 }
+// v15fm: 한 스킬에 스턴과 이속감소가 같이 붙어 있으면 정체성이 흐려진다.
+//   스턴이 있으면 이속감소를 떼고, 이속감소만 있으면 그대로 둔다.
+//   (히든 6명이 stun + slow 를 같이 갖고 있었다 — 스턴 등급이므로 스턴만 남긴다)
+(function splitStunAndSlow(){
+  const seen = new Set(); let dropped = 0;
+  Object.values(UNIT_DEFS).forEach(def=>{
+    [def.skill, def.skill2, def.skill3].forEach(sk=>{
+      if(!sk || seen.has(sk)) return;
+      seen.add(sk);
+      if(sk.stun && sk.slow){ delete sk.slow; dropped++; }
+    });
+  });
+  console.log(`[원랜디] 스턴+이속감소 중복 정리 — 이속감소 제거 ${dropped}개`);
+})();
+
 (function rebalanceByScope(){
   // 스킬 객체는 여러 유닛이 공유할 수 있으므로 중복 적용을 막는다.
   const seen = new Set();
@@ -6225,7 +6293,7 @@ function fireSkill(u, def, sk){
         t.forEach(m=>{
           m.d = Math.max(m.spawnD || 0, m.d - (sk.pull || 150));
           applyCombatDmg(def, m, _ultDmg(def, m, sk.mult));
-          if(sk.slow) m.slow = Math.max(m.slow || 0, sk.slow);
+          if(sk.slow) applySlow(m, sk.slow);
         });
         if(t.length) addLog(`🌀 <b style="color:${sk.color}">${sk.type}</b> — ${t.length}기를 뒤로 밀어냈다!`);
         break;
@@ -6233,7 +6301,7 @@ function fireSkill(u, def, sk){
 
       case "freeze": {                      // 오뎅 — 완전 동결 (피해 없음)
         const t = inR();
-        t.forEach(m=> _ultStun(m, 3, sk.dur || 5));
+        t.forEach(m=> _ultStun(m, STUN_FREEZE_THRESHOLD, sk.dur || 5));   // 동결 = 즉시 상한까지
         if(t.length) addLog(`❄ <b style="color:${sk.color}">${sk.type}</b> — 범위 내 ${t.length}기 ${sk.dur}초간 동결!`);
         break;
       }
@@ -6357,7 +6425,10 @@ function fireSkill(u, def, sk){
       if(_dx*_dx + _dy*_dy <= _rr*_rr){
         const dealt = Math.round((skillDmgBase * state.synDmg * (1+state.aura.atk) * (1+state.aura.skillDmg) * sk.mult + pctMaxHpDmg(m, pctOf(m))) * (1+state.aura.dmgTaken) * combatDmgMult(def, m));
         applyCombatDmg(def, m, dealt);
-        m.stun = sk.stun;
+        // v15fn: 예전엔 m.stun(초 단위 완전정지)이라 스턴 축이 둘로 나뉘어 있었다.
+        //   같은 누적 스턴 체계로 합친다. 지속은 공용값을 쓴다 —
+        //   sk.stun 을 지속으로 재사용하면 수치(파워)와 지속에 이중으로 반영돼 과해진다.
+        applyStunAOE(p.x, p.y, stunPowerOf(def), STUN_PULSE_DUR);
       }
     });
     fx.dur = 0.7;
@@ -6394,7 +6465,7 @@ function fireSkill(u, def, sk){
         if(_dx*_dx + _dy*_dy <= sk.radius*sk.radius){
           const dealt = Math.round((skillDmgBase * state.synDmg * (1+state.aura.atk) * (1+state.aura.skillDmg) * sk.mult + pctMaxHpDmg(m, pctOf(m))) * (1+state.aura.dmgTaken) * combatDmgMult(def, m));
           applyCombatDmg(def, m, dealt);
-          if(sk.slow) m.slow = Math.max(m.slow||0, sk.slow);   // v15bf: 이속감소는 중첩 대신 최고값 적용
+          if(sk.slow) applySlow(m, _slowPowerOf(sk.slow));   // v15fm: 최고값 1개만
         }
       });
     }
@@ -6412,7 +6483,7 @@ function fireSkill(u, def, sk){
       const dealt = Math.round((skillDmgBase * state.synDmg * (1+state.aura.atk) * (1+state.aura.skillDmg) * sk.mult + pctMaxHpDmg(ndTarget, pctOf(ndTarget))) * (1+state.aura.dmgTaken) * combatDmgMult(def, ndTarget));
       applyCombatDmg(def, ndTarget, dealt);
       const tp = pathPos(ndTarget.d);
-      applyStunAOE(tp.x, tp.y, sk.stun || 1, STUN_PULSE_DUR);   // v15fl: 히든 - 타겟 지점 기준 반경 80 스턴
+      applyStunAOE(tp.x, tp.y, stunPowerOf(def), STUN_PULSE_DUR);   // v15fm: 타겟 지점 기준 반경 80 스턴(누적)
     }
     // v15n: 슬로우/방어감소는 %수치 임시 aura 펄스로 반영 (시전자별 개별 추적 -> armorRed 등 중첩 가능)
     // v15c7: 디버프도 지속시간 = 스킬 쿨의 절반 (이감=최고값 1개, 방감=합산 누적은 기존 규칙 유지)
@@ -6713,7 +6784,8 @@ function spawnNamedMidBoss(round){
   m.boss = false; m.elite = true; m.finalBoss = false;   // 보스 판정과 분리 (보스 타이머/음악 없음)
   m.midBoss = true; m.midBossRound = round;
   m.slow = 0; m.stun = 0; m.bounty = false;
-  m.stunPulses = null; m.slowStrongUntil = 0; m._armorSave = null; m._armorCurseUntil = 0;   // v15f2: 고유기 잔여 상태 초기화 (몬스터 풀 재사용 대비)
+  m.stunPulses = null; m.slowStrongUntil = 0; m._armorSave = null; m._armorCurseUntil = 0;
+  m.slowPower = 0; m.slowUntil = 0;   // v15fm: 이속감소 상태 초기화   // v15f2: 고유기 잔여 상태 초기화 (몬스터 풀 재사용 대비)
   m.faction = "pirate";
   m.name = cfg.name;
   m.bossColor = cfg.color;
@@ -7000,17 +7072,18 @@ function update(dt){
     }
   }
 
-  // 이동 (빙결 감속 + 패왕색 스턴 정지 + 히든/초절대자서폿 스턴 스택)
+  // 이동 — 스턴(누적)과 이속감소(최고값 1개)를 완전히 분리해서 곱한다
   state.monsters.forEach(m=>{
-    if(m.slow > 0) m.slow -= dt;
-    if(m.stun > 0){ m.stun -= dt; return; }
-    // v15c8: 스턴 스택은 완전정지(이분법)가 아니라 누적 수치 비례 감속 - 합계 3 + 이감 35%면 거의 멈춘 것처럼 보임
+    if(m.stun > 0){ m.stun -= dt; return; }   // 레거시 완전정지(패왕색 등) 경로
+    // ① 스턴: 누적 3.5 에서 사실상 정지
     const stunMult = monsterStunSpeedMult(m);
+    // ② 이속감소: 스킬/고유기 중 가장 강한 것 1개 + 시너지 오라(별도 축)
+    //    v15fm: 시간지연 고유기도 같은 이속감소 축으로 합류시켜 중첩을 없앴다.
+    if(m.slowStrongUntil && state.time < m.slowStrongUntil) applySlow(m, 0.7, 0.2);
     const slowAura = m.boss ? state.aura.slowBoss : state.aura.slow;
+    const slowMult = (1 - monsterSlowPower(m)) * (1 - slowAura);
     const bossSpeedMult = (m.speedBoost && m.hp <= m.maxHp*m.speedBoostThresh) ? m.speedBoostMult : 1;
-    // v15f2: 시간지연 고유기 - 이동속도 70% 감소
-    const _tSlow = (m.slowStrongUntil && state.time < m.slowStrongUntil) ? 0.3 : 1;
-    m.d += m.speed * bossSpeedMult * stunMult * (m.slow > 0 ? 0.5 : 1) * _tSlow * (1 - slowAura) * dt;
+    m.d += m.speed * bossSpeedMult * stunMult * slowMult * dt;
     // v15f2: 방어력 저주 만료 시 원래 방어력 복구
     if(m._armorCurseUntil && state.time >= m._armorCurseUntil){
       if(m._armorSave != null) m.armor = m._armorSave;
@@ -7136,15 +7209,13 @@ function update(dt){
       dealt = Math.max(0, dealt);
       sfxHit();
       const tp = pathPos(target.d);
-      // v15c7: ① 근접단일딜 = 타격범위 스턴 — 평타 명중 지점 기준 반경 80 내 전체에 티어별 스턴 수치 (필드 전체 아님)
-      if(_role === "근접단일딜"){
-        const _sv = ROLE_TIER_SCALE.meleeSingleStun[def.grade];
-        if(_sv) applyStunAOE(tp.x, tp.y, _sv, STUN_PULSE_DUR);
-      }
-      // v15c7: ⑥ 서포터(절대자 이상)도 평타 명중 시 반경 80 스턴 수치 부여
-      if(_role === "서포터"){
-        const _sv = ROLE_TIER_SCALE.supportStun[def.grade];
-        if(_sv) applyStunAOE(tp.x, tp.y, _sv, STUN_PULSE_DUR);
+      // v15fn: 평타 스턴은 히든 전용이다.
+      //   히든 = 스턴 전문 등급이므로 평타마다 부여(0.8~1.0).
+      //   그 외 등급은 "스킬에 스턴이 붙은 캐릭터"만 스킬 발동 시 스턴을 준다.
+      //   예전엔 근접단일딜/서포터 역할이면 평타로도 스턴을 넣었는데, 편성 대부분이
+      //   그 역할이라 스턴이 폭주했다(실전 편성 실측: 24기 중 19기가 상시 정지).
+      if(def.grade === "hidden"){
+        applyStunAOE(tp.x, tp.y, stunPowerOf(def), STUN_PULSE_DUR);
       }
       // v15ax: 2프레임 캐릭터는 평타 순간에도 잠깐 f2로 전환 (공격 모션처럼 보이게)
       if(def.frame2) u.frame2Until = state.time + 0.18;
