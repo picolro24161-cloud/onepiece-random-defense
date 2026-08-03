@@ -6217,20 +6217,22 @@ function _ultStun(m, value, dur){ _pushStun(m, value, dur); }
 //   판정 범위를 그대로 그리면 필드를 뒤덮어 캐릭터가 안 보이고, 반대로 너무 작으면
 //   시전자 토큰(패왕은 지름 216px)에 통째로 가려져 "이펙트가 안 나온다"고 느껴진다.
 //   mode: field=필드 전체 / self=시전자 중심 원형 / above=시전자 위 작게 / point=지정 좌표
+// v15fr: 이펙트가 너무 크고 밝아 "눈뽕"이라는 피드백. 표시 크기를 전반적으로 줄이고
+//   투명도를 낮춘다. 스킬의 실제 판정 범위(sk.radius)는 건드리지 않는다 — 보이는 크기만 조정.
+//   dy: 시전자 토큰(패왕은 지름 216px)에 가려지지 않도록 위로 띄우는 양.
+//       예전엔 이펙트 알맹이가 토큰 뒤에 숨어 "이펙트가 안 나온다"고 느껴졌다.
 const ULT_FX_VIEW = {
-  field_nuke:   { mode:"field" },              // 흰수염 - 필드 전체
-  gravity:      { mode:"self",  size:360 },    // 검은수염 - 중간 원형
-  freeze:       { mode:"self",  size:400 },    // 오뎅 - 원형
-  meteor:       { mode:"point", size:230 },    // 료쿠규 - 낙하지점마다
-  chain_boom:   { mode:"point", size:190 },    // 가반 - 몬스터 처치 위치마다
-  lottery:      { mode:"above", size:120 },    // 버기 - 캐릭터 위 작게
-  summon:       { mode:"point", size:160 },    // 니카 루피 - 소환 위치
-  // v15fi: 이무는 기본값(기타 원형)에 묻혀 있어서 전용 규격으로 분리했다.
-  //   이펙트 원본(Shanks Kamusari 2)이 가로로 뻗는 충격파라 밀어내는 연출과 맞고,
-  //   좌우로 넓게 보이도록 다른 원형기(380)보다 조금 키웠다.
-  knockback:    { mode:"self",  size:440 },    // 이무 - 강제 후퇴
+  field_nuke:   { mode:"field", alpha:0.38 },   // 흰수염 - 필드 전체(가장 옅게)
+  gravity:      { mode:"self",  size:230 },     // 검은수염 - 중간 원형
+  freeze:       { mode:"self",  size:250 },     // 오뎅 - 원형
+  meteor:       { mode:"point", size:170 },     // 료쿠규 - 낙하지점마다
+  chain_boom:   { mode:"point", size:150 },     // 가반 - 처치 위치마다
+  lottery:      { mode:"above", size:115 },     // 버기 - 캐릭터 위 작게
+  summon:       { mode:"point", size:140 },     // 니카 루피 - 소환 위치
+  knockback:    { mode:"self",  size:280 },     // 이무 - 가로로 뻗는 충격파
 };
-const ULT_FX_VIEW_DEFAULT = { mode:"self", size:380 };   // 나머지 - 시전자 주변 원형
+const ULT_FX_VIEW_DEFAULT = { mode:"self", size:240 };   // 나머지 - 시전자 주변 원형
+const ULT_FX_ALPHA = 0.72;   // 기본 투명도 (예전 0.95 는 너무 밝았다)
 // v15fj: 이펙트 표시 시간. 0.75초는 눈 깜빡하면 놓쳐서 "이펙트가 안 나온다"는 인상을 줬다.
 const ULT_FX_DUR = 1.5;          // 시전 이펙트
 const ULT_FX_DUR_POINT = 1.0;    // 낙하/폭발처럼 여러 개가 동시에 뜨는 것 (겹침이 심해 조금 짧게)
@@ -6244,8 +6246,12 @@ function _ultFx(x, y, color, kind, dur, forcePoint){
   fx.lines = null;
   fx.fxMode = forcePoint ? "point" : v.mode;
   fx.max = v.size || 300;
+  fx.fxAlpha = v.alpha || ULT_FX_ALPHA;
   fx.x = x;
-  fx.y = (fx.fxMode === "above") ? y - 80 : y;
+  // point(낙하·처치 지점)는 그 자리에 그대로, 나머지는 토큰에 안 가리게 위로 띄운다
+  fx.y = (fx.fxMode === "above") ? y - 80
+       : (fx.fxMode === "point" || forcePoint) ? y
+       : y + (v.dy || 0);
   state.fx.push(fx);
 }
 // 이미지 없이 얇은 링만 남기는 보조 이펙트 (연쇄 튕김 경로 표시용)
@@ -7561,30 +7567,12 @@ function draw(){
     // v15f2: 패왕 고유기 - 전용 이펙트 이미지를 범위에 맞춰 확대하며 페이드아웃
     const _ultSrc = ULT_FX_IMAGES[f.kind];
     if(_ultSrc){
-      const im = getImg(_ultSrc);
-      if(im && im.complete && im.naturalWidth){
-        // 이펙트 원본은 검은 배경 JPG(알파 없음)라 그대로 그리면 검은 사각형이 얹힌다.
-        // 가산 합성(lighter)으로 올리면 검은 부분이 자연히 투명해진다.
-        ctx.save();
-        ctx.globalCompositeOperation = "lighter";
-        ctx.globalAlpha = (1 - prog) * 0.95;
-        if(f.fxMode === "field"){
-          ctx.drawImage(im, 0, 0, W, H);          // 필드 전체 (흰수염)
-        }else{
-          const sz = f.max * (0.92 + prog * 0.22);
-          ctx.drawImage(im, f.x - sz/2, f.y - sz/2, sz, sz);
-        }
-        ctx.restore();
-      }
-      if(f.fxMode !== "field"){
-        ctx.globalAlpha = (1 - prog) * 0.6;
-        ctx.beginPath();
-        ctx.arc(f.x, f.y, f.max * 0.5 * prog, 0, Math.PI*2);
-        ctx.strokeStyle = f.color; ctx.lineWidth = 3; ctx.stroke();
-      }
-      ctx.globalAlpha = 1;
+      // v15fs: 고유기 이미지 이펙트는 유닛보다 뒤에 깔리면 시전자 토큰(지름 216px)에
+      //   알맹이가 통째로 가려진다. 유닛을 다 그린 뒤 별도 패스에서 위에 올린다.
+      //   가산합성(lighter)이라 위에 올려도 캐릭터를 가리지 않고 밝아지기만 한다.
       return;
     }
+
     if(f.kind === "ring"){
       ctx.beginPath();
       ctx.arc(f.x, f.y, f.max * prog, 0, Math.PI*2);
@@ -7638,6 +7626,7 @@ function draw(){
     }
     ctx.fillStyle = g.color;
     ctx.fillText(label, u.x, ly);
+    // (말풍선은 아래에서 계속)
     // v14/v15af: 등장 말풍선 렌더링 (타이핑 효과 - 글자당 55ms 노출 + 비프음)
     if(u.bubble && u.bubble.t > 0){
       u.bubble.t -= 0.016;   // 매 프레임 감소 (dt 대신 고정값으로 간소화)
@@ -7699,6 +7688,34 @@ function draw(){
     }
 
   });
+
+  // v15fs: 패왕 고유기 이펙트 — 유닛 위에 가산합성으로 올린다.
+  //   lighter 는 겹친 곳을 밝게 더할 뿐 가리지 않으므로 캐릭터/필드가 묻히지 않는다.
+  state.fx.forEach(f=>{
+    const src = ULT_FX_IMAGES[f.kind];
+    if(!src) return;
+    const prog = f.t / f.dur;
+    const im = getImg(src);
+    ctx.save();
+    ctx.globalCompositeOperation = "lighter";
+    if(im && im.complete && im.naturalWidth){
+      ctx.globalAlpha = (1 - prog) * (f.fxAlpha || ULT_FX_ALPHA);
+      if(f.fxMode === "field"){
+        ctx.drawImage(im, 0, 0, W, H);
+      }else{
+        const sz = f.max * (0.95 + prog * 0.10);
+        ctx.drawImage(im, f.x - sz/2, f.y - sz/2, sz, sz);
+      }
+    }
+    if(f.fxMode !== "field"){
+      ctx.globalAlpha = (1 - prog) * 0.35;
+      ctx.beginPath();
+      ctx.arc(f.x, f.y, f.max * 0.45 * prog, 0, Math.PI*2);
+      ctx.strokeStyle = f.color; ctx.lineWidth = 2; ctx.stroke();
+    }
+    ctx.restore();
+  });
+  ctx.globalAlpha = 1;
 
   // 지역명
   ctx.fillStyle = "rgba(8,12,20,.6)";
