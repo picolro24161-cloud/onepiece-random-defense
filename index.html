@@ -1597,84 +1597,11 @@ for(const grade in TOP_RECIPE_DEFS){
   });
 }
 
-// v15c5: 패왕 조합법 - 초절대자 1명 + 절대자 1명 = 패왕 1명 (세계관/직업군 연관성 기준, 재료 10명씩 중복 없이 1:1 매칭)
-const OVERLORD_RECIPE_DEFS = [
-  ["해군대장 료쿠규",     "저격신 우솝",       "로키"],
-  ["암흑황제 검은수염",   "염신 상디",         "암흑신 티치"],
-  ["세계군주 이무",       "천후여왕 나미",     "세계왕 이무"],
-  ["화월의 오뎅",         "검성 조로",         "검신 미호크"],
-  ["혁명군총사령관 사보", "강철거신 프랑키",   "태양신 조이보이"],
-  ["불주먹 에이스",       "해신 징베",         "니드호그"],
-  ["전설의 해적왕 로저",  "해방왕 루피",       "대해적왕 흰수염"],
-  ["최강해적 록스D지벡",  "생명의 수호신 쵸파", "패왕 록스"],
-  ["사황 버기",           "황천왕 브룩",       "명왕 레일리"],
-  ["스코퍼가반",          "역사의 계승자 로빈", "좌익왕 가반"],
-];
-// v15dh: 캐릭터가 늘어나 패왕 조합 확률이 낮아진 문제 → 절대자 재료를 "2개 중 택1"로 완화.
-//   두 번째 후보는 기존에 패왕 조합에 안 쓰이던 절대자를 세계관에 맞게 배정 (미사용 절대자 활용 겸)
-// v15du: 검은수염 초절대자 8명이 패왕 조합에 전혀 쓰이지 않아(0건) 조합상 완전한 사장 자원이었다.
-//   초절대자 슬롯도 "2명 중 택1"로 만들어 검은수염 멤버로도 패왕을 만들 수 있게 한다.
-//   (밀짚모자 지정 재료는 그대로 유지되므로 기존 루트는 영향 없음 - 선택지가 하나 늘어나는 것)
-const OVERLORD_ALT_ULTRA = {
-  "암흑황제 검은수염":    "마샬 D 티치",          // 본인
-  "최강해적 록스D지벡":   "반 오거",              // 거인 참수자
-  "세계군주 이무":        "거인 산 후안 울프",    // 세계를 짓누르는 질량
-  "화월의 오뎅":          "우천의 시류",          // 검사 대 검사
-  "사황 버기":            "주정뱅이 바스코 샷",   // 광대·주정 소동
-  "불주먹 에이스":        "챔피언 버제스",        // 에이스를 쓰러뜨린 인연
-  "혁명군총사령관 사보":  "캐서린 데본",          // 혁명군 추적자
-  "스코퍼가반":           "검은수염 해적단원",
-  // 해군대장 료쿠규 / 전설의 해적왕 로저는 상징성이 커서 검은수염 루트를 두지 않음
-};
-const OVERLORD_ALT_SUPREMAL = {
-  "해군대장 료쿠규":      "대지신 워큐리",
-  "암흑황제 검은수염":    "역병신 새턴",
-  "세계군주 이무":        "심판신 쥬 피터",
-  "화월의 오뎅":          "검신 누스즈로",
-  "혁명군총사령관 사보":  "혁명왕 드래곤",
-  "불주먹 에이스":        "화성신 마즈",
-  "전설의 해적왕 로저":   "해적신 로저",
-  "최강해적 록스D지벡":   "최강생물 카이도",
-  "사황 버기":            "천룡왕 샴록",
-  "스코퍼가반":           "다이아몬드 조즈",
-};
-OVERLORD_RECIPE_DEFS.forEach(([resultName, ultraName, supremalName])=>{
-  const rid = findByName("overlord", resultName);
-  const m1 = findByName("ultramaximal", ultraName);
-  const m2 = findByName("supremal", supremalName);
-  const altName = OVERLORD_ALT_SUPREMAL[resultName];
-  const m2b = altName ? findByName("supremal", altName) : null;
-  const ultraAltName = OVERLORD_ALT_ULTRA[resultName];
-  const m1b = ultraAltName ? findByName("ultramaximal", ultraAltName) : null;
-  if(rid && m1 && m2){
-    const supAlt   = m2b ? [m2, m2b] : [m2];
-    const ultraAlt = m1b ? [m1, m1b] : [m1];   // v15du: 초절대자도 택1 (밀짚모자 or 검은수염)
-    RECIPE_LIST.push({ result: rid, mats: [], altGroups: [ultraAlt, supAlt], target: "overlord" });
-  }
-});
-// v15d8: 전용 등장 연출을 가진 최상급 패왕 2종 - 초절대자 2명 + 절대자 1명으로 요구치가 더 높음
-const OVERLORD_PREMIUM_DEFS = [
-  ["태양신 니카 루피", ["해방왕 루피", "검성 조로"],   "태양신 조이보이"],
-  ["전성기 흰수염",    ["해신 징베",   "염신 상디"],   "대해적왕 흰수염"],
-  ["[필름 레드] 샹크스", ["검성 조로",  "황천왕 브룩"], "패왕 샹크스"],
-];
-// v15dh: 프리미엄 패왕 3종도 절대자 재료를 택1로 (초절대자 2명은 고정 유지)
-const OVERLORD_PREMIUM_ALT = {
-  "태양신 니카 루피": "해적신 로저",
-  "전성기 흰수염":    "다이아몬드 조즈",
-  "[필름 레드] 샹크스": "검신 미호크",
-};
-OVERLORD_PREMIUM_DEFS.forEach(([resultName, ultras, supremalName])=>{
-  const rid = findByName("overlord", resultName);
-  const mats = ultras.map(n=>findByName("ultramaximal", n));
-  const m2 = findByName("supremal", supremalName);
-  const altName = OVERLORD_PREMIUM_ALT[resultName];
-  const m2b = altName ? findByName("supremal", altName) : null;
-  if(rid && mats.every(x=>x) && m2){
-    const alt = m2b ? [m2, m2b] : [m2];
-    RECIPE_LIST.push({ result: rid, mats, altGroups: [alt], target: "overlord" });
-  }
-});
+// v15fc: 패왕 조합 루트를 하나로 통일했다.
+//   예전엔 두 갈래였다 — ① 캐릭터 1:1 지정형(초절대자1 + 절대자1) ② 태초 지정형.
+//   ①은 특정 초절대자/절대자를 콕 집어 요구해서 재료가 어긋나면 영영 막히는 데다,
+//   같은 13명을 만드는 길이 둘이라 조합 목록이 26장으로 불어나 읽기 어려웠다.
+//   이제 아래 '태초 지정' 루트 하나만 남긴다.
 
 
 // v15f7: 패왕 "태초 지정" 루트 — 초절대자 1(아무나) + 절대자 2(아무나) + 지정 태초 1 → 랜덤 패왕
