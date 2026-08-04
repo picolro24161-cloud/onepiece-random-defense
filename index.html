@@ -6309,6 +6309,9 @@ const ULT_FX_VIEW_DEFAULT = { mode:"self", size:380 };   // 나머지 - 시전�
 // v15ft: 패왕 고유기는 "한 방 연출"이라 크기·밝기를 건드리지 않는다(원래 값 유지).
 //   눈뽕의 원인은 패왕이 아니라, 캐릭터 수십 명이 매 스킬마다 뿜는 일반 원형 이펙트였다.
 const ULT_FX_ALPHA = 0.95;
+// v15fx: 4칸 이상 고유기는 필드 전체로 나가는데 2칸짜리는 상대적으로 너무 작아 보였다.
+//   필드 연출이 아닌(=2칸) 고유기 이펙트만 표시 크기를 2배로 키운다. 판정 범위는 그대로.
+const ULT_FX_NARROW_BOOST = 2.0;
 // 일반 스킬의 원형 이펙트 표시 배율/투명도 — 스킬 판정 범위와 무관하게 겉모습만 줄인다.
 const RING_FX_SCALE = 0.55;
 const RING_FX_ALPHA = 0.45;
@@ -6326,7 +6329,8 @@ function _ultFx(x, y, color, kind, dur, forcePoint, wide){
   // v15fw: 4칸 이상 광역 고유기는 흰수염(field_nuke)과 같은 필드 전체 연출로 통일한다.
   fx.fxMode = forcePoint ? "point" : (wide ? "field" : v.mode);
   fx.wide = (fx.fxMode === "field");
-  fx.max = v.size || 300;
+  // 필드 연출이 아닌 좁은 고유기는 표시 크기를 2배로 (겉모습만, 판정 범위와 무관)
+  fx.max = Math.round((v.size || 300) * (fx.wide ? 1 : ULT_FX_NARROW_BOOST));
   fx.fxAlpha = v.alpha || ULT_FX_ALPHA;
   fx.x = x;
   // point(낙하·처치 지점)는 그 자리에 그대로, 나머지는 토큰에 안 가리게 위로 띄운다
