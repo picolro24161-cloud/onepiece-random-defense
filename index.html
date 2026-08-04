@@ -1105,13 +1105,13 @@ const ULTRA_SKILLS = [
 const OVERLORD_SKILLS = [
   /*해군대장 료쿠규*/     [ {type:"그린 타이푼",cd:3.0,mult:9.0,color:"#40a030",kind:"ring",radius:560}, {type:"삼림의 감옥",cd:4.0,mult:7.0,color:"#2c7020",kind:"bolt",hits:26}, {type:"대지의 심판 · 운석",cd:20,mult:5.0,color:"#3c8c30",kind:"ring",ult:"meteor",radius:520,radius2:230,count:4,stun:1.5} ],
   /*암흑황제 검은수염*/   [ {type:"야미야미 흡수",cd:3.2,mult:9.5,color:"#4a0080",kind:"haki",radius:520,stun:3.2}, {type:"그라그라 진동파",cd:4.0,mult:7.5,color:"#2a0050",kind:"ring",radius:540}, {type:"어둠의 중력장",cd:25,mult:5.5,color:"#3a0060",kind:"ring",ult:"gravity",radius:460,pull:110} ],
-  /*세계군주 이무*/       [ {type:"여명의 심판",cd:3.0,mult:9.0,color:"#c000ff",kind:"bolt",hits:30}, {type:"패왕의 위압",cd:5.0,mult:0,color:"#ffb300",kind:"elite_aspd_buff",radius:9999}, {type:"세계의 굴레 · 강제 후퇴",cd:6,mult:4.0,color:"#a000e0",kind:"ring",ult:"knockback",radius:520,pull:150,slow:0.35} ],
+  /*세계군주 이무*/       [ {type:"여명의 심판",cd:3.0,mult:9.0,color:"#c000ff",kind:"bolt",hits:30}, {type:"군림하는 자의 위엄",cd:5.0,mult:0,color:"#c000ff",kind:"ally_buff",radius:9999,atk:0.45}, {type:"세계의 굴레 · 강제 후퇴",cd:6,mult:4.0,color:"#a000e0",kind:"ring",ult:"knockback",radius:520,pull:150,slow:0.35} ],
   /*화월의 오뎅*/         [ {type:"아마테라스 참",cd:3.0,mult:9.5,color:"#5ee0ff",kind:"slash",hits:36}, {type:"코즈키 유파 오의",cd:4.0,mult:7.5,color:"#30a0c0",kind:"ring",radius:480}, {type:"염왕 · 절대동결",cd:30,mult:0,color:"#7ef0ff",kind:"ring",ult:"freeze",radius:440,dur:5} ],
   /*혁명군총사령관 사보*/ [ {type:"용염 폭발",cd:3.0,mult:9.0,color:"#ff8c14",kind:"ring",radius:560}, {type:"혁명의 불꽃",cd:4.0,mult:7.0,color:"#ff6000",kind:"bolt",hits:26}, {type:"해방의 정체 영역",cd:20,mult:0,color:"#ff7000",kind:"ring",ult:"time_slow",radius:480,dur:7} ],
   /*불주먹 에이스*/       [ {type:"화염 대선풍",cd:3.0,mult:9.0,color:"#ff5010",kind:"ring",radius:580}, {type:"불새 피닉스",cd:4.0,mult:7.0,color:"#ff8020",kind:"bolt",hits:28}, {type:"대염계 · 흡혈화염",cd:15,mult:6.0,color:"#ff4020",kind:"ring",ult:"lifesteal",radius:400,atk:0.35,dur:6} ],
   /*전설의 해적왕 로저*/  [ {type:"패왕색 패기 개방",cd:3.2,mult:9.5,color:"#ffb300",kind:"haki",radius:600,stun:3.5}, {type:"로저의 유언",cd:4.0,mult:7.5,color:"#ffd24d",kind:"ring",radius:540}, {type:"라프텔의 의지",cd:10,mult:8.0,color:"#ffd24d",kind:"ring",ult:"chain_bounce",radius:600,bounces:6} ],
   /*최강해적 록스D지벡*/  [ {type:"패왕의 일격",cd:3.5,mult:12.0,color:"#a00030",kind:"bolt",hits:1}, {type:"정복자의 노도",cd:4.0,mult:7.5,color:"#700020",kind:"slash",hits:20}, {type:"군림하는 자의 저주",cd:20,mult:0,color:"#8c0028",kind:"ring",ult:"curse_armor",radius:9999,dur:7} ],
-  /*사황 버기*/           [ {type:"바라바라 대분열",cd:3.0,mult:9.0,color:"#c020ff",kind:"ring",radius:540}, {type:"패왕의 위압",cd:5.0,mult:0,color:"#ffb300",kind:"elite_aspd_buff",radius:9999}, {type:"사황의 대운수",cd:8,mult:5.0,color:"#ffb300",kind:"ring",ult:"lottery",radius:9999} ],
+  /*사황 버기*/           [ {type:"바라바라 대분열",cd:3.0,mult:9.0,color:"#c020ff",kind:"ring",radius:540}, {type:"광대의 대난장",cd:5.0,mult:0,color:"#ffb300",kind:"ally_buff",radius:9999,aspd:0.45}, {type:"사황의 대운수",cd:8,mult:5.0,color:"#ffb300",kind:"ring",ult:"lottery",radius:9999} ],
   /*스코퍼가반*/          [ {type:"황금 창격",cd:3.0,mult:9.0,color:"#6090d0",kind:"bolt",hits:24}, {type:"가반류 오의",cd:4.0,mult:7.0,color:"#4070b0",kind:"slash",hits:28}, {type:"가반류 비전 · 연쇄폭발",cd:15,mult:3,color:"#5080c0",kind:"ring",ult:"chain_boom",radius:9999,dur:10} ],
   /*태양신 니카 루피*/ [ {type:"태양신 해방",cd:3.0,mult:10.0,color:"#ffd700",kind:"haki",radius:600,stun:3.2}, {type:"고무고무 대원숭이",cd:3.5,mult:9.0,color:"#ff8c00",kind:"ring",radius:560}, {type:"니카의 자유 · 환영소환",cd:40,mult:0,color:"#fff0a0",kind:"ring",ult:"summon",radius:9999,dur:12} ],
   /*전성기 흰수염*/    [ {type:"섬 흔들기",cd:3.0,mult:11.0,color:"#20e0e0",kind:"ring",radius:580}, {type:"구라구라 진파",cd:4.0,mult:9.5,color:"#40c0ff",kind:"bolt",hits:1}, {type:"세계 최강의 일격",cd:60,mult:4.0,color:"#a0f0ff",kind:"ring",ult:"field_nuke",radius:9999} ],
@@ -1868,7 +1868,8 @@ const BOSSES = {
   75:"오로성 새턴",
   80:"거인왕자 로키",
   85:"세계군주 이무",
-  90:"암흑황제 검은수염",
+  // v15g2: 최종 보스는 90 이 아니라 95 라운드. 90 라운드는 보스 없는 웨이브가 된다.
+  95:"암흑황제 검은수염",
 };
 // v15e5: 보스 색상 18종
 const BOSS_COLORS = {
@@ -1889,7 +1890,7 @@ const BOSS_COLORS = {
   75:"#6a2ca0",
   80:"#9c8cc8",
   85:"#14141c",
-  90:"#1a0030",
+  95:"#1a0030",   // v15g2: 최종 보스 라운드 이동
 };
 // v15e5: 보스 대사 18종
 const BOSS_QUOTES = {
@@ -1910,7 +1911,7 @@ const BOSS_QUOTES = {
   75:"너희 같은 존재가 세계 정부에 맞서겠다는 건가.",
   80:"엘바프의 피가 끓는다!",
   85:"모든 것은 이미 정해져 있다.",
-  90:"제하하하! 사람의 꿈은!! 끝나지 않아!!!",
+  95:"제하하하! 사람의 꿈은!! 끝나지 않아!!!",   // v15g2
 };
 
 // =========================================================
@@ -3584,7 +3585,9 @@ const DIFFS = {
 //   브라우저 콘솔에 BUILD_ID 를 쳐서 지금 떠 있는 빌드가 무엇인지 즉시 확인할 수 있다.
 const BUILD_ID = "2026-08-03 09:30";
 console.log("[원랜디] BUILD_ID =", BUILD_ID);
-const FINAL_ROUND_BY_DIFF = { easy:75, normal:80, hard:85, hell:90 };   // v15e5: 라운드 연장
+// v15g2: 난이도별로 총 라운드가 달랐는데(75/80/85/90) 전부 95 로 통일한다.
+//   최종 보스(암흑황제 검은수염)도 90 이 아니라 95 라운드에 등장한다.
+const FINAL_ROUND_BY_DIFF = { easy:95, normal:95, hard:95, hell:95 };
 // v15am: NORMAL/HARD도 일반 라인 몬스터 체력·방어력을 20% 완화 (EASY는 이미 별도 R20+ 완화가 있어 여기서는 그대로 1)
 // 보스는 monsterStats/computeRoundHp를 거치지 않고 spawnBoss()의 별도 공식을 쓰므로 이 배율의 영향을 받지 않음
 // v15ap: 쉬움/노말/하드 전부 추가로 완화 (일반 몬스터 체력·방어력만, 보스 미적용)
@@ -3945,7 +3948,7 @@ const BOSS_VISUALS = {
   75: { bg: "imu_bg.png", portrait: "saturn_portrait.png" },
   80: { bg: "enel_bg.png", portrait: "loki_portrait.png" },
   85: { bg: "moria_bg.png", portrait: "imu_portrait.png" },
-  90: { bg: "hody_bg.png", portrait: "blackbeard_portrait.png" },
+  95: { bg: "hody_bg.png", portrait: "blackbeard_portrait.png" },   // v15g2
 };
 const BOSS_VISUAL_IMAGES = {
   // v15e5: 신규 보스 초상화. 기존 캐릭터 스프라이트에서 해당 칸만 잘라 만든 것이라 새로 생성한 이미지는 없다.
@@ -4051,7 +4054,7 @@ function playBossIntro(round, name, quote, onDone){
 
 // v15do: 후반 보스 전용 체력 배율표. 실측 TTK 역산값 (HARD, 유닛 30기 기준)
 const LATE_BOSS_FROM = 41;
-let LATE_BOSS_HP_K = [[45,13],[50,14.5],[55,8.5],[60,15.5],[65,12.5],[70,10.5],[75,10.5],[80,10.5],[85,10.5],[90,10.5]];   // v15e5: 90라운드까지 연장 (기존 배율 그대로 유지)
+let LATE_BOSS_HP_K = [[45,13],[50,14.5],[55,8.5],[60,15.5],[65,12.5],[70,10.5],[75,10.5],[80,10.5],[85,10.5],[90,10.5],[95,10.5]];   // v15g2: 95라운드까지 연장 (기존 배율 유지)
 // 위 배율은 유닛 30기 로스터로 실측한 TTK 기준 확정값이다.
 //   EASY 19~27s / NORMAL 22~35s / HARD 25~41s / HELL 26~46s (보스 제한시간 60초)
 //   R55는 보스와 함께 잡몹 8마리가 추가 스폰되는 설계라 배율이 낮아도 TTK가 길게 나온다.
@@ -4073,12 +4076,15 @@ function spawnBoss(round){
   m.d = BOSS_SPAWN_D;
   m.spawnD = m.d; m.lapCounted = false;   // v15bs: 완주(1바퀴) 판정 기준점
   // 보스 체력은 필드 혼잡도(dynK) 영향을 받지 않는 독립 기준값 사용 (몹 많다고 보스 약해지는 버그 수정)
-  const bossBase = refDmg(round) * HP_MULT * diffHpMult(round);
+  // v15g2: 하드는 초반 보스가 지옥에 가까울 만큼 셌다(R5 기준 지옥의 97%). 보스만 완화한다.
+  //   R1~50 은 20%, R51 이상은 15% 낮춘다. 다른 난이도와 잡몹은 건드리지 않는다.
+  const hardBossEase = (state.diffKey === "hard") ? (round <= 50 ? 0.80 : 0.85) : 1;
+  const bossBase = refDmg(round) * HP_MULT * diffHpMult(round) * hardBossEase;
   m.maxHp = m.hp = Math.round(bossBase * 23 * (1 + Math.max(0, round-20)*0.025));  // v14: 후반 보스 추가 강화 (완화됨, R40=+50%, R50=+75%)
   // v15bp: 보스 속도가 라운드 무관 고정값이었음 - 라운드가 높을수록 점진적으로 빨라지도록 수정 (최대 46+30=76)
   m.speed = Math.min(76, 46 + round*0.4);
   m.reward = Math.round((750 + round*95) * state.diff.gold);   // 보스 보상 대폭 증가
-  m.armor = Math.round((MARINE_RANKS[rankOf(round)].armor + Math.max(0, round-7)*4 + Math.max(0, round-25)*Math.max(0, round-25)*0.3) * state.diff.armor * 2.6);
+  m.armor = Math.round((MARINE_RANKS[rankOf(round)].armor + Math.max(0, round-7)*4 + Math.max(0, round-25)*Math.max(0, round-25)*0.3) * state.diff.armor * 2.6 * hardBossEase);
   m.rank = rankOf(round);
   m.boss = true; m.slow = 0; m.stun = 0; m.elite = false; m.faction = "marine";
   m.stunPulses = null; m.slowStrongUntil = 0; m._armorSave = null; m._armorCurseUntil = 0;
@@ -4118,6 +4124,7 @@ function spawnBoss(round){
     80: { hpMul:6278,      armor:120000/0.75  },
     85: { hpMul:9731,      armor:180000/0.75  },
     90: { hpMul:15083,     armor:270000/0.75  },
+    95: { hpMul:23400,     armor:405000/0.75  },   // v15g2: 최종 보스 라운드
     // v15do: R50은 tier 항목이 아예 없어서 방어력이 1,407(R45의 1/5)까지 떨어지고
     //        체력도 R45의 1/53 수준이었다. R45~R55 사이를 잇는 값으로 채운다.
     50: { hpMul:265,       armor:8500/0.75    },
@@ -4130,7 +4137,9 @@ function spawnBoss(round){
   const tier = BOSS_TIER[round];
   if(tier){
     if(round < LATE_BOSS_FROM) m.maxHp = m.hp = Math.round(m.maxHp * tier.hpMul);
-    m.armor = Math.round(tier.armor * state.diff.armor);
+    // v15g2: 위에서 계산한 방어력은 여기서 튜닝표 값으로 덮어써진다.
+  //   하드 완화(hardBossEase)를 여기에도 곱해야 실제로 반영된다.
+  m.armor = Math.round(tier.armor * state.diff.armor * hardBossEase);
   }
   // v15w: 보스가 너무 쉽게 죽어서(3초 순삭) 체력 전체 3배 상향, 방어력은 그대로 유지
   m.maxHp = m.hp = Math.round(m.maxHp * 3);
@@ -4802,7 +4811,7 @@ const CUTSCENE_ROUND_MAP = {
   74: "wave49",             // R75 오로성 새턴      ← 기존 새턴 컷씬 이동
   79: "boss80_loki",        // R80 거인왕자 로키    (placeholder)
   84: "wave74",             // R85 세계군주 이무    ← 기존 이무 컷씬 이동
-  89: "boss90_blackbeard",  // R90 암흑황제 검은수염 (placeholder)
+  94: "boss90_blackbeard",  // R95 암흑황제 검은수염 (placeholder)   // v15g2
   // ── 보스와 무관한 기존 스토리 컷씬 (보스 라운드와 겹치지 않게 재배치) ──
   27: "wave27",             // 센고쿠
   28: "wave29",             // 에그헤드 도착
@@ -6067,19 +6076,28 @@ const GRADE_SCALE_CAP = {
 const OVERLORD_POWER_MUL = 1.5;            // 패왕 전원 공격력·방깎 배수
 const OVERLORD_RANGED_BOSS_DPS = ["해군대장 료쿠규", "암흑황제 검은수염", "혁명군총사령관 사보"];
 const OVERLORD_RANGED_BOSS_BONUS = 0.20;   // 보스/정예 상대 추가 피해 (위 3명 전용)
+// v15g2: 방깎 추가 상향 — 패왕 전원 +25%, 서포터 2명은 +35%
+const OVERLORD_SUPPORT_ARMOR_UP = ["세계군주 이무", "사황 버기"];
 (function buffOverlordTier(){
-  let n = 0, ar = 0;
+  let n = 0, ar = 0, sup = 0;
   (GRADE_POOL.overlord || []).forEach(id=>{
     const def = UNIT_DEFS[id];
     const nm = def.name.replace("★","");
     def.dmg = Math.round(def.dmg * OVERLORD_POWER_MUL);                       // 공격력 1.5배
     const p = PASSIVES[nm];
-    if(p && p.armorRed != null){ p.armorRed = Math.round(p.armorRed * OVERLORD_POWER_MUL); ar++; }   // 방깎 1.5배
+    // 방깎: 기본 1.5배 + 추가 상향 (전원 25%, 서포터 2명은 35%)
+    if(p && p.armorRed != null){
+      const extra = OVERLORD_SUPPORT_ARMOR_UP.includes(nm) ? 1.35 : 1.25;
+      p.armorRed = Math.round(p.armorRed * OVERLORD_POWER_MUL * extra); ar++;
+    }
     if(OVERLORD_RANGED_BOSS_DPS.includes(nm)) def.bossDpsBonus = OVERLORD_RANGED_BOSS_BONUS;
+    // v15g1: 버프형(서포터)은 아군 전체를 강화하는 대신 자기 공격력을 20% 낮춘다.
+    if(ROLE_TAGS[nm] === "서포터"){ def.dmg = Math.round(def.dmg * 0.8); sup++; }
     n++;
   });
   console.log(`[원랜디] 패왕 ${n}명 강화 — 공격력 x${OVERLORD_POWER_MUL}, 방깎 x${OVERLORD_POWER_MUL}(${ar}명) `
-    + `| 원거리 보스딜러 ${OVERLORD_RANGED_BOSS_DPS.length}명 보스딜 +${Math.round(OVERLORD_RANGED_BOSS_BONUS*100)}%`);
+    + `| 원거리 보스딜러 ${OVERLORD_RANGED_BOSS_DPS.length}명 보스딜 +${Math.round(OVERLORD_RANGED_BOSS_BONUS*100)}% `
+    + `| 서포터 ${sup}명 공격력 -20%`);
 })();
 
 (function applyScaleCap(){
