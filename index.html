@@ -6045,6 +6045,27 @@ const GRADE_SCALE_CAP = {
   limit: 1.25, immortal: 1.25, eternal: 1.25, transcend: 1.20,
   legend: 1.15, rare: 1.10, special: 1.10, uncommon: 1.05, common: 1.05,
 };
+// v15fy: 패왕에 원거리 보스딜러가 없어서 보스를 안전거리에서 녹이는 조합이 불가능했다.
+//   평타 사거리가 4칸인 원거리 딜러 3명(서포터 제외)을 보스 특화로 끌어올린다.
+//     · 보스/정예에게 공격력 +20% (전용 패시브)
+//     · 방깎 x1.5, 공격력 x1.5
+const OVERLORD_RANGED_BOSS_DPS = ["해군대장 료쿠규", "암흑황제 검은수염", "혁명군총사령관 사보"];
+const OVERLORD_RANGED_BOSS_BONUS = 0.20;   // 보스/정예 상대 추가 피해
+(function buffOverlordRangedDealers(){
+  let n = 0;
+  OVERLORD_RANGED_BOSS_DPS.forEach(nm=>{
+    const id = Object.keys(UNIT_DEFS).find(k=>UNIT_DEFS[k].name.replace("★","") === nm);
+    if(!id) return;
+    const def = UNIT_DEFS[id];
+    def.dmg = Math.round(def.dmg * 1.5);                       // 공격력 1.5배
+    def.bossDpsBonus = OVERLORD_RANGED_BOSS_BONUS;             // 보스 상대 +20%
+    const p = PASSIVES[nm];
+    if(p && p.armorRed != null) p.armorRed = Math.round(p.armorRed * 1.5);   // 방깎 1.5배
+    n++;
+  });
+  console.log(`[원랜디] 패왕 원거리 보스딜러 ${n}명 강화 — 공격력 x1.5, 방깎 x1.5, 보스딜 +${Math.round(OVERLORD_RANGED_BOSS_BONUS*100)}%`);
+})();
+
 (function applyScaleCap(){
   let capped = 0;
   Object.values(UNIT_DEFS).forEach(def=>{
@@ -6222,6 +6243,8 @@ function combatDmgMult(def, target){
   }else if(role === "끝딜"){
     mult *= (target && target.hp <= target.maxHp*0.5) ? (ROLE_TIER_SCALE.finisherMult[g] ?? 2.5) : 1.0;
   }
+  // v15fy: 캐릭터 전용 보스 특화 보너스 (패왕 원거리 딜러 3명)
+  if(isTough && def.bossDpsBonus) mult *= (1 + def.bossDpsBonus);
   if(target && target.armorPenalty && state.aura.armorRed <= 0) mult *= 0.7;   // R20 보스: 방깎 없으면 -30%
   return mult;
 }
