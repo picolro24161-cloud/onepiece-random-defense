@@ -6045,25 +6045,26 @@ const GRADE_SCALE_CAP = {
   limit: 1.25, immortal: 1.25, eternal: 1.25, transcend: 1.20,
   legend: 1.15, rare: 1.10, special: 1.10, uncommon: 1.05, common: 1.05,
 };
-// v15fy: 패왕에 원거리 보스딜러가 없어서 보스를 안전거리에서 녹이는 조합이 불가능했다.
-//   평타 사거리가 4칸인 원거리 딜러 3명(서포터 제외)을 보스 특화로 끌어올린다.
-//     · 보스/정예에게 공격력 +20% (전용 패시브)
-//     · 방깎 x1.5, 공격력 x1.5
+// v15fz: 패왕 등급 전체 강화 + 원거리 보스딜러 3명 보스 특화
+//   ① 패왕 13명 전원: 공격력 x1.5, 방깎 x1.5
+//   ② 그중 원거리 딜러 3명만 추가로 보스/정예 상대 공격력 +20%
+//      (패왕에 원거리 보스딜러가 없어 보스를 안전거리에서 녹이는 조합이 불가능했다)
+const OVERLORD_POWER_MUL = 1.5;            // 패왕 전원 공격력·방깎 배수
 const OVERLORD_RANGED_BOSS_DPS = ["해군대장 료쿠규", "암흑황제 검은수염", "혁명군총사령관 사보"];
-const OVERLORD_RANGED_BOSS_BONUS = 0.20;   // 보스/정예 상대 추가 피해
-(function buffOverlordRangedDealers(){
-  let n = 0;
-  OVERLORD_RANGED_BOSS_DPS.forEach(nm=>{
-    const id = Object.keys(UNIT_DEFS).find(k=>UNIT_DEFS[k].name.replace("★","") === nm);
-    if(!id) return;
+const OVERLORD_RANGED_BOSS_BONUS = 0.20;   // 보스/정예 상대 추가 피해 (위 3명 전용)
+(function buffOverlordTier(){
+  let n = 0, ar = 0;
+  (GRADE_POOL.overlord || []).forEach(id=>{
     const def = UNIT_DEFS[id];
-    def.dmg = Math.round(def.dmg * 1.5);                       // 공격력 1.5배
-    def.bossDpsBonus = OVERLORD_RANGED_BOSS_BONUS;             // 보스 상대 +20%
+    const nm = def.name.replace("★","");
+    def.dmg = Math.round(def.dmg * OVERLORD_POWER_MUL);                       // 공격력 1.5배
     const p = PASSIVES[nm];
-    if(p && p.armorRed != null) p.armorRed = Math.round(p.armorRed * 1.5);   // 방깎 1.5배
+    if(p && p.armorRed != null){ p.armorRed = Math.round(p.armorRed * OVERLORD_POWER_MUL); ar++; }   // 방깎 1.5배
+    if(OVERLORD_RANGED_BOSS_DPS.includes(nm)) def.bossDpsBonus = OVERLORD_RANGED_BOSS_BONUS;
     n++;
   });
-  console.log(`[원랜디] 패왕 원거리 보스딜러 ${n}명 강화 — 공격력 x1.5, 방깎 x1.5, 보스딜 +${Math.round(OVERLORD_RANGED_BOSS_BONUS*100)}%`);
+  console.log(`[원랜디] 패왕 ${n}명 강화 — 공격력 x${OVERLORD_POWER_MUL}, 방깎 x${OVERLORD_POWER_MUL}(${ar}명) `
+    + `| 원거리 보스딜러 ${OVERLORD_RANGED_BOSS_DPS.length}명 보스딜 +${Math.round(OVERLORD_RANGED_BOSS_BONUS*100)}%`);
 })();
 
 (function applyScaleCap(){
