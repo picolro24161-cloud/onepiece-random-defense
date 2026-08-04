@@ -4139,7 +4139,14 @@ function spawnBoss(round){
     if(round < LATE_BOSS_FROM) m.maxHp = m.hp = Math.round(m.maxHp * tier.hpMul);
     // v15g2: 위에서 계산한 방어력은 여기서 튜닝표 값으로 덮어써진다.
   //   하드 완화(hardBossEase)를 여기에도 곱해야 실제로 반영된다.
-  m.armor = Math.round(tier.armor * state.diff.armor * hardBossEase);
+  // v15g3: 다만 하드의 방어력 배율(1.05)은 노멀(0.92)보다 14%밖에 안 높아서
+  //   20% 를 그대로 깎으면 하드 보스 방어력이 노멀보다 낮아지는 역전이 생긴다.
+  //   그래서 하드에 한해 "노멀 x1.08" 을 하한으로 둔다. 체력 완화는 그대로 유지되고,
+  //   방어력은 노멀 < 하드 < 지옥 순서를 지키면서 원래(1.05)보다는 소폭 낮아진다.
+  //   잡몹 방어력(state.diff.armor)은 건드리지 않으므로 하드 잡몹은 그대로다.
+  let _bossArmorMul = state.diff.armor * hardBossEase;
+  if(state.diffKey === "hard") _bossArmorMul = Math.max(_bossArmorMul, DIFFS.normal.armor * 1.08);
+  m.armor = Math.round(tier.armor * _bossArmorMul);
   }
   // v15w: 보스가 너무 쉽게 죽어서(3초 순삭) 체력 전체 3배 상향, 방어력은 그대로 유지
   m.maxHp = m.hp = Math.round(m.maxHp * 3);
