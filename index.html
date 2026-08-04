@@ -3369,6 +3369,16 @@ const CELL_H = Math.abs(SLOTS[6].y - SLOTS[0].y);   // 다음 행의 같은 열 
 const CELL = Math.sqrt(CELL_W * CELL_H);            // 1칸 = 기하평균
 const MIN_RANGE_CELLS = 2;                          // 근접딜·근접스킬 포함 전 등급 최소 2칸
 const MIN_RANGE_PX = MIN_RANGE_CELLS * CELL;
+// v15fv: 사거리를 픽셀이 아니라 "슬롯 칸 수"로 관리한다.
+//   내 슬롯이 0, 바로 옆이 1칸, 그 다음이 2칸. 2칸이면 양옆 2칸까지 닿는다.
+//   기존 픽셀값은 아래 기준으로 칸 수로 환산해서 고정하고, 실제 픽셀은 기기별 CELL 로 되돌린다.
+//   → PC(1칸 114px)든 모바일(1칸 125px)이든 "몇 칸"이 항상 같아진다.
+const CELL_REF_PX = 119;                            // 환산 기준 (PC 114 / 모바일 125 의 중간)
+const MAX_RANGE_CELLS = 8;                          // 칸 수 상한 (필드 전체용 9999 는 예외)
+function pxToCells(px){
+  return Math.min(MAX_RANGE_CELLS, Math.max(MIN_RANGE_CELLS, Math.round(px / CELL_REF_PX)));
+}
+function cellsToPx(cells){ return Math.round(cells * CELL); }
 // 실제 하한 적용은 역할별 사거리 지정이 모두 끝난 뒤에 한다(아래 applyMinRange).
 //   여기서 걸면 그 뒤의 하드코딩(근접 140 / 원거리 480, 스킬 반경 130/140/270…)이 덮어써서 무력화된다.
 
@@ -3383,7 +3393,11 @@ function unitClassify(def){
   //       역할이 없는 캐릭터(히든/신화 미만 등급)는 기존처럼 무기 기준으로 판정
   const roleTag = ROLE_TAGS[def.name.replace("★","")];
   let isMelee;
-  if(roleTag === "근접단일딜" || roleTag === "근접범위딜"){
+  // v15fv: 히든은 전원 원거리로 통일한다. 무기가 검이라 근접으로 잡히면
+  //   자동배치가 사이드로 끌고 가고 사거리 하드코딩(140)도 타게 된다.
+  if(def.grade === "hidden"){
+    isMelee = false;
+  }else if(roleTag === "근접단일딜" || roleTag === "근접범위딜"){
     isMelee = true;
   }else if(roleTag === "원거리단일딜" || roleTag === "원거리범위딜"){
     isMelee = false;
@@ -3531,6 +3545,11 @@ function manualRearrangeField(silent){
 // 필드 한도는 난이도별(state.diff.field): EASY 90 / NORMAL 80 / HARD 70 (원작 준수)
 // v15bj: 라운드가 너무 길다는 피드백 - 40초 → 30초로 단축 (줄어든 만큼 라운드 시작 골드 보너스로 보전)
 const ROUND_LEN = 30;
+// v15fu: R70 부터는 한 라운드를 60초로 늘린다(69 이하는 기존 30초 유지).
+//   후반 보스는 체력이 기하급수로 커지는데 라운드가 30초로 짧아 정리할 시간이 모자랐다.
+const ROUND_LEN_LONG = 60;
+const ROUND_LEN_LONG_FROM = 70;
+function roundLen(r){ return r >= ROUND_LEN_LONG_FROM ? ROUND_LEN_LONG : ROUND_LEN; }
 const ROUND_LEN_CUT_RATIO = (40 - ROUND_LEN) / 40;   // 0.25
 // v15am: 필드 과포화(패배) 한도 상향 - EASY 300→350 / NORMAL 270→330 / HARD 240→300
 // v15bn: 지옥 난이도 신규 추가 (하드보다 상향), 난이도별 총 라운드 수도 다르게 (아래 FINAL_ROUND_BY_DIFF)
@@ -3741,7 +3760,7 @@ function computeRoundHp(round){
   // (기존 dynK는 "현재 화력에 딱 맞춰 조정"만 해서 강해질수록 오히려 쉬워지는 역설이 있었음)
   // v15ai: EASY는 R20+ 후반 경화율을 절반으로 완화 (R30 기준 +25% → +12.5%), NORMAL/HARD는 그대로 유지
   const lateHardening = lateHardeningOf(round);   // v15c7: 가속 곡선으로 교체
-  const target = fieldAutoDPS() * playerPowerMul() * ROUND_LEN * TUNE_K * dynK() * lateHardening / waveCount(round);   // v15d3: 실화력 보정 반영
+  const target = fieldAutoDPS() * playerPowerMul() * roundLen(round) * TUNE_K * dynK() * lateHardening / waveCount(round);   // v15d3: 실화력 보정 반영   // v15fu: 라운드가 길어지면 총 딜량도 늘어나므로 체력 기준도 같이 맞춘다
   const prev = state.roundHp || base;
   const floor = base * (round >= 20 ? 0.12 : 0.5);   // 대물량 구간은 피드백이 체력 전권
   // 상승폭·하락폭 모두 제한 (부드러운 양방향 동기화)
@@ -3759,7 +3778,7 @@ function midRoundHpSync(){
   const lateHardening = lateHardeningOf(state.round);   // v15c7: 가속 곡선으로 교체
   // v15am: NORMAL/HARD 체력 20% 완화 - target도 같은 배율로 낮춰서 roundHp와 같은 기준선에서 비교되게 함
   // v15bg: R30 이후부터 전 난이도 공통 체력 추가 10% 감소 (보스 제외)
-  const target = fieldAutoDPS() * playerPowerMul() * ROUND_LEN * TUNE_K * dynK() * lateHardening / waveCount(state.round) * nonBossEaseOf(state.round);   // v15d3: 실화력 보정 반영
+  const target = fieldAutoDPS() * playerPowerMul() * roundLen(state.round) * TUNE_K * dynK() * lateHardening / waveCount(state.round) * nonBossEaseOf(state.round);   // v15d3: 실화력 보정 반영
   if(target > state.roundHp){
     // v15ai: EASY는 8초마다의 급상승 상한을 더 낮춰서(1.45→1.2) 25~30라운드 부근 스파이크로 인한 필드 과포화를 완화
     const cap = state.round < 20 ? 1.25 : (state.diffKey === "easy" ? 1.2 : 1.45);
@@ -5595,7 +5614,7 @@ function checkMissionProgress(){
   const m = state.mission;
   if(!m || m.done) return;
   if(m.type === "killN" && state.roundKills >= m.target) grantMission();
-  else if(m.type === "rush" && (ROUND_LEN - state.roundTime) <= m.window && state.roundKills >= m.target) grantMission();
+  else if(m.type === "rush" && (roundLen(state.round) - state.roundTime) <= m.window && state.roundKills >= m.target) grantMission();
   else if(m.type === "killElite" && state.roundEliteKills >= m.target) grantMission();
   else if(m.type === "craftN" && state.roundCrafts >= m.target) grantMission();
 }
@@ -6037,17 +6056,32 @@ const GRADE_SCALE_CAP = {
   console.log(`[원랜디] 캐릭터 크기 상한 적용 — ${capped}명 축소`);
 })();
 
-(function applyMinRange(){
-  let rangeUp = 0, radiusUp = 0;
-  const MIN_PX = Math.round(MIN_RANGE_PX);
+// v15fv: 모든 사거리/스킬반경을 "칸 수"로 확정하고, 그 칸 수를 현재 기기의 CELL 로 되돌린다.
+//   이 패스 이후 def.rangeCells / sk.radiusCells 가 진실이고, px 값은 파생값이다.
+//   히든은 요청대로 평타·스킬 모두 2칸으로 통일한다.
+const HIDDEN_RANGE_CELLS = 2;
+(function applyCellRanges(){
+  const seen = new Set();
+  let units = 0, skills = 0;
   Object.values(UNIT_DEFS).forEach(def=>{
-    if(def.range < MIN_PX){ def.range = MIN_PX; rangeUp++; }
+    // 평타 사거리
+    const rc = (def.grade === "hidden") ? HIDDEN_RANGE_CELLS : pxToCells(def.range);
+    def.rangeCells = rc;
+    def.range = cellsToPx(rc);
+    units++;
+    // 스킬 반경
     [def.skill, def.skill2, def.skill3].forEach(sk=>{
-      if(sk && sk.radius && sk.radius < MIN_PX){ sk.radius = MIN_PX; radiusUp++; }
+      if(!sk || !sk.radius || seen.has(sk)) return;
+      seen.add(sk);
+      if(sk.radius >= 9999) return;             // 필드 전체용은 칸 개념이 아니라 그대로 둔다
+      const sc = (def.grade === "hidden") ? HIDDEN_RANGE_CELLS : pxToCells(sk.radius);
+      sk.radiusCells = sc;
+      sk.radius = cellsToPx(sc);
+      skills++;
     });
   });
-  console.log(`[원랜디] 1칸=${CELL.toFixed(1)}px (가로 ${CELL_W.toFixed(1)} x 세로 ${CELL_H.toFixed(1)}) | `
-    + `최소 ${MIN_RANGE_CELLS}칸=${MIN_PX}px | 사거리 상향 ${rangeUp}명, 스킬반경 상향 ${radiusUp}개`);
+  console.log(`[원랜디] 사거리 칸 수 변환 — 1칸=${CELL.toFixed(1)}px (가로 ${CELL_W.toFixed(1)} x 세로 ${CELL_H.toFixed(1)}) | `
+    + `유닛 ${units}명, 스킬반경 ${skills}개 | 히든 ${HIDDEN_RANGE_CELLS}칸 고정`);
 })();
 
 // =========================================================
@@ -7005,7 +7039,7 @@ function update(dt){
     if(m.hp > 0) continue;
     // v15d4: 골드 패시브(+15~20%)가 상시 적용이라 후반 자금이 과도하게 불어나던 문제.
     // 이제 라운드마다 "첫 10초 동안만" 발동한다. (합산 아님 - 여러 명이 있어도 최고값 1개만 적용되는 건 기존과 동일)
-    const goldWindowActive = state.roundTime > (ROUND_LEN - GOLD_PASSIVE_WINDOW);
+    const goldWindowActive = state.roundTime > (roundLen(state.round) - GOLD_PASSIVE_WINDOW);
     const rw = Math.round((state.goldRushT > 0 ? m.reward*2 : m.reward) * (1 + (goldWindowActive ? state.aura.gold : 0)));
     state.gold += rw;
     state.goldEarned += rw;
@@ -7019,7 +7053,7 @@ function update(dt){
       state.bossTimer = 0;
       state.tickets += 3;
       if(state.mission && !state.mission.done && state.mission.type==="bossFast"
-         && (ROUND_LEN - state.roundTime) <= state.mission.target){
+         && (roundLen(state.round) - state.roundTime) <= state.mission.target){
         grantMission();
       }
       state.banner = { text:`🏆 BOSS ${m.name} 격파! +${m.reward}G, 소환권 +3`, t:3 };
@@ -7100,7 +7134,7 @@ function update(dt){
       state.round++;
       state.tickets += 6;
       addLog(`⚔️ 라운드 ${state.round} 시작! 소환권 +6장.`);
-      state.roundTime = ROUND_LEN;
+      state.roundTime = roundLen(state.round);
       // v15af: 보스 라운드 직전이면 스토리 컷씬 재생 후 라운드 시작 (게임 일시정지)
       // v15c6: 지정된 보스 직전 라운드는 영상 컷씬을 먼저 재생 (영상이 있으면 같은 라운드의 텍스트 컷씬은 중복 연출이라 생략)
       // v15e5: 라운드→컷씬 매핑표를 따른다. 매핑에 없으면 그 라운드는 컷씬 없음.
@@ -7127,7 +7161,7 @@ function update(dt){
       startRound(state.round);
       refreshUI();
     }else{
-      state.roundTime = ROUND_LEN;
+      state.roundTime = roundLen(state.round);
     }
   }
 
@@ -7141,7 +7175,7 @@ function update(dt){
       while(state.spawnTimer <= 0 && state.spawnedThisRound < wc && guard++ < 14){
         spawnMonster();
         state.spawnedThisRound++;
-        state.spawnTimer += (ROUND_LEN*0.9) / wc * (state.assaultT > 0 ? 0.5 : 1);
+        state.spawnTimer += (roundLen(state.round)*0.9) / wc * (state.assaultT > 0 ? 0.5 : 1);
       }
     }
   }
