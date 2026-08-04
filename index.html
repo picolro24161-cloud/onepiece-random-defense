@@ -6060,12 +6060,23 @@ const GRADE_SCALE_CAP = {
 //   이 패스 이후 def.rangeCells / sk.radiusCells 가 진실이고, px 값은 파생값이다.
 //   히든은 요청대로 평타·스킬 모두 2칸으로 통일한다.
 const HIDDEN_RANGE_CELLS = 2;
+// v15fw: 사거리 단계를 둘로 단순화한다 — 2칸(근접권) 또는 4칸(광역권).
+//   3칸/5칸/6칸/7칸이 섞여 있어 체감 차이가 모호했다. 2칸은 그대로 두고
+//   3칸 이상은 전부 4칸으로 맞춘다. 히든(2칸 고정)과 아래 예외는 건드리지 않는다.
+const WIDE_RANGE_CELLS = 4;
+// 디버프성 스킬은 기존에 정해둔 룰(방감 범위 등)이 있으므로 사거리를 바꾸지 않는다.
+function isDebuffSkill(sk){
+  return sk.kind === "near_debuff"
+      || sk.armorRed != null || sk.dmgTaken != null
+      || sk.slow != null || sk.slowBoss != null;
+}
+function normalizeCells(c){ return c <= MIN_RANGE_CELLS ? MIN_RANGE_CELLS : WIDE_RANGE_CELLS; }
 (function applyCellRanges(){
   const seen = new Set();
   let units = 0, skills = 0;
   Object.values(UNIT_DEFS).forEach(def=>{
     // 평타 사거리
-    const rc = (def.grade === "hidden") ? HIDDEN_RANGE_CELLS : pxToCells(def.range);
+    const rc = (def.grade === "hidden") ? HIDDEN_RANGE_CELLS : normalizeCells(pxToCells(def.range));
     def.rangeCells = rc;
     def.range = cellsToPx(rc);
     units++;
@@ -6074,7 +6085,11 @@ const HIDDEN_RANGE_CELLS = 2;
       if(!sk || !sk.radius || seen.has(sk)) return;
       seen.add(sk);
       if(sk.radius >= 9999) return;             // 필드 전체용은 칸 개념이 아니라 그대로 둔다
-      const sc = (def.grade === "hidden") ? HIDDEN_RANGE_CELLS : pxToCells(sk.radius);
+      const raw = pxToCells(sk.radius);
+      // 히든은 2칸 고정, 디버프 스킬은 기존 룰 유지, 나머지는 2칸 또는 4칸으로 단순화
+      const sc = (def.grade === "hidden") ? HIDDEN_RANGE_CELLS
+               : isDebuffSkill(sk)        ? raw
+               : normalizeCells(raw);
       sk.radiusCells = sc;
       sk.radius = cellsToPx(sc);
       skills++;
@@ -6303,12 +6318,14 @@ const ULT_FX_DUR_POINT = 1.0;    // 낙하/폭발처럼 여러 개가 동시에 
 function ultFxView(kind){ return ULT_FX_VIEW[kind] || ULT_FX_VIEW_DEFAULT; }
 
 // 시전자 중심(또는 지정 좌표)에 고유기 이펙트를 띄운다.
-function _ultFx(x, y, color, kind, dur, forcePoint){
+function _ultFx(x, y, color, kind, dur, forcePoint, wide){
   const v = ultFxView(kind);
   const fx = poolGet(fxPool);
   fx.kind = kind; fx.color = color; fx.t = 0; fx.dur = dur || 0.7;
   fx.lines = null;
-  fx.fxMode = forcePoint ? "point" : v.mode;
+  // v15fw: 4칸 이상 광역 고유기는 흰수염(field_nuke)과 같은 필드 전체 연출로 통일한다.
+  fx.fxMode = forcePoint ? "point" : (wide ? "field" : v.mode);
+  fx.wide = (fx.fxMode === "field");
   fx.max = v.size || 300;
   fx.fxAlpha = v.alpha || ULT_FX_ALPHA;
   fx.x = x;
@@ -6349,7 +6366,8 @@ function fireSkill(u, def, sk){
       const p = pathPos(m.d), dx = p.x - u.x, dy = p.y - u.y;
       return dx*dx + dy*dy <= R*R;
     });
-    _ultFx(u.x, u.y, sk.color, sk.ult, ULT_FX_DUR);
+    const _ultWide = (sk.radius >= 9999) || ((sk.radiusCells || 0) >= WIDE_RANGE_CELLS);
+    _ultFx(u.x, u.y, sk.color, sk.ult, ULT_FX_DUR, false, _ultWide);
     state.shake = Math.max(state.shake, 12);
     SFX.skill();
     switch(sk.ult){
@@ -6515,6 +6533,10 @@ function fireSkill(u, def, sk){
   const fx = poolGet(fxPool);
   fx.kind = sk.kind; fx.color = sk.color; fx.t = 0; fx.dur = 0.5;
   fx.x = u.x; fx.y = u.y; fx.lines = null; fx.max = sk.radius || def.range;
+  // v15fw: 광역 스킬(4칸 이상 또는 필드 전체)은 이펙트를 필드 전체 크기로 보여준다.
+  //   흰수염 고유기(field_nuke)와 같은 기준. 히든은 2칸 전용이라 해당 없음.
+  fx.wide = (def.grade !== "hidden")
+         && (sk.radius >= 9999 || (sk.radiusCells || 0) >= WIDE_RANGE_CELLS);
 
   if(sk.kind === "haki"){
     // 패왕색: 광역 스턴 + %딜, 화면 흔들림
@@ -7637,7 +7659,23 @@ function draw(){
       return;
     }
 
-    if(f.kind === "ring"){
+    // v15fw: 광역 스킬(4칸 이상 또는 필드 전체)은 스킬 종류와 무관하게
+    //   필드를 덮는 파동을 먼저 깔아 "전체 범위"라는 게 한눈에 읽히게 한다.
+    //   ring 뿐 아니라 haki/burn/bolt/slash 계열도 광역이면 동일하게 적용된다.
+    if(f.wide){
+      const R = Math.hypot(W, H) * 0.62;   // 화면 대각선을 넘겨 확실히 필드를 덮는다
+      ctx.globalAlpha = (1 - prog) * 0.55;
+      ctx.beginPath();
+      ctx.arc(f.x, f.y, R * prog, 0, Math.PI*2);
+      ctx.strokeStyle = f.color; ctx.lineWidth = 7;
+      ctx.stroke();
+      ctx.globalAlpha = (1 - prog) * 0.26;
+      ctx.beginPath();
+      ctx.arc(f.x, f.y, R * prog * 0.72, 0, Math.PI*2);
+      ctx.fillStyle = f.color; ctx.fill();
+      ctx.globalAlpha = 1 - prog;
+    }
+    if(f.kind === "ring" && !f.wide){
       // v15ft: 눈뽕의 진짜 원인. 캐릭터 수십 명이 매 스킬마다 반경 300~600 짜리 원을
       //   두 겹씩 그려서 화면이 원으로 뒤덮였다. 스킬의 실제 판정 범위는 그대로 두고
       //   "보이는 원"만 줄인다 — 반경 55%, 선 얇게, 안쪽 겹선 제거, 더 옅게.
