@@ -3379,6 +3379,19 @@ function pxToCells(px){
   return Math.min(MAX_RANGE_CELLS, Math.max(MIN_RANGE_CELLS, Math.round(px / CELL_REF_PX)));
 }
 function cellsToPx(cells){ return Math.round(cells * CELL); }
+// v15g0: 사거리 판정을 원이 아니라 "격자 기준"으로 한다.
+//   슬롯 간격이 가로/세로가 서로 달라(PC 136x95.5, 모바일 84x185.5) 원으로 재면
+//   짧은 축으로는 3칸까지 닿고 긴 축으로는 1칸밖에 안 닿았다.
+//   가로는 n*CELL_W, 세로는 n*CELL_H 로 "각각" 비교한다 → 어느 방향이든 정확히 n칸.
+//   (두 축을 더하는 진짜 타원식이면 대각선 n칸이 빠져서 "어느 방향이든"이 깨진다)
+//   ellipseNorm 이 1 이하이면 사거리 안. 값 자체는 가까운 대상 고르기에도 쓴다.
+function ellipseNorm(dx, dy, cells){
+  const a = cells * CELL_W, b = cells * CELL_H;
+  return Math.max(Math.abs(dx) / a, Math.abs(dy) / b);
+}
+function inCells(dx, dy, cells){ return ellipseNorm(dx, dy, cells) <= 1; }
+// 픽셀 반경만 아는 경우(레거시)를 위한 환산 — 기하평균 기준 칸 수로 되돌린다.
+function cellsOfPx(px){ return px >= 9999 ? 9999 : Math.max(0.01, px / CELL); }
 // 실제 하한 적용은 역할별 사거리 지정이 모두 끝난 뒤에 한다(아래 applyMinRange).
 //   여기서 걸면 그 뒤의 하드코딩(근접 140 / 원거리 480, 스킬 반경 130/140/270…)이 덮어써서 무력화된다.
 
@@ -5754,6 +5767,8 @@ function pulseHiddenBuff(u, key, value, until){
 // v15bv: 신규 스턴 시스템 - 공격/스킬은 단일 타겟에게만 딜, 명중 위치 기준 반경 80 내 몬스터 "전체"에게 스턴 수치만 적용.
 // 스턴 수치는 몬스터별로 중첩 합산되고(펄스 배열), 합계가 3 이상이면 완전 정지. 이감(slow)과는 별개 시스템.
 const STUN_FREEZE_RADIUS = 80;
+// v15g0: 스턴 확산 범위도 칸 기준으로 (기존 80px ≈ 0.65칸)
+const STUN_FREEZE_CELLS = 0.65;
 // v15fm: 스턴 누적 상한. 여기까지 쌓이면 "사실상 못 움직이는" 상태가 된다.
 const STUN_FREEZE_THRESHOLD = 3.5;
 const STUN_MIN_SPEED = 0.04;        // 상한 도달 시 남는 속도 (완전 0 은 아니지만 사실상 정지)
@@ -5798,7 +5813,7 @@ function applyStunAOE(cx, cy, value, duration){
   state.monsters.forEach(m=>{
     const p = pathPos(m.d);
     const _dx = p.x-cx, _dy = p.y-cy;
-    if(_dx*_dx + _dy*_dy <= STUN_FREEZE_RADIUS*STUN_FREEZE_RADIUS){
+    if(inCells(_dx, _dy, STUN_FREEZE_CELLS)){   // v15g0: 격자 타원
       if(!m.stunPulses) m.stunPulses = [];
       m.stunPulses.push({ value, until: state.time + duration });
     }
@@ -6389,10 +6404,11 @@ function fireSkill(u, def, sk){
     //   나오는 족족 즉사하면 필드가 계속 비어 있고, 그 결과 고유기가 영영 안 터졌다.
     //   (실측: 패왕 4명 투입 후 12초간 발동 0회, 쿨은 전부 0초로 대기 중)
     //   피해 계산은 대상이 없으면 자연히 0이 되므로, 발동과 이펙트는 그대로 진행한다.
-    const R = sk.radius || 400;
+    // v15g0: 고유기도 격자 타원 판정
+    const _ultCells = (sk.radius >= 9999) ? 9999 : (sk.radiusCells || cellsOfPx(sk.radius || 400));
     const inR = ()=> state.monsters.filter(m=>{
-      const p = pathPos(m.d), dx = p.x - u.x, dy = p.y - u.y;
-      return dx*dx + dy*dy <= R*R;
+      const p = pathPos(m.d);
+      return inCells(p.x - u.x, p.y - u.y, _ultCells);
     });
     const _ultWide = (sk.radius >= 9999) || ((sk.radiusCells || 0) >= WIDE_RANGE_CELLS);
     _ultFx(u.x, u.y, sk.color, sk.ult, ULT_FX_DUR, false, _ultWide);
@@ -6494,9 +6510,10 @@ function fireSkill(u, def, sk){
         const n = sk.count || 4, rr = sk.radius2 || 230;
         for(let i=0;i<n;i++){
           const c = pathPos(Math.random() * PERIM);
+          const _mCells = cellsOfPx(rr);
           state.monsters.forEach(m=>{
-            const p = pathPos(m.d), dx = p.x - c.x, dy = p.y - c.y;
-            if(dx*dx + dy*dy <= rr*rr){
+            const p = pathPos(m.d);
+            if(inCells(p.x - c.x, p.y - c.y, _mCells)){
               applyCombatDmg(def, m, _ultDmg(def, m, sk.mult));
               _ultStun(m, 1, sk.stun || 1.5);
             }
@@ -6546,10 +6563,10 @@ function fireSkill(u, def, sk){
     return true;
   }
 
+  const _defCells = def.rangeCells || cellsOfPx(def.range);
   const inRange = state.monsters.filter(m=>{
     const p = pathPos(m.d);
-    const _dx = p.x-u.x, _dy = p.y-u.y;
-    return _dx*_dx + _dy*_dy <= def.range*def.range;
+    return inCells(p.x-u.x, p.y-u.y, _defCells);   // v15g0: 격자 타원 판정
   });
   if(inRange.length === 0) return false;
   // v15av: 단일딜 특화 역할(근접단일딜/원거리단일딜)은 스킬 데미지 20% 증가 (평타는 그대로)
@@ -6563,6 +6580,8 @@ function fireSkill(u, def, sk){
   fx.x = u.x; fx.y = u.y; fx.lines = null; fx.max = sk.radius || def.range;
   // v15fw: 광역 스킬(4칸 이상 또는 필드 전체)은 이펙트를 필드 전체 크기로 보여준다.
   //   흰수염 고유기(field_nuke)와 같은 기준. 히든은 2칸 전용이라 해당 없음.
+  // v15g0: 이 스킬의 반경을 칸 수로. 필드 전체(9999)는 사실상 무한대로 둔다.
+  const _skCells = (sk.radius >= 9999) ? 9999 : (sk.radiusCells || cellsOfPx(sk.radius || def.range));
   fx.wide = (def.grade !== "hidden")
          && (sk.radius >= 9999 || (sk.radiusCells || 0) >= WIDE_RANGE_CELLS);
 
@@ -6570,8 +6589,7 @@ function fireSkill(u, def, sk){
     // 패왕색: 광역 스턴 + %딜, 화면 흔들림
     inRange.forEach(m=>{
       const p = pathPos(m.d);
-      const _dx = p.x-u.x, _dy = p.y-u.y, _rr = sk.radius + 20;
-      if(_dx*_dx + _dy*_dy <= _rr*_rr){
+      if(inCells(p.x-u.x, p.y-u.y, _skCells)){   // v15g0: 격자 타원
         const dealt = Math.round((skillDmgBase * state.synDmg * (1+state.aura.atk) * (1+state.aura.skillDmg) * sk.mult + pctMaxHpDmg(m, pctOf(m))) * (1+state.aura.dmgTaken) * combatDmgMult(def, m));
         applyCombatDmg(def, m, dealt);
         // v15fn: 예전엔 m.stun(초 단위 완전정지)이라 스턴 축이 둘로 나뉘어 있었다.
@@ -6610,8 +6628,7 @@ function fireSkill(u, def, sk){
       fx.x = ep.x; fx.y = ep.y;   // 폭발 이펙트도 명중 지점에서 터지게
       state.monsters.forEach(m=>{
         const p = pathPos(m.d);
-        const _dx = p.x-ep.x, _dy = p.y-ep.y;
-        if(_dx*_dx + _dy*_dy <= sk.radius*sk.radius){
+        if(inCells(p.x-ep.x, p.y-ep.y, _skCells)){   // v15g0: 격자 타원
           const dealt = Math.round((skillDmgBase * state.synDmg * (1+state.aura.atk) * (1+state.aura.skillDmg) * sk.mult + pctMaxHpDmg(m, pctOf(m))) * (1+state.aura.dmgTaken) * combatDmgMult(def, m));
           applyCombatDmg(def, m, dealt);
           if(sk.slow) applySlow(m, _slowPowerOf(sk.slow));   // v15fm: 최고값 1개만
@@ -6627,8 +6644,8 @@ function fireSkill(u, def, sk){
     let ndTarget = null, ndBestDist = Infinity;
     inRange.forEach(m=>{
       const p = pathPos(m.d);
-      const _dx = p.x-u.x, _dy = p.y-u.y, dist2 = _dx*_dx + _dy*_dy, _rr = sk.radius + 20;
-      if(dist2 <= _rr*_rr && dist2 < ndBestDist){ ndBestDist = dist2; ndTarget = m; }
+      const nrm = ellipseNorm(p.x-u.x, p.y-u.y, _skCells);   // v15g0: 격자 타원
+      if(nrm <= 1 && nrm < ndBestDist){ ndBestDist = nrm; ndTarget = m; }
     });
     if(ndTarget){
       const dealt = Math.round((skillDmgBase * state.synDmg * (1+state.aura.atk) * (1+state.aura.skillDmg) * sk.mult + pctMaxHpDmg(ndTarget, pctOf(ndTarget))) * (1+state.aura.dmgTaken) * combatDmgMult(def, ndTarget));
@@ -7134,11 +7151,11 @@ function update(dt){
     }
     // v15f2: 연쇄폭발 지속 중이면 처치 지점 주변에 추가 피해
     if(_chainBoomUntil && state.time < _chainBoomUntil){
-      const cp = pathPos(m.d), CR = 220;
+      const cp = pathPos(m.d), CR = 220, _cCells = cellsOfPx(CR);
       state.monsters.forEach(o=>{
         if(o === m) return;
-        const p = pathPos(o.d), dx = p.x - cp.x, dy = p.y - cp.y;
-        if(dx*dx + dy*dy <= CR*CR) o.hp -= Math.round(o.maxHp * 0.015 * _chainBoomMult);
+        const p = pathPos(o.d);
+        if(inCells(p.x - cp.x, p.y - cp.y, _cCells)) o.hp -= Math.round(o.maxHp * 0.015 * _chainBoomMult);
       });
       _ultFx(cp.x, cp.y, "#ffb02e", "chain_boom", ULT_FX_DUR_POINT, true);   // 처치 위치마다 폭발 이펙트
     }
@@ -7261,7 +7278,7 @@ function update(dt){
     state.monsters.forEach(m=>{
       const p = pathPos(m.d);
       const _dx = p.x-z.x, _dy = p.y-z.y;
-      if(_dx*_dx + _dy*_dy <= z.r*z.r){
+      if(inCells(_dx, _dy, cellsOfPx(z.r))){   // v15g0: 격자 타원
         m.hp -= z.dps * dt + pctMaxHpDmg(m, z.pct * dt);   // v15do: 장판 %딜도 총량 제한 대상
       }
     });
@@ -7334,14 +7351,15 @@ function update(dt){
     let target=null, best=Infinity, bossTarget=null, bossBest=Infinity;
     // v15e6: [성능] 유닛 x 몬스터를 매 프레임 도는 최대 경로라 제곱근을 없앴다.
     //   거리 값 자체는 쓰지 않고 크기 비교만 하므로 제곱끼리 비교해도 결과가 같다.
-    const _rangeSq = def.range * def.range;
+    // v15g0: 원형 대신 격자 타원으로 판정 (가로 n*CELL_W / 세로 n*CELL_H)
+    const _rc = def.rangeCells || cellsOfPx(def.range);
     for(const m of state.monsters){
       const p = pathPos(m.d);
       const _dx = p.x-u.x, _dy = p.y-u.y;
-      const dist2 = _dx*_dx + _dy*_dy;
-      if(dist2 > _rangeSq) continue;
-      if(m.boss){ if(dist2 < bossBest){ bossBest=dist2; bossTarget=m; } }
-      else if(dist2 < best){ best=dist2; target=m; }
+      const nrm = ellipseNorm(_dx, _dy, _rc);
+      if(nrm > 1) continue;
+      if(m.boss){ if(nrm < bossBest){ bossBest=nrm; bossTarget=m; } }
+      else if(nrm < best){ best=nrm; target=m; }
     }
     if(bossTarget) target = bossTarget;
     if(target){
