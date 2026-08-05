@@ -1027,8 +1027,8 @@ const ABSOLUTE_SKILLS = [
                         {type:"패왕색 참격",     cd:6.0, mult:6.5, color:"#ff6030", kind:"slash", hits:22} ],
   /*지저스 바제스*/      [ {type:"폭탄 투척",       cd:4.0, mult:6.0, color:"#8060a0", kind:"bolt", hits:18},
                         {type:"다이너마이트 연속투척", cd:6.0, mult:5.5, color:"#a080c0", kind:"slash", hits:20} ],
-  /*우타*/              [ {type:"토트 뮤지컬 · 샹크스 소환", cd:18.0, mult:0, color:"#ff90b0", kind:"ring", ult:"summon_shanks", radius:9999, dur:13},
-                        {type:"저주의 노래",     cd:6.0, mult:0,   color:"#ff6090", kind:"ally_buff", radius:9999, slow:0.25} ],
+  /*우타*/              [ {type:"구원의 노래",     cd:5.0, mult:0,   color:"#ff90b0", kind:"ally_buff", radius:9999, aspd:0.30},
+                        {type:"토트 뮤지컬 · 샹크스 소환", cd:18.0, mult:0, color:"#ff6090", kind:"ring", ult:"summon_shanks", radius:9999, dur:13} ],
   /*고대병기 에메트*/ [ {type:"고대 거인 강타", cd:4.0, mult:6.0, color:"#c8a050", kind:"ring", radius:320},
                 {type:"에메트 각성",    cd:6.0, mult:4.6, color:"#e0c070", kind:"haki", radius:320, stun:2.0} ],
   /*살육무기 카마조*/ [ {type:"쌍낫 참살",   cd:3.8, mult:6.2, color:"#e8d060", kind:"slash", hits:20},
@@ -1477,6 +1477,8 @@ limit: [
 
 const MELEE_WEAPONS = ["sword","bigsword","staff"];   // v14b: 지팡이류도 근접 포함 (근접 비율 30~40% 목표)
 // ---------- UNIT_DEFS 자동 생성 ----------
+// v15g8: 절대 등급에서 2번 스킬을 예외적으로 갖는 캐릭터 목록
+const ABSOLUTE_SKILL2_UNITS = ["우타"];
 const UNIT_DEFS = {};
 const GRADE_POOL = {};
 GRADE_ORDER.forEach(g=>{
@@ -1497,7 +1499,9 @@ GRADE_ORDER.forEach(g=>{
       // v15an: 등급별 스킬 개수 재조정 - 신화 0개 / 태초 1개 / 절대 1개 / 절대자 2개 / 초절대자·히든 기존 유지(2개)
       skill: g==="overlord"?OVERLORD_SKILLS[i][0]:g==="hidden"?HIDDEN_SKILLS[i][0]:g==="ultramaximal"?ULTRA_SKILLS[i][0]:g==="supremal"?SUPREMAL_SKILLS[i][0]:g==="absolute"?ABSOLUTE_SKILLS[i][0]:(g==="origin"?ORIGIN_SKILLS[i][0]:(g==="mythic"?MYTHIC_SKILLS[i][0]:(g==="transcend"?SKILLS[i%SKILLS.length]:(GRADE_SKILLS[g]||null)))),
       // v15aw: 밸런스상 신화/태초/절대 전부 스킬 1개로 통일 (절대자/히든/초절대자만 2개 유지)
-      skill2: g==="overlord"?OVERLORD_SKILLS[i][1]:g==="hidden"?HIDDEN_SKILLS[i][1]:g==="ultramaximal"?ULTRA_SKILLS[i][1]:g==="supremal"?SUPREMAL_SKILLS[i][1]:g==="absolute"?null:(g==="origin"?null:(g==="mythic"?null:null)),
+      // v15g8: 절대 등급은 스킬 1개가 원칙이지만, 우타만 예외로 2번 스킬(샹크스 소환)을 갖는다.
+      //   1번 "구원의 노래"(아군 공속 버프)는 그대로 두고 소환을 추가하는 형태다.
+      skill2: g==="overlord"?OVERLORD_SKILLS[i][1]:g==="hidden"?HIDDEN_SKILLS[i][1]:g==="ultramaximal"?ULTRA_SKILLS[i][1]:g==="supremal"?SUPREMAL_SKILLS[i][1]:g==="absolute"?(ABSOLUTE_SKILL2_UNITS.includes(name)?ABSOLUTE_SKILLS[i][1]:null):(g==="origin"?null:(g==="mythic"?null:null)),
       // v15c7: 패왕 전용 3번째 스킬 (다른 등급은 없음)
       skill3: g==="overlord"?OVERLORD_SKILLS[i][2]:null,
       atkFx: (["mythic","origin","absolute","hidden","supremal","ultramaximal","overlord"].includes(g)) ? (ATK_FX[name.replace("★","")] || "energy") : null,
@@ -3605,7 +3609,7 @@ const DIFFS = {
 // v15f6: 배포된 빌드를 콘솔에서 바로 식별하기 위한 표식.
 //   Netlify 가 옛 빌드를 서빙하고 있는데 코드 문제로 오해해 한참 헤맨 적이 있어서 넣었다.
 //   브라우저 콘솔에 BUILD_ID 를 쳐서 지금 떠 있는 빌드가 무엇인지 즉시 확인할 수 있다.
-const BUILD_ID = "2026-08-05 UTA-SHANKS";
+const BUILD_ID = "2026-08-05 UTA-SK2";
 console.log("[원랜디] BUILD_ID =", BUILD_ID);
 // v15g2: 난이도별로 총 라운드가 달랐는데(75/80/85/90) 전부 95 로 통일한다.
 //   최종 보스(암흑황제 검은수염)도 90 이 아니라 95 라운드에 등장한다.
