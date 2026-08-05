@@ -3583,7 +3583,7 @@ const DIFFS = {
 // v15f6: 배포된 빌드를 콘솔에서 바로 식별하기 위한 표식.
 //   Netlify 가 옛 빌드를 서빙하고 있는데 코드 문제로 오해해 한참 헤맨 적이 있어서 넣었다.
 //   브라우저 콘솔에 BUILD_ID 를 쳐서 지금 떠 있는 빌드가 무엇인지 즉시 확인할 수 있다.
-const BUILD_ID = "2026-08-05 ARMORRED";
+const BUILD_ID = "2026-08-05 REVERT1";
 console.log("[원랜디] BUILD_ID =", BUILD_ID);
 // v15g2: 난이도별로 총 라운드가 달랐는데(75/80/85/90) 전부 95 로 통일한다.
 //   최종 보스(암흑황제 검은수염)도 90 이 아니라 95 라운드에 등장한다.
@@ -6055,33 +6055,6 @@ Object.keys(ROLE_TAGS).forEach(nm=>{
 });
 
 // =========================================================
-//  v15g7: 태초·절대·절대자 스킬 방어력감소 부여
-// =========================================================
-// 이 세 등급은 패시브 방감은 넓게 깔려 있지만 "스킬로 깎는" 방감이 한 명도 없었다.
-// 포지션(근접단일/근접범위/원거리단일/원거리범위/끝딜/서포터)마다 3명씩 골라
-// 첫 스킬에 방감을 붙인다. 값은 등급 고정(정수 차감, %가 아님 - v15ak 규칙).
-// 선정은 ROSTER 순서 앞에서부터라 실행마다 항상 동일하다.
-const SKILL_ARMOR_RED_TIER = { origin:3, absolute:6, supremal:9 };
-const SKILL_ARMOR_RED_PER_ROLE = 3;
-Object.keys(SKILL_ARMOR_RED_TIER).forEach(grade=>{
-  const v = SKILL_ARMOR_RED_TIER[grade];
-  const picked = {};
-  (ROSTER[grade] || []).forEach(ent=>{
-    const nm = String(ent[0]).replace("★","");
-    const role = ROLE_TAGS[nm] || "미지정";
-    if((picked[role] || 0) >= SKILL_ARMOR_RED_PER_ROLE) return;
-    const defs = Object.values(UNIT_DEFS).filter(d=>d.grade===grade && d.name.replace("★","")===nm);
-    if(!defs.length) return;
-    // 이미 방감이 붙어 있는 캐릭터는 손대지 않는다. 자리도 차지하지 않고 넘어가서
-    // 다음 후보가 그 포지션의 3명 중 한 자리를 대신 채운다.
-    const already = defs.some(d=>[d.skill, d.skill2, d.skill3].some(s=>s && s.armorRed != null));
-    if(already) return;
-    picked[role] = (picked[role] || 0) + 1;
-    defs.forEach(def=>{ if(def.skill) def.skill.armorRed = v; });
-  });
-});
-
-// =========================================================
 //  v15e7: 최소 사거리 2칸 보장 — 모든 사거리/반경 지정이 끝난 뒤 마지막에 적용
 // =========================================================
 // 이 지점 이전에 사거리를 정하는 곳이 세 군데다.
@@ -6686,12 +6659,6 @@ function fireSkill(u, def, sk){
   //   이전엔 스킬1·2·3 전부에서 떠서 초절대자만 이펙트가 과하게 많았다.
   const _uxSrc = (sk === (def.skill3 || def.skill2 || def.skill)) ? ultraFxOf(def) : null;
   if(_uxSrc) _ultraFx(u.x, u.y, sk.color, _uxSrc, fx.wide);
-  // v15g7: 스킬 방감은 지금까지 near_debuff 분기 안에서만 적용됐다. 그래서 다른 kind 의
-  //   스킬에 armorRed 를 적어놔도 아무 일도 일어나지 않았다. near_debuff 는 위에서 이미
-  //   처리했으니 여기서는 나머지 kind 만 같은 규칙(지속 = 쿨의 절반)으로 반영한다.
-  if(sk.armorRed && sk.kind !== "near_debuff"){
-    pulseHiddenBuff(u, "armorRed", sk.armorRed, state.time + sk.cd * 0.5);
-  }
 
   if(sk.kind === "haki"){
     // 패왕색: 광역 스턴 + %딜, 화면 흔들림
