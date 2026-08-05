@@ -793,6 +793,7 @@ const PASSIVES = {
   "반 오거": { critDmg:0.50 },
   "거인 산 후안 울프": { atk:0.28 },
   "검은수염 해적단원": { crit:0.30, critDmg:0.32 },
+  "해군원수 아카이누": { atk:0.30, skillDmg:0.28 },
   "코즈키 모모노스케": { atk:0.12 },   // v15dk: 신화 신규
   // v15dg: 신규 태초 2종
   "각성 유스타스 캡틴 키드": { atk:0.18 },
@@ -1101,6 +1102,10 @@ const ULTRA_SKILLS = [
   /*반 오거*/ [ {type:"거인 참수",  cd:3.2,mult:10.5,color:"#c0c0d0",kind:"bolt",hits:1},{type:"철퇴 강습",  cd:4.5,mult:8.0,color:"#8090a0",kind:"slash",hits:10} ],
   /*거인 산 후안 울프*/ [ {type:"거대전함 돌진",cd:3.5,mult:9.0,color:"#4060d0",kind:"ring",radius:600},{type:"압도적 질량",  cd:4.5,mult:7.0,color:"#2040a0",kind:"haki",radius:560,stun:2.8} ],
   /*검은수염 해적단원*/ [ {type:"암흑 저격",  cd:3.0,mult:9.5,color:"#8040c0",kind:"bolt",hits:6},{type:"해적단 일제사격",cd:4.5,mult:7.2,color:"#6020a0",kind:"bolt",hits:20} ],
+  // v15g9: 해군원수 아카이누 — 원거리범위딜. 광역 2종 구성이라 배율은 같은 역할(프랑키/징베/버제스)
+  //   기준인 7.0~8.0 대에 맞춘다. 2번째는 쿨을 길게 잡는 대신 화상형 광역으로 차별화.
+  /*해군원수 아카이누*/ [ {type:"대분화 · 메테오 볼케이노",cd:3.0,mult:8.0,color:"#ff3000",kind:"ring",radius:560},
+                        {type:"류세이 화산",cd:4.0,mult:6.8,color:"#ff6820",kind:"ring",radius:520} ],
 ];
 const OVERLORD_SKILLS = [
   /*해군대장 료쿠규*/     [ {type:"그린 타이푼",cd:3.0,mult:9.0,color:"#40a030",kind:"ring",radius:560}, {type:"삼림의 감옥",cd:4.0,mult:7.0,color:"#2c7020",kind:"bolt",hits:26}, {type:"대지의 심판 · 운석",cd:20,mult:5.0,color:"#3c8c30",kind:"ring",ult:"meteor",radius:520,radius2:230,count:4,stun:1.5} ],
@@ -1395,6 +1400,8 @@ ultramaximal: [
  ["반 오거", {hair:"#c0c0c0",hs:"long",hat:"top",hatC:"#1a1a22",top:"#2b2b34",btm:"#1a1a22",w:"sword",scale:2.1,aura:"rgba(160,160,180,.95)"}],
  ["거인 산 후안 울프", {hair:"#3a3a5a",hs:"long",top:"#2a2a4a",btm:"#1a1a2a",scale:2.3,f:{beard:"#3a3a5a"},aura:"rgba(80,100,200,.95)"}],
  ["검은수염 해적단원", {hair:"#1a1a1a",hs:"short",hat:"bandana",hatC:"#2a2a2a",top:"#2a1a2a",btm:"#1a1a22",w:"rifle",scale:1.95,aura:"rgba(90,40,140,.9)"}],
+ // v15g9: 해군본부 세력 1호 — 밀짚모자/검은수염과 분리된 세 번째 초절대자 계열
+ ["해군원수 아카이누", {hair:"#1a1a1a",hs:"short",hat:"marine",hatC:"#e8e0d0",top:"#e8e0d0",open:1,btm:"#1a1a22",scale:2.15,f:{beard:"#1a1a1a",scarL:1},aura:"rgba(255,60,20,.95)"}],
 ],
 overlord: [
  ["해군대장 료쿠규",   {hair:"#3c5c30",top:"#0a2818",btm:"#0a2818",hat:"marine",hatC:"#e8e0d0",scale:2.05,f:{scarL:1},aura:"rgba(60,140,40,.95)"}],
@@ -1954,7 +1961,7 @@ function drawShadow(c, x, y, w){
 //  등록된 캐릭터는 AI 픽셀아트 원형 토큰으로, 나머지는 코드 치비로 표시
 // =========================================================
 // v15dn: 분리된 이미지 에셋 목록 (패치 시 자동 생성). 게임 시작 전 전량 프리로드한다.
-const PRELOAD_ASSETS = ["assets/img/004e67071e47.png", "assets/img/006f79520842.png", "assets/img/00875d71a494.png", "assets/img/00a97068b6f7.jpg", "assets/img/00c12e2cc7c7.jpg", "assets/img/014b865afa6e.png", "assets/img/015a6525a86c.jpg", "assets/img/01c08357b77e.png", "assets/img/021541eb2763.png", "assets/img/021ef5198f26.jpg", "assets/img/035ca7b3734d.png", "assets/img/045cb17ab57b.jpg", "assets/img/053894260f95.png", "assets/img/057b80ec00cb.jpg", "assets/img/05bfb72b94e1.jpg", "assets/img/08b59fa972a4.jpg", "assets/img/09008c2f430b.png", "assets/img/09489cd25297.jpg", "assets/img/0bf39f8e7c9b.png", "assets/img/0ce916577126.png", "assets/img/0e4481fd512f.png", "assets/img/0e86c9af1a46.jpg", "assets/img/0eb7823f010f.jpg", "assets/img/0f9c45b9dbde.jpg", "assets/img/0feb135732b8.jpg", "assets/img/117b9414f489.jpg", "assets/img/11898415458d.jpg", "assets/img/118c27c4974e.jpg", "assets/img/12b48f4ddd48.png", "assets/img/15ca5f7daa3d.jpg", "assets/img/17f37adbb638.jpg", "assets/img/183015193538.png", "assets/img/188be6a96ed6.jpg", "assets/img/18d98d1e1352.jpg", "assets/img/18f9db059968.jpg", "assets/img/1a199371cace.png", "assets/img/1c4b08f43b31.jpg", "assets/img/1dad5bb47b00.jpg", "assets/img/1f9e60ed5fe2.jpg", "assets/img/1fdfe3198781.jpg", "assets/img/2018781b23af.jpg", "assets/img/20a8df8353ff.jpg", "assets/img/2336d7eabaaa.jpg", "assets/img/243c5f78979e.jpg", "assets/img/24c2af74e5bd.jpg", "assets/img/284619ab69e7.jpg", "assets/img/28bb0e99c897.jpg", "assets/img/28dafe336c05.jpg", "assets/img/2934af8ad7f3.jpg", "assets/img/2a1b2b410f5c.jpg", "assets/img/2a45ebb2b484.jpg", "assets/img/2ae10e9607b4.jpg", "assets/img/2b5a3881255d.png", "assets/img/2b9657f51881.jpg", "assets/img/2c9b07b415c7.png", "assets/img/2c9c682263cd.jpg", "assets/img/2da789635802.jpg", "assets/img/2f20a2dc5a5a.jpg", "assets/img/2ffc05901356.png", "assets/img/301f2cac6022.jpg", "assets/img/306a6e71f279.jpg", "assets/img/30e0bc34fee2.png", "assets/img/32ac7b864bef.jpg", "assets/img/332f7bffc664.jpg", "assets/img/334dad3150ab.jpg", "assets/img/33bed01fe5df.jpg", "assets/img/34f1c66b1d2c.png", "assets/img/350db9f754fb.jpg", "assets/img/369675c6202d.jpg", "assets/img/369e1bb259a4.jpg", "assets/img/3a7937400697.jpg", "assets/img/3c5a4476db0e.png", "assets/img/3cabb986641d.jpg", "assets/img/3e2cd69e245e.jpg", "assets/img/3e368c0716ca.jpg", "assets/img/3ef354922ae1.jpg", "assets/img/3ef764d664da.jpg", "assets/img/40dfc9ef3b1e.jpg", "assets/img/4115eb3a7886.jpg", "assets/img/413213fec2de.jpg", "assets/img/4204803eedf2.png", "assets/img/43f3f9b508d1.png", "assets/img/4514699b7680.jpg", "assets/img/459e334d6b50.jpg", "assets/img/45d1bc218c14.jpg", "assets/img/47440e6ea977.jpg", "assets/img/47c2cdd69449.jpg", "assets/img/480394a2a7b9.jpg", "assets/img/483fb210596b.png", "assets/img/489424610072.png", "assets/img/49ccd2a3e086.jpg", "assets/img/4c9e81f2c773.jpg", "assets/img/5039f69ffbc4.jpg", "assets/img/5099b4b143ed.jpg", "assets/img/51765cc4c9fb.jpg", "assets/img/526dea67517b.jpg", "assets/img/52a228ab2da2.jpg", "assets/img/53d210160900.jpg", "assets/img/546ed47f6153.png", "assets/img/55bf024c031d.jpg", "assets/img/5641361f4e3c.png", "assets/img/56b029cdcb9a.jpg", "assets/img/56e38cfc4248.jpg", "assets/img/592b87e837d2.png", "assets/img/59799cdbb3b8.jpg", "assets/img/5a53d9bdc30a.png", "assets/img/5a7ea550a7a9.png", "assets/img/5ab136d026b7.jpg", "assets/img/5c3a22ff1726.jpg", "assets/img/5cbd55c45c2a.jpg", "assets/img/5da1ce2fd424.png", "assets/img/5e5048c18846.png", "assets/img/5e631b3bfecd.png", "assets/img/5e8fad514cbb.jpg", "assets/img/5f836948eb42.jpg", "assets/img/6001b506c85f.png", "assets/img/6017da9ca0ef.jpg", "assets/img/61a25415cf10.jpg", "assets/img/62c5901434d6.jpg", "assets/img/663b0e9b87b3.jpg", "assets/img/67608dad3545.png", "assets/img/696cc69a2b64.png", "assets/img/6ac911c14bd3.jpg", "assets/img/6acffa00c80a.jpg", "assets/img/6bf1da3ad9b8.png", "assets/img/6ce607d25f71.png", "assets/img/6d08d74b28ff.jpg", "assets/img/6d7b1a8a92d4.jpg", "assets/img/6dd0db2ba5a2.jpg", "assets/img/6ee34f92a3c0.jpg", "assets/img/6f35c3dd11c0.png", "assets/img/6f3eaded7563.png", "assets/img/6f86764d39a7.jpg", "assets/img/6fb8bd4efafa.png", "assets/img/7089b6ff4940.png", "assets/img/70e96312ea40.png", "assets/img/71a333c7f60f.jpg", "assets/img/729b3348c9b5.jpg", "assets/img/749daeedc1e9.png", "assets/img/75b48fc0b85a.jpg", "assets/img/786d1e9ad3b6.jpg", "assets/img/78ab15294211.jpg", "assets/img/79e9b8579cb5.jpg", "assets/img/7a3f9cd145a2.jpg", "assets/img/7ca8eb1612b7.jpg", "assets/img/7f218ae9d1f2.jpg", "assets/img/7f62ff60d0cd.jpg", "assets/img/80471628d268.jpg", "assets/img/815443799ac2.jpg", "assets/img/827781ef8d62.png", "assets/img/8297f4a4ca00.jpg", "assets/img/83d48576ffb7.png", "assets/img/862dc49eefde.png", "assets/img/87adb6b35f6c.png", "assets/img/8826aeba1213.jpg", "assets/img/8b3602b3557b.png", "assets/img/8b3a0cf76973.jpg", "assets/img/8c786832ffbf.jpg", "assets/img/8c95c4dc7693.jpg", "assets/img/8d2a5fadce2c.jpg", "assets/img/8ddf60430034.png", "assets/img/8de75d0d1b89.jpg", "assets/img/8e74f45f44fd.jpg", "assets/img/8f396ce6b05e.jpg", "assets/img/8f665d0767d1.jpg", "assets/img/8f726a8f880b.jpg", "assets/img/92bb828180ea.jpg", "assets/img/92ec9444cca1.jpg", "assets/img/9493a5078f97.png", "assets/img/949e2b736e03.jpg", "assets/img/9605267c3ba4.png", "assets/img/96ff7c1e7bda.png", "assets/img/97238020b5d6.png", "assets/img/97a8ed597097.jpg", "assets/img/9ad7ed67d6cc.jpg", "assets/img/9b66c306299e.jpg", "assets/img/9b850b68e478.jpg", "assets/img/9bcfee950983.jpg", "assets/img/9caf5a9833be.png", "assets/img/9d1ce115739d.jpg", "assets/img/9d8cae710e6f.png", "assets/img/9eff4aad67fe.png", "assets/img/a0a77f7d49f4.jpg", "assets/img/a0fd649642c7.png", "assets/img/a2adec13cc42.jpg", "assets/img/a40ef7d0eb6f.jpg", "assets/img/a5fec4dcc9c0.jpg", "assets/img/a653466280ae.jpg", "assets/img/a6a843fb2542.jpg", "assets/img/a7e8c2f432ef.jpg", "assets/img/a8ab976aa53b.jpg", "assets/img/adf50639b6f4.jpg", "assets/img/ae00327ce32a.jpg", "assets/img/ae5fcc814bbd.png", "assets/img/afffc53b02ee.jpg", "assets/img/b08d304c26cd.jpg", "assets/img/b0d30aa3a942.jpg", "assets/img/b769beab6a48.png", "assets/img/b789a7bb3834.jpg", "assets/img/b7a271fd04e7.jpg", "assets/img/b88af848f4c5.jpg", "assets/img/b8d3dbe7109d.png", "assets/img/b90620b64bdf.jpg", "assets/img/b96cc48906af.jpg", "assets/img/b996d3576f06.jpg", "assets/img/bc8d39edc803.jpg", "assets/img/be745b4cc3fa.jpg", "assets/img/bf5a77b8958b.jpg", "assets/img/c0a051f50259.jpg", "assets/img/c2b244afd5b6.png", "assets/img/c33165164ae0.jpg", "assets/img/c4a70576ef7f.png", "assets/img/c52fd6cf09d3.jpg", "assets/img/c66d774970c2.jpg", "assets/img/c6d5d857f212.jpg", "assets/img/c89426040269.jpg", "assets/img/cbcc4352e2b9.jpg", "assets/img/cbe276becc13.jpg", "assets/img/cce3a06d60f5.jpg", "assets/img/cf29e044b516.jpg", "assets/img/cffe6c922cb3.jpg", "assets/img/d0400b6a55de.jpg", "assets/img/d1531da03496.png", "assets/img/d1990fa1efa2.png", "assets/img/d1deb032f91b.jpg", "assets/img/d3540229b27b.jpg", "assets/img/d377ab86e4fc.jpg", "assets/img/d49999875db9.png", "assets/img/d549821f7c50.jpg", "assets/img/d5c9fdf3d721.png", "assets/img/d83aaed0caa7.jpg", "assets/img/d856c69178c8.jpg", "assets/img/d9bedaed4503.jpg", "assets/img/da3d20a492a6.png", "assets/img/db273053feba.jpg", "assets/img/db9bfd649544.jpg", "assets/img/dbbb4eea5352.jpg", "assets/img/dc828893770b.jpg", "assets/img/dc97b8d47688.jpg", "assets/img/dd61fb68100c.jpg", "assets/img/dd97a6b4e1b4.jpg", "assets/img/ddc7f6160cbe.jpg", "assets/img/df301e031128.jpg", "assets/img/dfb0844f6f94.jpg", "assets/img/dfbfa5e1ec54.jpg", "assets/img/e054559e5bde.jpg", "assets/img/e0a34a6df16a.png", "assets/img/e1ce54443450.jpg", "assets/img/e258f7021c55.png", "assets/img/e2d548c85f58.png", "assets/img/e3d11133b2a0.jpg", "assets/img/e5eccf8182ba.jpg", "assets/img/e7e41ebf347f.jpg", "assets/img/e89a96199856.jpg", "assets/img/e94c22b13fb7.png", "assets/img/e95ca99f0133.jpg", "assets/img/eaa406207515.jpg", "assets/img/eba5114e6f09.png", "assets/img/ec118b3aa6e1.jpg", "assets/img/ecb8f50630ec.jpg", "assets/img/ed0bbe3fe56a.jpg", "assets/img/ed285a01a19b.jpg", "assets/img/ed34cc9a60ab.jpg", "assets/img/ed8ec6fb4820.jpg", "assets/img/ee62cf9039bf.jpg", "assets/img/f19cf7804bbc.jpg", "assets/img/f1cb64ab46fe.jpg", "assets/img/f2c4c46f0472.jpg", "assets/img/f36c90f4b70f.jpg", "assets/img/f3b1db35d295.png", "assets/img/f5d77d14d77e.jpg", "assets/img/f6519a041835.jpg", "assets/img/f73f19499edc.jpg", "assets/img/f86ec6de6bd5.png", "assets/img/f94bbc83db98.jpg", "assets/img/fa0cb1eab6e0.png", "assets/img/fa374e0d7310.jpg", "assets/img/fa6a2da1c441.jpg", "assets/img/fc884ae8f4be.png", "assets/img/fd0d9392510f.jpg", "assets/img/fdea50835e6b.jpg", "assets/img/fe087a1c7c5a.jpg", "assets/img/fe41849026f7.jpg", "assets/img/ff4586508418.png"];
+const PRELOAD_ASSETS = ["assets/img/004e67071e47.png", "assets/img/006f79520842.png", "assets/img/00875d71a494.png", "assets/img/00a97068b6f7.jpg", "assets/img/00c12e2cc7c7.jpg", "assets/img/014b865afa6e.png", "assets/img/015a6525a86c.jpg", "assets/img/01c08357b77e.png", "assets/img/021541eb2763.png", "assets/img/021ef5198f26.jpg", "assets/img/035ca7b3734d.png", "assets/img/045cb17ab57b.jpg", "assets/img/053894260f95.png", "assets/img/057b80ec00cb.jpg", "assets/img/05bfb72b94e1.jpg", "assets/img/08b59fa972a4.jpg", "assets/img/09008c2f430b.png", "assets/img/09489cd25297.jpg", "assets/img/0bf39f8e7c9b.png", "assets/img/0ce916577126.png", "assets/img/0e4481fd512f.png", "assets/img/0e86c9af1a46.jpg", "assets/img/0eb7823f010f.jpg", "assets/img/0f9c45b9dbde.jpg", "assets/img/0feb135732b8.jpg", "assets/img/117b9414f489.jpg", "assets/img/11898415458d.jpg", "assets/img/118c27c4974e.jpg", "assets/img/12b48f4ddd48.png", "assets/img/15ca5f7daa3d.jpg", "assets/img/17f37adbb638.jpg", "assets/img/183015193538.png", "assets/img/188be6a96ed6.jpg", "assets/img/18d98d1e1352.jpg", "assets/img/18f9db059968.jpg", "assets/img/1a199371cace.png", "assets/img/1c4b08f43b31.jpg", "assets/img/1dad5bb47b00.jpg", "assets/img/1f9e60ed5fe2.jpg", "assets/img/1fdfe3198781.jpg", "assets/img/2018781b23af.jpg", "assets/img/20a8df8353ff.jpg", "assets/img/2336d7eabaaa.jpg", "assets/img/243c5f78979e.jpg", "assets/img/24c2af74e5bd.jpg", "assets/img/284619ab69e7.jpg", "assets/img/28bb0e99c897.jpg", "assets/img/28dafe336c05.jpg", "assets/img/2934af8ad7f3.jpg", "assets/img/2a1b2b410f5c.jpg", "assets/img/2a45ebb2b484.jpg", "assets/img/2ae10e9607b4.jpg", "assets/img/2b5a3881255d.png", "assets/img/2b9657f51881.jpg", "assets/img/2c9b07b415c7.png", "assets/img/2c9c682263cd.jpg", "assets/img/2da789635802.jpg", "assets/img/2f20a2dc5a5a.jpg", "assets/img/2ffc05901356.png", "assets/img/301f2cac6022.jpg", "assets/img/306a6e71f279.jpg", "assets/img/30e0bc34fee2.png", "assets/img/32ac7b864bef.jpg", "assets/img/332f7bffc664.jpg", "assets/img/334dad3150ab.jpg", "assets/img/33bed01fe5df.jpg", "assets/img/34f1c66b1d2c.png", "assets/img/350db9f754fb.jpg", "assets/img/369675c6202d.jpg", "assets/img/369e1bb259a4.jpg", "assets/img/3a7937400697.jpg", "assets/img/3c5a4476db0e.png", "assets/img/3cabb986641d.jpg", "assets/img/3e2cd69e245e.jpg", "assets/img/3e368c0716ca.jpg", "assets/img/3ef354922ae1.jpg", "assets/img/3ef764d664da.jpg", "assets/img/40dfc9ef3b1e.jpg", "assets/img/4115eb3a7886.jpg", "assets/img/413213fec2de.jpg", "assets/img/4204803eedf2.png", "assets/img/43f3f9b508d1.png", "assets/img/4514699b7680.jpg", "assets/img/4578a6a65452.jpg", "assets/img/459e334d6b50.jpg", "assets/img/45d1bc218c14.jpg", "assets/img/47440e6ea977.jpg", "assets/img/47c2cdd69449.jpg", "assets/img/480394a2a7b9.jpg", "assets/img/483fb210596b.png", "assets/img/489424610072.png", "assets/img/49ccd2a3e086.jpg", "assets/img/4c9e81f2c773.jpg", "assets/img/5039f69ffbc4.jpg", "assets/img/5099b4b143ed.jpg", "assets/img/51765cc4c9fb.jpg", "assets/img/526dea67517b.jpg", "assets/img/52a228ab2da2.jpg", "assets/img/53d210160900.jpg", "assets/img/546ed47f6153.png", "assets/img/55bf024c031d.jpg", "assets/img/5641361f4e3c.png", "assets/img/56b029cdcb9a.jpg", "assets/img/56e38cfc4248.jpg", "assets/img/592b87e837d2.png", "assets/img/59799cdbb3b8.jpg", "assets/img/5a53d9bdc30a.png", "assets/img/5a7ea550a7a9.png", "assets/img/5ab136d026b7.jpg", "assets/img/5c3a22ff1726.jpg", "assets/img/5cbd55c45c2a.jpg", "assets/img/5da1ce2fd424.png", "assets/img/5e5048c18846.png", "assets/img/5e631b3bfecd.png", "assets/img/5e8fad514cbb.jpg", "assets/img/5f836948eb42.jpg", "assets/img/6001b506c85f.png", "assets/img/6017da9ca0ef.jpg", "assets/img/61a25415cf10.jpg", "assets/img/62c5901434d6.jpg", "assets/img/631ca703c48a.jpg", "assets/img/663b0e9b87b3.jpg", "assets/img/67608dad3545.png", "assets/img/696cc69a2b64.png", "assets/img/6ac911c14bd3.jpg", "assets/img/6acffa00c80a.jpg", "assets/img/6bf1da3ad9b8.png", "assets/img/6ce607d25f71.png", "assets/img/6d08d74b28ff.jpg", "assets/img/6d7b1a8a92d4.jpg", "assets/img/6dd0db2ba5a2.jpg", "assets/img/6ee34f92a3c0.jpg", "assets/img/6f35c3dd11c0.png", "assets/img/6f3eaded7563.png", "assets/img/6f86764d39a7.jpg", "assets/img/6fb8bd4efafa.png", "assets/img/7089b6ff4940.png", "assets/img/70e96312ea40.png", "assets/img/71a333c7f60f.jpg", "assets/img/729b3348c9b5.jpg", "assets/img/749daeedc1e9.png", "assets/img/75b48fc0b85a.jpg", "assets/img/786d1e9ad3b6.jpg", "assets/img/78ab15294211.jpg", "assets/img/79e9b8579cb5.jpg", "assets/img/7a3f9cd145a2.jpg", "assets/img/7ca8eb1612b7.jpg", "assets/img/7f218ae9d1f2.jpg", "assets/img/7f62ff60d0cd.jpg", "assets/img/80471628d268.jpg", "assets/img/815443799ac2.jpg", "assets/img/827781ef8d62.png", "assets/img/8297f4a4ca00.jpg", "assets/img/83d48576ffb7.png", "assets/img/862dc49eefde.png", "assets/img/87adb6b35f6c.png", "assets/img/8826aeba1213.jpg", "assets/img/8b3602b3557b.png", "assets/img/8b3a0cf76973.jpg", "assets/img/8c786832ffbf.jpg", "assets/img/8c95c4dc7693.jpg", "assets/img/8d2a5fadce2c.jpg", "assets/img/8ddf60430034.png", "assets/img/8de75d0d1b89.jpg", "assets/img/8e74f45f44fd.jpg", "assets/img/8f396ce6b05e.jpg", "assets/img/8f665d0767d1.jpg", "assets/img/8f726a8f880b.jpg", "assets/img/92bb828180ea.jpg", "assets/img/92ec9444cca1.jpg", "assets/img/9493a5078f97.png", "assets/img/949e2b736e03.jpg", "assets/img/9605267c3ba4.png", "assets/img/96ff7c1e7bda.png", "assets/img/97238020b5d6.png", "assets/img/97a8ed597097.jpg", "assets/img/9ad7ed67d6cc.jpg", "assets/img/9b66c306299e.jpg", "assets/img/9b850b68e478.jpg", "assets/img/9bcfee950983.jpg", "assets/img/9caf5a9833be.png", "assets/img/9d1ce115739d.jpg", "assets/img/9d8cae710e6f.png", "assets/img/9eff4aad67fe.png", "assets/img/9f0f72b7126f.jpg", "assets/img/a0a77f7d49f4.jpg", "assets/img/a0fd649642c7.png", "assets/img/a2adec13cc42.jpg", "assets/img/a40ef7d0eb6f.jpg", "assets/img/a5fec4dcc9c0.jpg", "assets/img/a653466280ae.jpg", "assets/img/a6a843fb2542.jpg", "assets/img/a7e8c2f432ef.jpg", "assets/img/a8ab976aa53b.jpg", "assets/img/adf50639b6f4.jpg", "assets/img/ae00327ce32a.jpg", "assets/img/ae5fcc814bbd.png", "assets/img/afffc53b02ee.jpg", "assets/img/b08d304c26cd.jpg", "assets/img/b0d30aa3a942.jpg", "assets/img/b769beab6a48.png", "assets/img/b789a7bb3834.jpg", "assets/img/b7a271fd04e7.jpg", "assets/img/b88af848f4c5.jpg", "assets/img/b8d3dbe7109d.png", "assets/img/b90620b64bdf.jpg", "assets/img/b96cc48906af.jpg", "assets/img/b996d3576f06.jpg", "assets/img/bc8d39edc803.jpg", "assets/img/be745b4cc3fa.jpg", "assets/img/bf5a77b8958b.jpg", "assets/img/c0a051f50259.jpg", "assets/img/c2b244afd5b6.png", "assets/img/c33165164ae0.jpg", "assets/img/c4a70576ef7f.png", "assets/img/c52fd6cf09d3.jpg", "assets/img/c66d774970c2.jpg", "assets/img/c6d5d857f212.jpg", "assets/img/c89426040269.jpg", "assets/img/cbcc4352e2b9.jpg", "assets/img/cbe276becc13.jpg", "assets/img/cce3a06d60f5.jpg", "assets/img/cf29e044b516.jpg", "assets/img/cffe6c922cb3.jpg", "assets/img/d0400b6a55de.jpg", "assets/img/d1531da03496.png", "assets/img/d1990fa1efa2.png", "assets/img/d1deb032f91b.jpg", "assets/img/d3540229b27b.jpg", "assets/img/d377ab86e4fc.jpg", "assets/img/d49999875db9.png", "assets/img/d549821f7c50.jpg", "assets/img/d5c9fdf3d721.png", "assets/img/d83aaed0caa7.jpg", "assets/img/d856c69178c8.jpg", "assets/img/d9bedaed4503.jpg", "assets/img/da3d20a492a6.png", "assets/img/db273053feba.jpg", "assets/img/db9bfd649544.jpg", "assets/img/dbbb4eea5352.jpg", "assets/img/dc828893770b.jpg", "assets/img/dc97b8d47688.jpg", "assets/img/dd61fb68100c.jpg", "assets/img/dd97a6b4e1b4.jpg", "assets/img/ddc7f6160cbe.jpg", "assets/img/df301e031128.jpg", "assets/img/dfb0844f6f94.jpg", "assets/img/dfbfa5e1ec54.jpg", "assets/img/e054559e5bde.jpg", "assets/img/e0a34a6df16a.png", "assets/img/e1ce54443450.jpg", "assets/img/e258f7021c55.png", "assets/img/e2d548c85f58.png", "assets/img/e3d11133b2a0.jpg", "assets/img/e5eccf8182ba.jpg", "assets/img/e7e41ebf347f.jpg", "assets/img/e89a96199856.jpg", "assets/img/e94c22b13fb7.png", "assets/img/e95ca99f0133.jpg", "assets/img/eaa406207515.jpg", "assets/img/eba5114e6f09.png", "assets/img/ec118b3aa6e1.jpg", "assets/img/ecb8f50630ec.jpg", "assets/img/ed0bbe3fe56a.jpg", "assets/img/ed285a01a19b.jpg", "assets/img/ed34cc9a60ab.jpg", "assets/img/ed8ec6fb4820.jpg", "assets/img/ee62cf9039bf.jpg", "assets/img/f19cf7804bbc.jpg", "assets/img/f1cb64ab46fe.jpg", "assets/img/f2c4c46f0472.jpg", "assets/img/f36c90f4b70f.jpg", "assets/img/f3b1db35d295.png", "assets/img/f5d77d14d77e.jpg", "assets/img/f6519a041835.jpg", "assets/img/f73f19499edc.jpg", "assets/img/f86ec6de6bd5.png", "assets/img/f94bbc83db98.jpg", "assets/img/fa0cb1eab6e0.png", "assets/img/fa374e0d7310.jpg", "assets/img/fa6a2da1c441.jpg", "assets/img/fc884ae8f4be.png", "assets/img/fd0d9392510f.jpg", "assets/img/fdea50835e6b.jpg", "assets/img/fe087a1c7c5a.jpg", "assets/img/fe41849026f7.jpg", "assets/img/ff4586508418.png"];
 const AI_SPRITES = {
   // v15e9: 신규 20명 (단일 이미지 - frame2 등급은 _f1 이 없으면 이 키로 폴백)
   "mythic|백수해적단 킹": "assets/img/b789a7bb3834.jpg",
@@ -2033,6 +2040,8 @@ const AI_SPRITES = {
   "ultramaximal|주정뱅이 바스코 샷_f2": "assets/img/c6d5d857f212.jpg",
   "ultramaximal|반 오거": "assets/img/d3540229b27b.jpg",
   "ultramaximal|거인 산 후안 울프": "assets/img/117b9414f489.jpg",
+  "ultramaximal|해군원수 아카이누_f1": "assets/img/9f0f72b7126f.jpg",
+  "ultramaximal|해군원수 아카이누_f2": "assets/img/631ca703c48a.jpg",
   "ultramaximal|검은수염 해적단원_f1": "assets/img/786d1e9ad3b6.jpg",
   "ultramaximal|검은수염 해적단원_f2": "assets/img/ee62cf9039bf.jpg",
   "mythic|코즈키 모모노스케": "assets/img/97a8ed597097.jpg",
@@ -3609,7 +3618,7 @@ const DIFFS = {
 // v15f6: 배포된 빌드를 콘솔에서 바로 식별하기 위한 표식.
 //   Netlify 가 옛 빌드를 서빙하고 있는데 코드 문제로 오해해 한참 헤맨 적이 있어서 넣었다.
 //   브라우저 콘솔에 BUILD_ID 를 쳐서 지금 떠 있는 빌드가 무엇인지 즉시 확인할 수 있다.
-const BUILD_ID = "2026-08-05 UTA-SK2";
+const BUILD_ID = "2026-08-06 AKAINU";
 console.log("[원랜디] BUILD_ID =", BUILD_ID);
 // v15g2: 난이도별로 총 라운드가 달랐는데(75/80/85/90) 전부 95 로 통일한다.
 //   최종 보스(암흑황제 검은수염)도 90 이 아니라 95 라운드에 등장한다.
@@ -5218,6 +5227,7 @@ const ULTRAMAXIMAL_QUOTES = {
   "반 오거": "목을 내놔라.",
   "거인 산 후안 울프": "비켜라... 부서진다.",
   "검은수염 해적단원": "선장님을 위하여!",
+  "해군원수 아카이누": "철저한 정의다. 악은 태워 없앤다.",
   "해방왕 루피":     "하하하하!! 이제부터 진짜 재밌어지겠네!!",
   "검성 조로":       "길을 잃은 게 아니다, 세계가 좁을 뿐이지.",
   "염신 상디":       "여자를 지키지 못하는 남자는 남자가 아니야.",
@@ -5237,10 +5247,18 @@ const ULTRAMAXIMAL_QUOTES = {
 const BLACKBEARD_ULTRA_NAMES = ["마샬 D 티치","챔피언 버제스","우천의 시류","캐서린 데본",
                                 "주정뱅이 바스코 샷","반 오거","거인 산 후안 울프","검은수염 해적단원"];
 function strawhatUltraIds(){
-  return GRADE_POOL.ultramaximal.filter(id => !BLACKBEARD_ULTRA_NAMES.includes(UNIT_DEFS[id].name));
+  return GRADE_POOL.ultramaximal.filter(id =>
+    !BLACKBEARD_ULTRA_NAMES.includes(UNIT_DEFS[id].name) &&
+    !MARINE_ULTRA_NAMES.includes(UNIT_DEFS[id].name));
 }
 function blackbeardUltraIds(){
   return GRADE_POOL.ultramaximal.filter(id => BLACKBEARD_ULTRA_NAMES.includes(UNIT_DEFS[id].name));
+}
+// v15g9: 해군본부 세력. 밀짚모자 풀은 "검은수염이 아닌 것" 으로 정의돼 있어서, 여기에
+//   등록하지 않으면 신규 캐릭터가 자동으로 밀짚모자 풀에 섞여 패왕 조합 확률을 떨어뜨린다.
+const MARINE_ULTRA_NAMES = ["해군원수 아카이누"];
+function marineUltraIds(){
+  return GRADE_POOL.ultramaximal.filter(id => MARINE_ULTRA_NAMES.includes(UNIT_DEFS[id].name));
 }
 
 // 검은수염 루트: 절대자 x3 + 태초 x1
@@ -5261,6 +5279,26 @@ function craftBlackbeardUltra(){
   addLog(`🏴‍☠️ <b style="color:${GRADES.ultramaximal.color}">초절대자 ${def.name}</b> 강림!!! ${def.skill.type} + ${def.skill2.type}${where==="storage"?" (📦)":""}${quote ? `<br>💬 "${quote}"` : ""}`);
   SFX.win(); SFX.bossDie(); SFX.transcend();
   if(quote) SFX.talk(quote, 0.7);
+  setTimeout(()=>playUnitTTS(def.name), 400);
+  refreshUI(); return true;
+}
+
+// 해군본부 루트: 절대자 x3 + 태초 x1 (다른 두 루트와 같은 비용)
+function craftMarineUltra(){
+  if(!state.started || state.over) return false;
+  if(suprAvail() < 3 || originAvailable() < 1) return false;
+  const pool = marineUltraIds();
+  if(!pool.length) return false;
+  const resultId = pool[Math.floor(Math.random()*pool.length)];
+  consumeGrade(["supremal"], 3);
+  const slot = consumeGrade(["origin"], 1);
+  const where = placeResult(resultId, slot);
+  const def = UNIT_DEFS[resultId];
+  const quote = ULTRAMAXIMAL_QUOTES[def.name] || "";
+  state.banner = { text:`⚓ 해군본부 ${def.name} 강림!!!${quote ? '  "'+quote+'"' : ''}`, t:7 };
+  addLog(`⚓ <b style="color:${GRADES.ultramaximal.color}">초절대자 ${def.name}</b> 강림!!! ${def.skill.type} + ${def.skill2.type}${where==="storage"?" (📦)":""}${quote ? `<br>💬 "${quote}"` : ""}`);
+  SFX.win(); SFX.bossDie(); SFX.transcend();
+  if(quote) SFX.talk(quote, 0.65);
   setTimeout(()=>playUnitTTS(def.name), 400);
   refreshUI(); return true;
 }
@@ -5802,7 +5840,7 @@ const ROLE_TAGS = {
   "사황 버기":"서포터", "스코퍼가반":"근접단일딜",
   "태양신 니카 루피":"근접범위딜", "전성기 흰수염":"끝딜", "[필름 레드] 샹크스":"근접단일딜",
   // v15dl: 신규 25명 (태초 11 / 절대자 6 / 초절대자-검은수염 8)
-  "백수해적단 잭":"끝딜", "주술사 바질 호킨스":"원거리단일딜", "Mr.2 봉 클레이":"근접범위딜", "해적귀공자 카벤디쉬":"근접단일딜", "혁명군 이완코프":"서포터", "철퇴여제 알비다":"끝딜", "하늘섬 코니스":"원거리단일딜", "무장왕 돈 크리크":"원거리범위딜", "산적왕 히구마":"원거리범위딜", "Mr.1 다즈 보네즈":"근접단일딜", "혁명군 코알라":"서포터", "혁명의 X 드레이크":"근접단일딜", "석석 피카":"근접범위딜", "혁명군 총수 드래곤":"서포터", "해군 센토마루":"끝딜", "크리크 참모 긴":"원거리범위딜", "베라미":"원거리단일딜", "마샬 D 티치":"끝딜", "챔피언 버제스":"근접범위딜", "우천의 시류":"근접단일딜", "캐서린 데본":"원거리단일딜", "주정뱅이 바스코 샷":"서포터", "반 오거":"끝딜", "거인 산 후안 울프":"원거리범위딜", "검은수염 해적단원":"원거리단일딜",
+  "백수해적단 잭":"끝딜", "주술사 바질 호킨스":"원거리단일딜", "Mr.2 봉 클레이":"근접범위딜", "해적귀공자 카벤디쉬":"근접단일딜", "혁명군 이완코프":"서포터", "철퇴여제 알비다":"끝딜", "하늘섬 코니스":"원거리단일딜", "무장왕 돈 크리크":"원거리범위딜", "산적왕 히구마":"원거리범위딜", "Mr.1 다즈 보네즈":"근접단일딜", "혁명군 코알라":"서포터", "혁명의 X 드레이크":"근접단일딜", "석석 피카":"근접범위딜", "혁명군 총수 드래곤":"서포터", "해군 센토마루":"끝딜", "크리크 참모 긴":"원거리범위딜", "베라미":"원거리단일딜", "마샬 D 티치":"끝딜", "챔피언 버제스":"근접범위딜", "우천의 시류":"근접단일딜", "캐서린 데본":"원거리단일딜", "주정뱅이 바스코 샷":"서포터", "반 오거":"끝딜", "거인 산 후안 울프":"원거리범위딜", "검은수염 해적단원":"원거리단일딜", "해군원수 아카이누":"원거리범위딜",
 };
 const EXECUTE_KILL_NAMES = ["지저스 바제스"];   // 체력 50% 이하 대상 처치 확정타
 // v15n: 시전자별로 추적되는 임시 aura 펄스 등록 (같은 캐릭터가 다시 쏘면 자기 펄스만 갱신, 다른 캐릭터 펄스와는 별도로 누적)
@@ -6438,7 +6476,8 @@ const ULTRA_FX_IMAGES = {
   "검은수염 해적단원": "assets/img/08b59fa972a4.jpg",
   "챔피언 버제스": "assets/img/6ac911c14bd3.jpg",
   "거인 산 후안 울프": "assets/img/729b3348c9b5.jpg",
-  "주정뱅이 바스코 샷": "assets/img/332f7bffc664.jpg"
+  "주정뱅이 바스코 샷": "assets/img/332f7bffc664.jpg",
+  "해군원수 아카이누": "assets/img/4578a6a65452.jpg"
 };
 function ultraFxOf(def){
   return (def && def.grade === "ultramaximal") ? ULTRA_FX_IMAGES[def.name.replace("★","")] : null;
@@ -8465,10 +8504,19 @@ function refreshUI(){
           <span style="opacity:.75">밀짚모자 풀과 분리되어 있어 패왕 조합 확률에 영향을 주지 않습니다</span></div>
         </div>
         <button id="bbUltraBtn" ${(suprAvail()>=3&&originAvailable()>=1)?"":"disabled"}>🏴‍☠️ 강림</button>
+      </div>
+      <div class="combineCard" style="border-left:3px solid #a03020">
+        <div class="info">
+          <b style="color:#ff5a30">⚓ 초절대자 (해군본부 ${marineUltraIds().length}인)</b>
+          <div class="formula">절대자 x3 : <b class="${suprAvail()>=3?'matOk':'matNo'}">${suprAvail()}/3</b> · 태초 x1 : <b class="${originAvailable()>=1?'matOk':'matNo'}">${originAvailable()}/1</b> → 해군본부 랜덤 1<br>
+          <span style="opacity:.75">밀짚모자·검은수염 풀과 분리되어 있어 패왕 조합 확률에 영향을 주지 않습니다</span></div>
+        </div>
+        <button id="mrUltraBtn" ${(suprAvail()>=3&&originAvailable()>=1)?"":"disabled"}>⚓ 강림</button>
       </div>`);
     rl.querySelector("#supBtn")?.addEventListener("click", craftSupremal);
     rl.querySelector("#ultraBtn")?.addEventListener("click", craftUltramaximal);
     rl.querySelector("#bbUltraBtn")?.addEventListener("click", craftBlackbeardUltra);   // v15dl
+    rl.querySelector("#mrUltraBtn")?.addEventListener("click", craftMarineUltra);       // v15g9
   }else if(state.recipeTab === "transcend"){
     if(state.transcendMade){
       rl.innerHTML = '<div class="empty-msg">🌟 <b style="color:var(--gold)">조합 초월 생성 완료</b> — 추가 초월은 <b>3,500G 도박</b>으로 무제한 획득 가능!</div>';
