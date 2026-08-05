@@ -1929,7 +1929,7 @@ function drawShadow(c, x, y, w){
 //  등록된 캐릭터는 AI 픽셀아트 원형 토큰으로, 나머지는 코드 치비로 표시
 // =========================================================
 // v15dn: 분리된 이미지 에셋 목록 (패치 시 자동 생성). 게임 시작 전 전량 프리로드한다.
-const PRELOAD_ASSETS = ["assets/img/004e67071e47.png", "assets/img/006f79520842.png", "assets/img/00875d71a494.png", "assets/img/00a97068b6f7.jpg", "assets/img/00c12e2cc7c7.jpg", "assets/img/014b865afa6e.png", "assets/img/015a6525a86c.jpg", "assets/img/01c08357b77e.png", "assets/img/021541eb2763.png", "assets/img/021ef5198f26.jpg", "assets/img/035ca7b3734d.png", "assets/img/045cb17ab57b.jpg", "assets/img/053894260f95.png", "assets/img/057b80ec00cb.jpg", "assets/img/09008c2f430b.png", "assets/img/0bf39f8e7c9b.png", "assets/img/0ce916577126.png", "assets/img/0e4481fd512f.png", "assets/img/0e86c9af1a46.jpg", "assets/img/0eb7823f010f.jpg", "assets/img/0f9c45b9dbde.jpg", "assets/img/0feb135732b8.jpg", "assets/img/117b9414f489.jpg", "assets/img/11898415458d.jpg", "assets/img/118c27c4974e.jpg", "assets/img/12b48f4ddd48.png", "assets/img/15ca5f7daa3d.jpg", "assets/img/17f37adbb638.jpg", "assets/img/183015193538.png", "assets/img/188be6a96ed6.jpg", "assets/img/18d98d1e1352.jpg", "assets/img/18f9db059968.jpg", "assets/img/1a199371cace.png", "assets/img/1c4b08f43b31.jpg", "assets/img/1dad5bb47b00.jpg", "assets/img/1f9e60ed5fe2.jpg", "assets/img/1fdfe3198781.jpg", "assets/img/2018781b23af.jpg", "assets/img/20a8df8353ff.jpg", "assets/img/2336d7eabaaa.jpg", "assets/img/243c5f78979e.jpg", "assets/img/24c2af74e5bd.jpg", "assets/img/284619ab69e7.jpg", "assets/img/28bb0e99c897.jpg", "assets/img/28dafe336c05.jpg", "assets/img/2a1b2b410f5c.jpg", "assets/img/2a45ebb2b484.jpg", "assets/img/2ae10e9607b4.jpg", "assets/img/2b5a3881255d.png", "assets/img/2b9657f51881.jpg", "assets/img/2c9c682263cd.jpg", "assets/img/2da789635802.jpg", "assets/img/2f20a2dc5a5a.jpg", "assets/img/2ffc05901356.png", "assets/img/301f2cac6022.jpg", "assets/img/306a6e71f279.jpg", "assets/img/30e0bc34fee2.png", "assets/img/32ac7b864bef.jpg", "assets/img/334dad3150ab.jpg", "assets/img/34f1c66b1d2c.png", "assets/img/369675c6202d.jpg", "assets/img/369e1bb259a4.jpg", "assets/img/3a7937400697.jpg", "assets/img/3c5a4476db0e.png", "assets/img/3cabb986641d.jpg", "assets/img/3e2cd69e245e.jpg", "assets/img/3e368c0716ca.jpg", "assets/img/3ef354922ae1.jpg", "assets/img/3ef764d664da.jpg", "assets/img/40dfc9ef3b1e.jpg", "assets/img/4115eb3a7886.jpg", "assets/img/413213fec2de.jpg", "assets/img/4204803eedf2.png", "assets/img/43f3f9b508d1.png", "assets/img/4514699b7680.jpg", "assets/img/459e334d6b50.jpg", "assets/img/45d1bc218c14.jpg", "assets/img/47440e6ea977.jpg", "assets/img/47c2cdd69449.jpg", "assets/img/480394a2a7b9.jpg", "assets/img/483fb210596b.png", "assets/img/489424610072.png", "assets/img/49ccd2a3e086.jpg", "assets/img/4c9e81f2c773.jpg", "assets/img/5039f69ffbc4.jpg", "assets/img/5099b4b143ed.jpg", "assets/img/51765cc4c9fb.jpg", "assets/img/526dea67517b.jpg", "assets/img/52a228ab2da2.jpg", "assets/img/53d210160900.jpg", "assets/img/546ed47f6153.png", "assets/img/55bf024c031d.jpg", "assets/img/5641361f4e3c.png", "assets/img/56b029cdcb9a.jpg", "assets/img/56e38cfc4248.jpg", "assets/img/592b87e837d2.png", "assets/img/59799cdbb3b8.jpg", "assets/img/5a53d9bdc30a.png", "assets/img/5a7ea550a7a9.png", "assets/img/5ab136d026b7.jpg", "assets/img/5c3a22ff1726.jpg", "assets/img/5cbd55c45c2a.jpg", "assets/img/5da1ce2fd424.png", "assets/img/5e5048c18846.png", "assets/img/5e631b3bfecd.png", "assets/img/5e8fad514cbb.jpg", "assets/img/6001b506c85f.png", "assets/img/6017da9ca0ef.jpg", "assets/img/61a25415cf10.jpg", "assets/img/663b0e9b87b3.jpg", "assets/img/67608dad3545.png", "assets/img/696cc69a2b64.png", "assets/img/6acffa00c80a.jpg", "assets/img/6bf1da3ad9b8.png", "assets/img/6ce607d25f71.png", "assets/img/6d08d74b28ff.jpg", "assets/img/6d7b1a8a92d4.jpg", "assets/img/6dd0db2ba5a2.jpg", "assets/img/6ee34f92a3c0.jpg", "assets/img/6f35c3dd11c0.png", "assets/img/6f3eaded7563.png", "assets/img/6f86764d39a7.jpg", "assets/img/6fb8bd4efafa.png", "assets/img/7089b6ff4940.png", "assets/img/70e96312ea40.png", "assets/img/71a333c7f60f.jpg", "assets/img/749daeedc1e9.png", "assets/img/75b48fc0b85a.jpg", "assets/img/786d1e9ad3b6.jpg", "assets/img/78ab15294211.jpg", "assets/img/79e9b8579cb5.jpg", "assets/img/7a3f9cd145a2.jpg", "assets/img/7ca8eb1612b7.jpg", "assets/img/7f218ae9d1f2.jpg", "assets/img/7f62ff60d0cd.jpg", "assets/img/80471628d268.jpg", "assets/img/815443799ac2.jpg", "assets/img/827781ef8d62.png", "assets/img/8297f4a4ca00.jpg", "assets/img/83d48576ffb7.png", "assets/img/862dc49eefde.png", "assets/img/87adb6b35f6c.png", "assets/img/8826aeba1213.jpg", "assets/img/8b3602b3557b.png", "assets/img/8b3a0cf76973.jpg", "assets/img/8c786832ffbf.jpg", "assets/img/8c95c4dc7693.jpg", "assets/img/8d2a5fadce2c.jpg", "assets/img/8de75d0d1b89.jpg", "assets/img/8f396ce6b05e.jpg", "assets/img/8f665d0767d1.jpg", "assets/img/92bb828180ea.jpg", "assets/img/92ec9444cca1.jpg", "assets/img/9493a5078f97.png", "assets/img/949e2b736e03.jpg", "assets/img/9605267c3ba4.png", "assets/img/96ff7c1e7bda.png", "assets/img/97238020b5d6.png", "assets/img/97a8ed597097.jpg", "assets/img/9ad7ed67d6cc.jpg", "assets/img/9b66c306299e.jpg", "assets/img/9b850b68e478.jpg", "assets/img/9bcfee950983.jpg", "assets/img/9caf5a9833be.png", "assets/img/9d1ce115739d.jpg", "assets/img/9d8cae710e6f.png", "assets/img/9eff4aad67fe.png", "assets/img/a0a77f7d49f4.jpg", "assets/img/a0fd649642c7.png", "assets/img/a2adec13cc42.jpg", "assets/img/a40ef7d0eb6f.jpg", "assets/img/a5fec4dcc9c0.jpg", "assets/img/a653466280ae.jpg", "assets/img/a6a843fb2542.jpg", "assets/img/a7e8c2f432ef.jpg", "assets/img/a8ab976aa53b.jpg", "assets/img/adf50639b6f4.jpg", "assets/img/ae00327ce32a.jpg", "assets/img/ae5fcc814bbd.png", "assets/img/afffc53b02ee.jpg", "assets/img/b08d304c26cd.jpg", "assets/img/b0d30aa3a942.jpg", "assets/img/b769beab6a48.png", "assets/img/b789a7bb3834.jpg", "assets/img/b7a271fd04e7.jpg", "assets/img/b88af848f4c5.jpg", "assets/img/b8d3dbe7109d.png", "assets/img/b90620b64bdf.jpg", "assets/img/b96cc48906af.jpg", "assets/img/b996d3576f06.jpg", "assets/img/bc8d39edc803.jpg", "assets/img/be745b4cc3fa.jpg", "assets/img/bf5a77b8958b.jpg", "assets/img/c0a051f50259.jpg", "assets/img/c2b244afd5b6.png", "assets/img/c33165164ae0.jpg", "assets/img/c4a70576ef7f.png", "assets/img/c52fd6cf09d3.jpg", "assets/img/c66d774970c2.jpg", "assets/img/c6d5d857f212.jpg", "assets/img/c89426040269.jpg", "assets/img/cbcc4352e2b9.jpg", "assets/img/cbe276becc13.jpg", "assets/img/cce3a06d60f5.jpg", "assets/img/cf29e044b516.jpg", "assets/img/cffe6c922cb3.jpg", "assets/img/d0400b6a55de.jpg", "assets/img/d1531da03496.png", "assets/img/d1990fa1efa2.png", "assets/img/d1deb032f91b.jpg", "assets/img/d3540229b27b.jpg", "assets/img/d377ab86e4fc.jpg", "assets/img/d49999875db9.png", "assets/img/d5c9fdf3d721.png", "assets/img/d83aaed0caa7.jpg", "assets/img/d856c69178c8.jpg", "assets/img/d9bedaed4503.jpg", "assets/img/da3d20a492a6.png", "assets/img/db273053feba.jpg", "assets/img/db9bfd649544.jpg", "assets/img/dbbb4eea5352.jpg", "assets/img/dc828893770b.jpg", "assets/img/dc97b8d47688.jpg", "assets/img/dd61fb68100c.jpg", "assets/img/dd97a6b4e1b4.jpg", "assets/img/ddc7f6160cbe.jpg", "assets/img/df301e031128.jpg", "assets/img/dfbfa5e1ec54.jpg", "assets/img/e054559e5bde.jpg", "assets/img/e0a34a6df16a.png", "assets/img/e1ce54443450.jpg", "assets/img/e258f7021c55.png", "assets/img/e2d548c85f58.png", "assets/img/e5eccf8182ba.jpg", "assets/img/e89a96199856.jpg", "assets/img/e94c22b13fb7.png", "assets/img/e95ca99f0133.jpg", "assets/img/eaa406207515.jpg", "assets/img/eba5114e6f09.png", "assets/img/ec118b3aa6e1.jpg", "assets/img/ecb8f50630ec.jpg", "assets/img/ed285a01a19b.jpg", "assets/img/ed34cc9a60ab.jpg", "assets/img/ed8ec6fb4820.jpg", "assets/img/ee62cf9039bf.jpg", "assets/img/f19cf7804bbc.jpg", "assets/img/f1cb64ab46fe.jpg", "assets/img/f2c4c46f0472.jpg", "assets/img/f36c90f4b70f.jpg", "assets/img/f3b1db35d295.png", "assets/img/f5d77d14d77e.jpg", "assets/img/f6519a041835.jpg", "assets/img/f73f19499edc.jpg", "assets/img/f86ec6de6bd5.png", "assets/img/f94bbc83db98.jpg", "assets/img/fa0cb1eab6e0.png", "assets/img/fa374e0d7310.jpg", "assets/img/fa6a2da1c441.jpg", "assets/img/fc884ae8f4be.png", "assets/img/fd0d9392510f.jpg", "assets/img/fdea50835e6b.jpg", "assets/img/fe087a1c7c5a.jpg", "assets/img/fe41849026f7.jpg", "assets/img/ff4586508418.png"];
+const PRELOAD_ASSETS = ["assets/img/004e67071e47.png", "assets/img/006f79520842.png", "assets/img/00875d71a494.png", "assets/img/00a97068b6f7.jpg", "assets/img/00c12e2cc7c7.jpg", "assets/img/014b865afa6e.png", "assets/img/015a6525a86c.jpg", "assets/img/01c08357b77e.png", "assets/img/021541eb2763.png", "assets/img/021ef5198f26.jpg", "assets/img/035ca7b3734d.png", "assets/img/045cb17ab57b.jpg", "assets/img/053894260f95.png", "assets/img/057b80ec00cb.jpg", "assets/img/05bfb72b94e1.jpg", "assets/img/08b59fa972a4.jpg", "assets/img/09008c2f430b.png", "assets/img/09489cd25297.jpg", "assets/img/0bf39f8e7c9b.png", "assets/img/0ce916577126.png", "assets/img/0e4481fd512f.png", "assets/img/0e86c9af1a46.jpg", "assets/img/0eb7823f010f.jpg", "assets/img/0f9c45b9dbde.jpg", "assets/img/0feb135732b8.jpg", "assets/img/117b9414f489.jpg", "assets/img/11898415458d.jpg", "assets/img/118c27c4974e.jpg", "assets/img/12b48f4ddd48.png", "assets/img/15ca5f7daa3d.jpg", "assets/img/17f37adbb638.jpg", "assets/img/183015193538.png", "assets/img/188be6a96ed6.jpg", "assets/img/18d98d1e1352.jpg", "assets/img/18f9db059968.jpg", "assets/img/1a199371cace.png", "assets/img/1c4b08f43b31.jpg", "assets/img/1dad5bb47b00.jpg", "assets/img/1f9e60ed5fe2.jpg", "assets/img/1fdfe3198781.jpg", "assets/img/2018781b23af.jpg", "assets/img/20a8df8353ff.jpg", "assets/img/2336d7eabaaa.jpg", "assets/img/243c5f78979e.jpg", "assets/img/24c2af74e5bd.jpg", "assets/img/284619ab69e7.jpg", "assets/img/28bb0e99c897.jpg", "assets/img/28dafe336c05.jpg", "assets/img/2934af8ad7f3.jpg", "assets/img/2a1b2b410f5c.jpg", "assets/img/2a45ebb2b484.jpg", "assets/img/2ae10e9607b4.jpg", "assets/img/2b5a3881255d.png", "assets/img/2b9657f51881.jpg", "assets/img/2c9c682263cd.jpg", "assets/img/2da789635802.jpg", "assets/img/2f20a2dc5a5a.jpg", "assets/img/2ffc05901356.png", "assets/img/301f2cac6022.jpg", "assets/img/306a6e71f279.jpg", "assets/img/30e0bc34fee2.png", "assets/img/32ac7b864bef.jpg", "assets/img/332f7bffc664.jpg", "assets/img/334dad3150ab.jpg", "assets/img/33bed01fe5df.jpg", "assets/img/34f1c66b1d2c.png", "assets/img/350db9f754fb.jpg", "assets/img/369675c6202d.jpg", "assets/img/369e1bb259a4.jpg", "assets/img/3a7937400697.jpg", "assets/img/3c5a4476db0e.png", "assets/img/3cabb986641d.jpg", "assets/img/3e2cd69e245e.jpg", "assets/img/3e368c0716ca.jpg", "assets/img/3ef354922ae1.jpg", "assets/img/3ef764d664da.jpg", "assets/img/40dfc9ef3b1e.jpg", "assets/img/4115eb3a7886.jpg", "assets/img/413213fec2de.jpg", "assets/img/4204803eedf2.png", "assets/img/43f3f9b508d1.png", "assets/img/4514699b7680.jpg", "assets/img/459e334d6b50.jpg", "assets/img/45d1bc218c14.jpg", "assets/img/47440e6ea977.jpg", "assets/img/47c2cdd69449.jpg", "assets/img/480394a2a7b9.jpg", "assets/img/483fb210596b.png", "assets/img/489424610072.png", "assets/img/49ccd2a3e086.jpg", "assets/img/4c9e81f2c773.jpg", "assets/img/5039f69ffbc4.jpg", "assets/img/5099b4b143ed.jpg", "assets/img/51765cc4c9fb.jpg", "assets/img/526dea67517b.jpg", "assets/img/52a228ab2da2.jpg", "assets/img/53d210160900.jpg", "assets/img/546ed47f6153.png", "assets/img/55bf024c031d.jpg", "assets/img/5641361f4e3c.png", "assets/img/56b029cdcb9a.jpg", "assets/img/56e38cfc4248.jpg", "assets/img/592b87e837d2.png", "assets/img/59799cdbb3b8.jpg", "assets/img/5a53d9bdc30a.png", "assets/img/5a7ea550a7a9.png", "assets/img/5ab136d026b7.jpg", "assets/img/5c3a22ff1726.jpg", "assets/img/5cbd55c45c2a.jpg", "assets/img/5da1ce2fd424.png", "assets/img/5e5048c18846.png", "assets/img/5e631b3bfecd.png", "assets/img/5e8fad514cbb.jpg", "assets/img/5f836948eb42.jpg", "assets/img/6001b506c85f.png", "assets/img/6017da9ca0ef.jpg", "assets/img/61a25415cf10.jpg", "assets/img/62c5901434d6.jpg", "assets/img/663b0e9b87b3.jpg", "assets/img/67608dad3545.png", "assets/img/696cc69a2b64.png", "assets/img/6ac911c14bd3.jpg", "assets/img/6acffa00c80a.jpg", "assets/img/6bf1da3ad9b8.png", "assets/img/6ce607d25f71.png", "assets/img/6d08d74b28ff.jpg", "assets/img/6d7b1a8a92d4.jpg", "assets/img/6dd0db2ba5a2.jpg", "assets/img/6ee34f92a3c0.jpg", "assets/img/6f35c3dd11c0.png", "assets/img/6f3eaded7563.png", "assets/img/6f86764d39a7.jpg", "assets/img/6fb8bd4efafa.png", "assets/img/7089b6ff4940.png", "assets/img/70e96312ea40.png", "assets/img/71a333c7f60f.jpg", "assets/img/729b3348c9b5.jpg", "assets/img/749daeedc1e9.png", "assets/img/75b48fc0b85a.jpg", "assets/img/786d1e9ad3b6.jpg", "assets/img/78ab15294211.jpg", "assets/img/79e9b8579cb5.jpg", "assets/img/7a3f9cd145a2.jpg", "assets/img/7ca8eb1612b7.jpg", "assets/img/7f218ae9d1f2.jpg", "assets/img/7f62ff60d0cd.jpg", "assets/img/80471628d268.jpg", "assets/img/815443799ac2.jpg", "assets/img/827781ef8d62.png", "assets/img/8297f4a4ca00.jpg", "assets/img/83d48576ffb7.png", "assets/img/862dc49eefde.png", "assets/img/87adb6b35f6c.png", "assets/img/8826aeba1213.jpg", "assets/img/8b3602b3557b.png", "assets/img/8b3a0cf76973.jpg", "assets/img/8c786832ffbf.jpg", "assets/img/8c95c4dc7693.jpg", "assets/img/8d2a5fadce2c.jpg", "assets/img/8de75d0d1b89.jpg", "assets/img/8e74f45f44fd.jpg", "assets/img/8f396ce6b05e.jpg", "assets/img/8f665d0767d1.jpg", "assets/img/8f726a8f880b.jpg", "assets/img/92bb828180ea.jpg", "assets/img/92ec9444cca1.jpg", "assets/img/9493a5078f97.png", "assets/img/949e2b736e03.jpg", "assets/img/9605267c3ba4.png", "assets/img/96ff7c1e7bda.png", "assets/img/97238020b5d6.png", "assets/img/97a8ed597097.jpg", "assets/img/9ad7ed67d6cc.jpg", "assets/img/9b66c306299e.jpg", "assets/img/9b850b68e478.jpg", "assets/img/9bcfee950983.jpg", "assets/img/9caf5a9833be.png", "assets/img/9d1ce115739d.jpg", "assets/img/9d8cae710e6f.png", "assets/img/9eff4aad67fe.png", "assets/img/a0a77f7d49f4.jpg", "assets/img/a0fd649642c7.png", "assets/img/a2adec13cc42.jpg", "assets/img/a40ef7d0eb6f.jpg", "assets/img/a5fec4dcc9c0.jpg", "assets/img/a653466280ae.jpg", "assets/img/a6a843fb2542.jpg", "assets/img/a7e8c2f432ef.jpg", "assets/img/a8ab976aa53b.jpg", "assets/img/adf50639b6f4.jpg", "assets/img/ae00327ce32a.jpg", "assets/img/ae5fcc814bbd.png", "assets/img/afffc53b02ee.jpg", "assets/img/b08d304c26cd.jpg", "assets/img/b0d30aa3a942.jpg", "assets/img/b769beab6a48.png", "assets/img/b789a7bb3834.jpg", "assets/img/b7a271fd04e7.jpg", "assets/img/b88af848f4c5.jpg", "assets/img/b8d3dbe7109d.png", "assets/img/b90620b64bdf.jpg", "assets/img/b96cc48906af.jpg", "assets/img/b996d3576f06.jpg", "assets/img/bc8d39edc803.jpg", "assets/img/be745b4cc3fa.jpg", "assets/img/bf5a77b8958b.jpg", "assets/img/c0a051f50259.jpg", "assets/img/c2b244afd5b6.png", "assets/img/c33165164ae0.jpg", "assets/img/c4a70576ef7f.png", "assets/img/c52fd6cf09d3.jpg", "assets/img/c66d774970c2.jpg", "assets/img/c6d5d857f212.jpg", "assets/img/c89426040269.jpg", "assets/img/cbcc4352e2b9.jpg", "assets/img/cbe276becc13.jpg", "assets/img/cce3a06d60f5.jpg", "assets/img/cf29e044b516.jpg", "assets/img/cffe6c922cb3.jpg", "assets/img/d0400b6a55de.jpg", "assets/img/d1531da03496.png", "assets/img/d1990fa1efa2.png", "assets/img/d1deb032f91b.jpg", "assets/img/d3540229b27b.jpg", "assets/img/d377ab86e4fc.jpg", "assets/img/d49999875db9.png", "assets/img/d549821f7c50.jpg", "assets/img/d5c9fdf3d721.png", "assets/img/d83aaed0caa7.jpg", "assets/img/d856c69178c8.jpg", "assets/img/d9bedaed4503.jpg", "assets/img/da3d20a492a6.png", "assets/img/db273053feba.jpg", "assets/img/db9bfd649544.jpg", "assets/img/dbbb4eea5352.jpg", "assets/img/dc828893770b.jpg", "assets/img/dc97b8d47688.jpg", "assets/img/dd61fb68100c.jpg", "assets/img/dd97a6b4e1b4.jpg", "assets/img/ddc7f6160cbe.jpg", "assets/img/df301e031128.jpg", "assets/img/dfb0844f6f94.jpg", "assets/img/dfbfa5e1ec54.jpg", "assets/img/e054559e5bde.jpg", "assets/img/e0a34a6df16a.png", "assets/img/e1ce54443450.jpg", "assets/img/e258f7021c55.png", "assets/img/e2d548c85f58.png", "assets/img/e3d11133b2a0.jpg", "assets/img/e5eccf8182ba.jpg", "assets/img/e7e41ebf347f.jpg", "assets/img/e89a96199856.jpg", "assets/img/e94c22b13fb7.png", "assets/img/e95ca99f0133.jpg", "assets/img/eaa406207515.jpg", "assets/img/eba5114e6f09.png", "assets/img/ec118b3aa6e1.jpg", "assets/img/ecb8f50630ec.jpg", "assets/img/ed0bbe3fe56a.jpg", "assets/img/ed285a01a19b.jpg", "assets/img/ed34cc9a60ab.jpg", "assets/img/ed8ec6fb4820.jpg", "assets/img/ee62cf9039bf.jpg", "assets/img/f19cf7804bbc.jpg", "assets/img/f1cb64ab46fe.jpg", "assets/img/f2c4c46f0472.jpg", "assets/img/f36c90f4b70f.jpg", "assets/img/f3b1db35d295.png", "assets/img/f5d77d14d77e.jpg", "assets/img/f6519a041835.jpg", "assets/img/f73f19499edc.jpg", "assets/img/f86ec6de6bd5.png", "assets/img/f94bbc83db98.jpg", "assets/img/fa0cb1eab6e0.png", "assets/img/fa374e0d7310.jpg", "assets/img/fa6a2da1c441.jpg", "assets/img/fc884ae8f4be.png", "assets/img/fd0d9392510f.jpg", "assets/img/fdea50835e6b.jpg", "assets/img/fe087a1c7c5a.jpg", "assets/img/fe41849026f7.jpg", "assets/img/ff4586508418.png"];
 const AI_SPRITES = {
   // v15e9: 신규 20명 (단일 이미지 - frame2 등급은 _f1 이 없으면 이 키로 폴백)
   "mythic|백수해적단 킹": "assets/img/b789a7bb3834.jpg",
@@ -6384,11 +6384,53 @@ const ULT_FX_DUR = 1.5;          // 시전 이펙트
 const ULT_FX_DUR_POINT = 1.0;    // 낙하/폭발처럼 여러 개가 동시에 뜨는 것 (겹침이 심해 조금 짧게)
 function ultFxView(kind){ return ULT_FX_VIEW[kind] || ULT_FX_VIEW_DEFAULT; }
 
+// v15g4: 초절대자 18명 전용 스킬 이펙트 (패왕 고유기와 완전히 같은 방식)
+//   패왕은 고유기 종류(sk.ult)로 이미지를 찾지만, 초절대자는 일반 스킬이라 캐릭터 이름으로 찾는다.
+//   표시 규칙은 패왕과 동일 — 광역(4칸 이상/필드)이면 필드 전체, 그 외에는 시전자 중심 2배 확대.
+const ULTRA_FX_IMAGES = {
+  "해방왕 루피": "assets/img/d549821f7c50.jpg",
+  "검성 조로": "assets/img/dfb0844f6f94.jpg",
+  "염신 상디": "assets/img/62c5901434d6.jpg",
+  "천후여왕 나미": "assets/img/2934af8ad7f3.jpg",
+  "저격신 우솝": "assets/img/e3d11133b2a0.jpg",
+  "생명의 수호신 쵸파": "assets/img/33bed01fe5df.jpg",
+  "역사의 계승자 로빈": "assets/img/5f836948eb42.jpg",
+  "강철거신 프랑키": "assets/img/8f726a8f880b.jpg",
+  "황천왕 브룩": "assets/img/8e74f45f44fd.jpg",
+  "해신 징베": "assets/img/09489cd25297.jpg",
+  "마샬 D 티치": "assets/img/05bfb72b94e1.jpg",
+  "반 오거": "assets/img/e7e41ebf347f.jpg",
+  "캐서린 데본": "assets/img/350db9f754fb.jpg",
+  "우천의 시류": "assets/img/ed0bbe3fe56a.jpg",
+  "검은수염 해적단원": "assets/img/08b59fa972a4.jpg",
+  "챔피언 버제스": "assets/img/6ac911c14bd3.jpg",
+  "거인 산 후안 울프": "assets/img/729b3348c9b5.jpg",
+  "주정뱅이 바스코 샷": "assets/img/332f7bffc664.jpg"
+};
+function ultraFxOf(def){
+  return (def && def.grade === "ultramaximal") ? ULTRA_FX_IMAGES[def.name.replace("★","")] : null;
+}
+// 초절대자 스킬 이펙트 — 패왕 _ultFx 와 같은 규격(모드/크기/투명도/2배 확대)을 그대로 쓴다.
+function _ultraFx(x, y, color, src, wide, dur){
+  const v = ULT_FX_VIEW_DEFAULT;
+  const fx = poolGet(fxPool);
+  fx.kind = "ultrafx"; fx.color = color; fx.t = 0; fx.dur = dur || ULT_FX_DUR;
+  fx.lines = null;
+  fx.fxImg = src;
+  fx.fxMode = wide ? "field" : v.mode;
+  fx.wide = wide;
+  fx.max = Math.round((v.size || 300) * (wide ? 1 : ULT_FX_NARROW_BOOST));
+  fx.fxAlpha = ULT_FX_ALPHA;
+  fx.x = x; fx.y = y;
+  state.fx.push(fx);
+}
+
 // 시전자 중심(또는 지정 좌표)에 고유기 이펙트를 띄운다.
 function _ultFx(x, y, color, kind, dur, forcePoint, wide){
   const v = ultFxView(kind);
   const fx = poolGet(fxPool);
   fx.kind = kind; fx.color = color; fx.t = 0; fx.dur = dur || 0.7;
+  fx.fxImg = null;   // v15g4: 풀 재사용 시 이전 이펙트 이미지가 남지 않게
   fx.lines = null;
   // v15fw: 4칸 이상 광역 고유기는 흰수염(field_nuke)과 같은 필드 전체 연출로 통일한다.
   fx.fxMode = forcePoint ? "point" : (wide ? "field" : v.mode);
@@ -6407,6 +6449,7 @@ function _ultFx(x, y, color, kind, dur, forcePoint, wide){
 function _ringFx(x, y, color, radius, dur){
   const fx = poolGet(fxPool);
   fx.kind = "ring"; fx.color = color; fx.t = 0; fx.dur = dur || 0.35;
+  fx.fxImg = null;   // v15g4: 풀 재사용 시 이전 이펙트 이미지가 남지 않게
   fx.x = x; fx.y = y; fx.lines = null; fx.max = radius; fx.fxMode = null;
   state.fx.push(fx);
 }
@@ -6602,6 +6645,7 @@ function fireSkill(u, def, sk){
   const pctOf = (m)=> (m.boss || m.elite) ? SKILL_PCT * 0.5 : SKILL_PCT;
   const fx = poolGet(fxPool);
   fx.kind = sk.kind; fx.color = sk.color; fx.t = 0; fx.dur = 0.5;
+  fx.fxImg = null;   // v15g4: 풀 재사용 시 이전 이펙트 이미지가 남지 않게
   fx.x = u.x; fx.y = u.y; fx.lines = null; fx.max = sk.radius || def.range;
   // v15fw: 광역 스킬(4칸 이상 또는 필드 전체)은 이펙트를 필드 전체 크기로 보여준다.
   //   흰수염 고유기(field_nuke)와 같은 기준. 히든은 2칸 전용이라 해당 없음.
@@ -6609,6 +6653,9 @@ function fireSkill(u, def, sk){
   const _skCells = (sk.radius >= 9999) ? 9999 : (sk.radiusCells || cellsOfPx(sk.radius || def.range));
   fx.wide = (def.grade !== "hidden")
          && (sk.radius >= 9999 || (sk.radiusCells || 0) >= WIDE_RANGE_CELLS);
+  // v15g4: 초절대자는 스킬 발동마다 전용 이미지 이펙트를 얹는다(패왕 고유기와 같은 규격).
+  const _uxSrc = ultraFxOf(def);
+  if(_uxSrc) _ultraFx(u.x, u.y, sk.color, _uxSrc, fx.wide);
 
   if(sk.kind === "haki"){
     // 패왕색: 광역 스턴 + %딜, 화면 흔들림
@@ -6757,7 +6804,7 @@ function fireSkill(u, def, sk){
     const flash = poolGet(fxPool);
     flash.kind = "ring"; flash.color = def.grade === "absolute" ? "#ff004d" : "#ffffff";
     flash.t = 0; flash.dur = 0.45; flash.x = u.x; flash.y = u.y;
-    flash.lines = null; flash.max = (sk.radius || 300) * 1.15;
+    flash.lines = null; flash.max = (sk.radius || 300) * 1.15; flash.fxImg = null;   // v15g4
     state.fx.push(flash);
   }
   SFX.skill();
@@ -7428,7 +7475,7 @@ function update(dt){
         fx.t = 0; fx.dur = 0.42;   // v14: 0.28->0.42 (총알보다 확실히 오래 보이게)
         fx.x = u.x; fx.y = u.y - 8;
         fx.lines = [[u.x, u.y-8, tp.x, tp.y]];
-        fx.max = 40;
+        fx.max = 40; fx.fxImg = null;   // v15g4
         state.fx.push(fx);
       }else{
         const b = poolGet(beamPool);
@@ -7722,7 +7769,7 @@ function draw(){
     }
     ctx.globalAlpha = 1 - prog;
     // v15f2: 패왕 고유기 - 전용 이펙트 이미지를 범위에 맞춰 확대하며 페이드아웃
-    const _ultSrc = ULT_FX_IMAGES[f.kind];
+    const _ultSrc = f.fxImg || ULT_FX_IMAGES[f.kind];
     if(_ultSrc){
       // v15fs: 고유기 이미지 이펙트는 유닛보다 뒤에 깔리면 시전자 토큰(지름 216px)에
       //   알맹이가 통째로 가려진다. 유닛을 다 그린 뒤 별도 패스에서 위에 올린다.
@@ -7865,7 +7912,7 @@ function draw(){
   // v15fs: 패왕 고유기 이펙트 — 유닛 위에 가산합성으로 올린다.
   //   lighter 는 겹친 곳을 밝게 더할 뿐 가리지 않으므로 캐릭터/필드가 묻히지 않는다.
   state.fx.forEach(f=>{
-    const src = ULT_FX_IMAGES[f.kind];
+    const src = f.fxImg || ULT_FX_IMAGES[f.kind];
     if(!src) return;
     const prog = f.t / f.dur;
     const im = getImg(src);
