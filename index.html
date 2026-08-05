@@ -5824,12 +5824,13 @@ function _pushStun(m, value, duration){
   if(!m.stunPulses) m.stunPulses = [];
   m.stunPulses.push({ value, until: state.time + duration });
 }
-function applyStunAOE(cx, cy, value, duration){
+function applyStunAOE(cx, cy, value, duration, cells){
   if(!(value > 0)) return;   // v15fo: 스턴 없는 등급은 펄스를 만들지 않는다
+  const _r = cells || STUN_FREEZE_CELLS;   // v15g5: 확산 범위를 호출부에서 지정 가능
   state.monsters.forEach(m=>{
     const p = pathPos(m.d);
     const _dx = p.x-cx, _dy = p.y-cy;
-    if(inCells(_dx, _dy, STUN_FREEZE_CELLS)){   // v15g0: 격자 타원
+    if(inCells(_dx, _dy, _r)){   // v15g0: 격자 타원
       if(!m.stunPulses) m.stunPulses = [];
       m.stunPulses.push({ value, until: state.time + duration });
     }
@@ -6723,7 +6724,8 @@ function fireSkill(u, def, sk){
       const dealt = Math.round((skillDmgBase * state.synDmg * (1+state.aura.atk) * (1+state.aura.skillDmg) * sk.mult + pctMaxHpDmg(ndTarget, pctOf(ndTarget))) * (1+state.aura.dmgTaken) * combatDmgMult(def, ndTarget));
       applyCombatDmg(def, ndTarget, dealt);
       const tp = pathPos(ndTarget.d);
-      applyStunAOE(tp.x, tp.y, stunPowerOf(def), STUN_PULSE_DUR);   // v15fm: 타겟 지점 기준 반경 80 스턴(누적)
+      // v15g5: 히든 스킬 스턴도 평타와 같은 기준으로 스킬 반경 전체에 적용
+      applyStunAOE(tp.x, tp.y, stunPowerOf(def), STUN_PULSE_DUR, (def.grade === "hidden") ? (sk.radiusCells || def.rangeCells) : STUN_FREEZE_CELLS);
     }
     // v15n: 슬로우/방어감소는 %수치 임시 aura 펄스로 반영 (시전자별 개별 추적 -> armorRed 등 중첩 가능)
     // v15c7: 디버프도 지속시간 = 스킬 쿨의 절반 (이감=최고값 1개, 방감=합산 누적은 기존 규칙 유지)
@@ -7463,7 +7465,11 @@ function update(dt){
       //   예전엔 근접단일딜/서포터 역할이면 평타로도 스턴을 넣었는데, 편성 대부분이
       //   그 역할이라 스턴이 폭주했다(실전 편성 실측: 24기 중 19기가 상시 정지).
       if(def.grade === "hidden"){
-        applyStunAOE(tp.x, tp.y, stunPowerOf(def), STUN_PULSE_DUR);
+        // v15g5: 예전엔 명중 지점 기준 0.65칸(80px)만 퍼져서, 사거리는 2칸인데
+        //   1칸 안쪽 몬스터에게만 스턴이 걸렸다("2칸이 안 닿는다"는 지적의 원인).
+        //   히든은 스턴 전문 등급이므로 평타 사거리(2칸) 전체에 스턴을 뿌린다.
+        //   피해는 기존대로 가장 가까운 단일 대상에게만 들어간다.
+        applyStunAOE(tp.x, tp.y, stunPowerOf(def), STUN_PULSE_DUR, def.rangeCells || STUN_FREEZE_CELLS);
       }
       // v15ax: 2프레임 캐릭터는 평타 순간에도 잠깐 f2로 전환 (공격 모션처럼 보이게)
       if(def.frame2) u.frame2Until = state.time + 0.18;
