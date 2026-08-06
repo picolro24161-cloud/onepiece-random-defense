@@ -3688,7 +3688,7 @@ const DIFFS = {
 // v15f6: 배포된 빌드를 콘솔에서 바로 식별하기 위한 표식.
 //   Netlify 가 옛 빌드를 서빙하고 있는데 코드 문제로 오해해 한참 헤맨 적이 있어서 넣었다.
 //   브라우저 콘솔에 BUILD_ID 를 쳐서 지금 떠 있는 빌드가 무엇인지 즉시 확인할 수 있다.
-const BUILD_ID = "2026-08-06 MARINE7";
+const BUILD_ID = "2026-08-06 SUMOWNER";
 console.log("[원랜디] BUILD_ID =", BUILD_ID);
 // v15g2: 난이도별로 총 라운드가 달랐는데(75/80/85/90) 전부 95 로 통일한다.
 //   최종 보스(암흑황제 검은수염)도 90 이 아니라 95 라운드에 등장한다.
@@ -6735,8 +6735,10 @@ function fireSkill(u, def, sk){
         if(slot && pool.length){
           const src = pool[Math.floor(Math.random()*pool.length)];
           // placeUnit 은 등장 연출/TTS/일시정지를 동반하므로 소환에는 쓰지 않는다.
+          // v15gc: 소환주가 사라지면 소환수도 사라지는 규칙은 모든 소환에 공통이다.
+          //   여기만 summonOwner 를 안 남겨서 니카 루피의 복제만 필드에 계속 남아 있었다.
           const nu = { defId:src.defId, x:slot.x, y:slot.y, cd:0, skillCd:1, skillCd2:2, skillCd3:99999,
-                       slot, locked:false, tempUntil: state.time + (sk.dur || 12) };
+                       slot, locked:false, tempUntil: state.time + (sk.dur || 12), summonOwner: u };
           slot.unit = nu; state.units.push(nu); recalcSynergy();
           _ultFx(slot.x, slot.y, sk.color, "summon", ULT_FX_DUR, true);   // 소환 위치에 이펙트
           addLog(`✨ <b style="color:${sk.color}">${sk.type}</b> — ${UNIT_DEFS[src.defId].name} ${sk.dur}초간 소환!`);
