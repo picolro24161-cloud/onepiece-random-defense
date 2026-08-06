@@ -3688,7 +3688,7 @@ const DIFFS = {
 // v15f6: 배포된 빌드를 콘솔에서 바로 식별하기 위한 표식.
 //   Netlify 가 옛 빌드를 서빙하고 있는데 코드 문제로 오해해 한참 헤맨 적이 있어서 넣었다.
 //   브라우저 콘솔에 BUILD_ID 를 쳐서 지금 떠 있는 빌드가 무엇인지 즉시 확인할 수 있다.
-const BUILD_ID = "2026-08-06 SUMOWNER";
+const BUILD_ID = "2026-08-06 FXGAP3";
 console.log("[원랜디] BUILD_ID =", BUILD_ID);
 // v15g2: 난이도별로 총 라운드가 달랐는데(75/80/85/90) 전부 95 로 통일한다.
 //   최종 보스(암흑황제 검은수염)도 90 이 아니라 95 라운드에 등장한다.
@@ -6585,6 +6585,17 @@ function ultraFxOf(def, sk){
 }
 // 스킬마다 다른 이펙트를 지정한 캐릭터는 "마지막 스킬 1개만" 규칙에서 제외한다.
 // 그렇게 하지 않으면 1번 스킬용으로 넣은 이미지가 영원히 화면에 나오지 않는다.
+// v15gd: 이미지 이펙트가 너무 촘촘히 터져서 눈이 피로하다는 피드백.
+//   같은 유닛이 이미지 이펙트를 내보내는 간격에 최소 3초 하한을 건다.
+//   원래 3초보다 뜸하게 나오던 캐릭터는 이 검사에 걸리지 않아 기존 그대로다.
+//   피해·스턴 같은 실제 효과는 건드리지 않는다 — 보이는 연출만 솎아낸다.
+const ULT_FX_MIN_GAP = 3.0;
+function fxGateOK(u){
+  if(!u) return true;
+  if(state.time - (u._imgFxAt == null ? -999 : u._imgFxAt) < ULT_FX_MIN_GAP) return false;
+  u._imgFxAt = state.time;
+  return true;
+}
 function ultraFxPerSkill(def){
   return !!(def && def.grade === "ultramaximal" && Array.isArray(ULTRA_FX_IMAGES[def.name.replace("★","")]));
 }
@@ -6657,7 +6668,7 @@ function fireSkill(u, def, sk){
       return inCells(p.x - u.x, p.y - u.y, _ultCells);
     });
     const _ultWide = (sk.radius >= 9999) || ((sk.radiusCells || 0) >= WIDE_RANGE_CELLS);
-    _ultFx(u.x, u.y, sk.color, sk.ult, ULT_FX_DUR, false, _ultWide);
+    if(fxGateOK(u)) _ultFx(u.x, u.y, sk.color, sk.ult, ULT_FX_DUR, false, _ultWide);
     state.shake = Math.max(state.shake, 12);
     SFX.skill();
     switch(sk.ult){
@@ -6863,7 +6874,7 @@ function fireSkill(u, def, sk){
   // v15g6: 발동 조건을 패왕과 동일하게 맞춘다 — 캐릭터의 마지막 스킬(고유기 자리) 1개에서만 뜬다.
   //   이전엔 스킬1·2·3 전부에서 떠서 초절대자만 이펙트가 과하게 많았다.
   const _uxSrc = (ultraFxPerSkill(def) || sk === (def.skill3 || def.skill2 || def.skill)) ? ultraFxOf(def, sk) : null;
-  if(_uxSrc) _ultraFx(u.x, u.y, sk.color, _uxSrc, fx.wide);
+  if(_uxSrc && fxGateOK(u)) _ultraFx(u.x, u.y, sk.color, _uxSrc, fx.wide);
 
   if(sk.kind === "haki"){
     // 패왕색: 광역 스턴 + %딜, 화면 흔들림
