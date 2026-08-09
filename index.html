@@ -195,6 +195,7 @@
       <div class="stat" id="muteBtn">🔊</div>
       <div class="stat" id="speedBtn" title="테스트용 빨리감기 (클릭: 1x → 2x → 3x → 5x)" style="cursor:pointer;min-width:34px;text-align:center;font-weight:bold;">1x</div>
       <div class="stat" id="pauseBtn" title="ESC 키로도 일시정지/재개">⏸</div>
+      <div class="stat" id="raidBtn" title="도달한 라운드까지의 보스와 1:1로 싸웁니다" style="cursor:pointer;color:#ff8fa6;font-weight:bold">⚔ 보스 레이드</div>
     </div>
     <div class="bar" id="subBar">
       <div class="stat">난이도 <b id="diffLabel">-</b></div>
@@ -3226,7 +3227,7 @@ function drawMarine(c, m, t){
   const bob = Math.sin(t*6 + m.d*0.05) * 1;
   const rank = MARINE_RANKS[m.rank];
   // v15ba: 보스 크기를 신화 등급 캐릭터 평균 크기(24 * scale~1.49 * CHIBI_SCALE 2.0 ≈ 72px)에 맞게 확대 (기존 34px)
-  const R = m.boss ? 72 : (m.elite ? rank.r + 7 : rank.r);
+  const R = m.boss ? 72 * (m.raidScale || 1) : (m.elite ? rank.r + 7 : rank.r);
   if(m.boss || m.midBoss) clampTokenPos(p, R);   // v15f5: 큰 토큰이 캔버스 밖으로 잘리지 않게
   const x = p.x, y = p.y + bob;
   drawShadow(c, p.x, p.y+R+2, R);
@@ -3298,7 +3299,7 @@ function drawPirate(c, m, t){
   const bob = Math.sin(t*6 + m.d*0.05) * 1;
   const rank = MARINE_RANKS[m.rank];
   // v15ba: 보스 크기를 신화 등급 캐릭터 평균 크기(24 * scale~1.49 * CHIBI_SCALE 2.0 ≈ 72px)에 맞게 확대 (기존 34px)
-  const R = m.boss ? 72 : (m.elite ? rank.r + 7 : rank.r);
+  const R = m.boss ? 72 * (m.raidScale || 1) : (m.elite ? rank.r + 7 : rank.r);
   if(m.boss || m.midBoss) clampTokenPos(p, R);   // v15f5: 큰 토큰이 캔버스 밖으로 잘리지 않게
   const g = rank.g;   // 0~4 계급군 → 해적 티어
   const x = p.x, y = p.y + bob;
@@ -3464,6 +3465,187 @@ function buildSlotsMobile(){
 (IS_MOBILE_CANVAS ? buildSlotsMobile() : buildSlotsPC()).forEach(s => SLOTS.push(s));
 
 // =========================================================
+//  v15gg: 보스 레이드 모드
+// =========================================================
+// 필드를 그대로 두고 "보스 1:1" 화면으로 잠깐 전환한다.
+//   · 오른쪽에 보스 고정(3배 크기) / 왼쪽에 최고 티어 6명 자동 배치
+//   · 현재까지 도달한 라운드의 보스만 해금, 한 번에 한 마리
+//   · 처치하면 골드를 주고 필드를 원래대로 복구해 이어서 진행
+//   · 제한시간을 넘기면 그냥 패배로 끝난다
+// 필드 상태(잡몹·유닛 배치)는 통째로 저장해 뒀다가 복구하므로 진행이 날아가지 않는다.
+const RAID = {
+  active: false,
+  round: 0,
+  boss: null,
+  timer: 0,
+  saved: null,
+};
+let RAID_ENTERING = false;      // spawnBoss 안에서 "레이드용 소환"인지 알리는 플래그
+const RAID_BOSS_SCALE = 3;      // 보스 초상 3배
+const RAID_UNIT_COUNT = 6;      // 참전 인원
+
+// 해금된 보스 = 지금까지 도달한 라운드 이하의 보스 (누적)
+function raidUnlockedRounds(){
+  const reached = state ? (state.round || 0) : 0;
+  return Object.keys(BOSSES).map(Number).sort((a,b)=>a-b).filter(r => r <= reached);
+}
+// 참전 6명 — 등급 높은 순, 같으면 공격력 높은 순 (소환수는 제외)
+function raidPickUnits(){
+  return state.units
+    .filter(u => !isSummonedUnit(u))
+    .sort((a,b)=>{
+      const da = UNIT_DEFS[a.defId], db = UNIT_DEFS[b.defId];
+      const ga = GRADE_ORDER.indexOf(da.grade), gb = GRADE_ORDER.indexOf(db.grade);
+      return gb - ga || db.dmg - da.dmg;
+    })
+    .slice(0, RAID_UNIT_COUNT);
+}
+// 경로상에서 가장 오른쪽 지점 (보스 고정 위치)
+function raidBossD(){
+  let bestD = 0, bestScore = -Infinity;
+  for(let d = 0; d < PERIM; d += 4){
+    const p = pathPos(d);
+    const score = p.x - Math.abs(p.y - H/2) * 0.6;
+    if(score > bestScore){ bestScore = score; bestD = d; }
+  }
+  return bestD;
+}
+// 왼쪽 슬롯 6칸 (x 오름차순)
+function raidLeftSlots(){
+  return SLOTS.slice().sort((a,b)=> a.x - b.x || a.y - b.y).slice(0, RAID_UNIT_COUNT);
+}
+
+function raidStart(round){
+  if(!state || !state.started || state.over || RAID.active) return false;
+  if(!BOSSES[round]) return false;
+  if(!raidUnlockedRounds().includes(round)){ addLog("아직 해금되지 않은 보스입니다."); return false; }
+  const picked = raidPickUnits();
+  if(!picked.length){ addLog("레이드에 내보낼 캐릭터가 없습니다."); return false; }
+
+  // ---- 필드 상태 통째로 저장 ----
+  RAID.saved = {
+    monsters: state.monsters.slice(),
+    slots: SLOTS.map(s => s.unit),
+    units: state.units.slice(),
+    unitPos: state.units.map(u => ({ u, x:u.x, y:u.y, slot:u.slot })),
+    paused: state.paused,
+    bossAlive: state.bossAlive,
+    bossTimer: state.bossTimer,
+  };
+  // 필드 비우기 (잡몹은 지우지 않고 잠시 빼둔 것 — 복구 시 그대로 돌아온다)
+  state.monsters = [];
+  SLOTS.forEach(s => s.unit = null);
+  state.units = picked;
+
+  // 왼쪽에 6명 배치
+  const left = raidLeftSlots();
+  picked.forEach((u, i)=>{
+    const s = left[i] || left[left.length-1];
+    u.slot = s; u.x = s.x; u.y = s.y; s.unit = u;
+  });
+  recalcSynergy();
+
+  // 보스 생성 — 체력/방어력/보상은 기존 보스와 완전히 동일한 계산을 쓴다
+  //   (레이드는 "한 번에 한 마리" 규칙이라 호위 스폰과 등장 컷씬은 건너뛴다)
+  RAID_ENTERING = true;
+  try{ spawnBoss(round); } finally { RAID_ENTERING = false; }
+  const m = state.monsters.find(x => x.boss);
+  if(!m){ raidEnd(false); return false; }
+  state.monsters.filter(x => x !== m).forEach(x => poolPut(monsterPool, x));
+  state.monsters = [m];
+  m.d = raidBossD();
+  m.spawnD = m.d;
+  m.speed = 0;                 // 고정 — 움직이지 않는다
+  m.raid = true;
+  m.raidScale = RAID_BOSS_SCALE;
+
+  RAID.active = true;
+  RAID.round = round;
+  RAID.boss = m;
+  RAID.timer = bossTimeLimit(round);
+  state.bossAlive = m;
+  state.bossTimer = RAID.timer;
+  state.banner = { text:`⚔ 보스 레이드 — ${m.name}`, t:3, boss:true };
+  addLog(`⚔ <b style="color:#ff6a6a">보스 레이드</b> 시작 — R${round} <b>${m.name}</b> (제한 ${Math.round(RAID.timer)}초)`);
+  try{ SFX.bossSpawn(); }catch(e){}
+  refreshUI();
+  return true;
+}
+
+// 레이드 종료 — 필드를 저장해 둔 상태로 되돌린다
+function raidEnd(cleared){
+  if(!RAID.active) return;
+  const sv = RAID.saved;
+  RAID.active = false;
+  // 남은 레이드 보스는 필드로 따라가지 않게 정리
+  state.monsters = state.monsters.filter(m => !m.raid);
+  if(sv){
+    state.monsters = sv.monsters;
+    SLOTS.forEach((s,i)=> s.unit = sv.slots[i]);
+    state.units = sv.units;
+    sv.unitPos.forEach(p =>{ p.u.slot = p.slot; p.u.x = p.x; p.u.y = p.y; });
+    state.bossAlive = sv.bossAlive;
+    state.bossTimer = sv.bossTimer;
+    recalcSynergy();
+  }
+  try{ stopBossMusic(); }catch(e){}
+  RAID.saved = null; RAID.boss = null; RAID.round = 0; RAID.timer = 0;
+  if(cleared) addLog("⚔ 레이드 종료 — 필드로 복귀했습니다.");
+  refreshUI();
+}
+
+// 매 프레임 제한시간 검사 (update 안에서 호출)
+function raidTick(dt){
+  if(!RAID.active) return;
+  RAID.timer -= dt;
+  state.bossTimer = Math.max(0, RAID.timer);
+  if(RAID.timer <= 0){
+    addLog(`💀 <b class="lose-c">레이드 실패</b> — ${RAID.boss ? RAID.boss.name : "보스"} 토벌에 실패했습니다.`);
+    raidEnd(false);
+    gameOver();
+  }
+}
+
+// 보스 선택 창
+function openRaidPanel(){
+  if(!state || !state.started || state.over) return;
+  if(RAID.active){ addLog("이미 레이드가 진행 중입니다."); return; }
+  const rounds = raidUnlockedRounds();
+  let wrap = document.getElementById("raidPanel");
+  if(!wrap){
+    wrap = document.createElement("div");
+    wrap.id = "raidPanel";
+    wrap.style.cssText = "position:fixed;inset:0;z-index:99996;display:flex;align-items:center;"
+      + "justify-content:center;background:rgba(4,8,16,.72);";
+    document.body.appendChild(wrap);
+  }
+  const list = rounds.length
+    ? rounds.map(r=>`<button class="raidPick" data-r="${r}" style="display:block;width:100%;margin:6px 0;padding:10px 12px;`
+        + `background:linear-gradient(180deg,#3a2030,#241420);border:1px solid #7a3050;border-radius:8px;`
+        + `color:#ffd9e2;font-size:14px;cursor:pointer;text-align:left">`
+        + `<b style="color:#ff8fa6">R${r}</b> &nbsp; ${BOSSES[r]}</button>`).join("")
+    : `<div style="opacity:.75;padding:12px 0">아직 해금된 보스가 없습니다. 보스 라운드를 넘겨보세요.</div>`;
+  wrap.innerHTML = `<div style="max-width:420px;width:88%;max-height:78vh;overflow:auto;background:#131b28;`
+    + `border:2px solid #7a3050;border-radius:14px;padding:18px">`
+    + `<h3 style="margin:0 0 4px;color:#ff8fa6">⚔ 보스 레이드</h3>`
+    + `<div style="font-size:12px;opacity:.75;margin-bottom:10px">도달한 라운드까지의 보스가 해금됩니다. `
+    + `최고 티어 6명이 자동 출전하며, 처치하면 골드를 받고 필드로 돌아옵니다.</div>`
+    + list
+    + `<button id="raidClose" style="margin-top:12px;width:100%;padding:9px;background:#2a3346;border:1px solid #46536b;`
+    + `border-radius:8px;color:#cfe0ff;cursor:pointer">닫기</button></div>`;
+  wrap.style.display = "flex";
+  wrap.querySelectorAll(".raidPick").forEach(b=>{
+    b.addEventListener("click", ()=>{
+      wrap.style.display = "none";
+      raidStart(Number(b.dataset.r));
+    });
+  });
+  const c = wrap.querySelector("#raidClose");
+  if(c) c.addEventListener("click", ()=> wrap.style.display = "none");
+}
+
+
+// =========================================================
 //  v15e7: 공격 범위의 "1칸" 기준
 // =========================================================
 // 슬롯은 6열 x 5행 격자인데 가로/세로 간격이 서로 다르고(PC 136 x 95.5, 모바일 84 x 185.5)
@@ -3492,6 +3674,10 @@ function cellsToPx(cells){ return Math.round(cells * CELL); }
 //   (두 축을 더하는 진짜 타원식이면 대각선 n칸이 빠져서 "어느 방향이든"이 깨진다)
 //   ellipseNorm 이 1 이하이면 사거리 안. 값 자체는 가까운 대상 고르기에도 쓴다.
 function ellipseNorm(dx, dy, cells){
+  // v15gg: 보스 레이드는 보스가 오른쪽에 고정되고 유닛은 왼쪽에 서므로
+  //   평소 사거리(2~4칸)로는 절대 닿지 않는다. 레이드 중에는 사거리 판정을 통과시킨다.
+  //   판정 한 곳만 열어주면 평타·스킬·고유기 경로가 전부 그대로 동작한다.
+  if(RAID.active) return 0;
   const a = cells * CELL_W, b = cells * CELL_H;
   return Math.max(Math.abs(dx) / a, Math.abs(dy) / b);
 }
@@ -3688,7 +3874,7 @@ const DIFFS = {
 // v15f6: 배포된 빌드를 콘솔에서 바로 식별하기 위한 표식.
 //   Netlify 가 옛 빌드를 서빙하고 있는데 코드 문제로 오해해 한참 헤맨 적이 있어서 넣었다.
 //   브라우저 콘솔에 BUILD_ID 를 쳐서 지금 떠 있는 빌드가 무엇인지 즉시 확인할 수 있다.
-const BUILD_ID = "2026-08-06 OVLSKILL20";
+const BUILD_ID = "2026-08-06 RAID2";
 console.log("[원랜디] BUILD_ID =", BUILD_ID);
 // v15g2: 난이도별로 총 라운드가 달랐는데(75/80/85/90) 전부 95 로 통일한다.
 //   최종 보스(암흑황제 검은수염)도 90 이 아니라 95 라운드에 등장한다.
@@ -4273,7 +4459,7 @@ function spawnBoss(round){
   if(round === 25){ m.speedBoost = true; m.speedBoostThresh = 0.5; m.speedBoostMult = 1.3; }
   if(round === 45 || round === 55){ m.speedBoost = true; m.speedBoostThresh = 0.3; m.speedBoostMult = 1.5; }
   state.monsters.push(m);
-  if(round === 35 || round === 55){
+  if((round === 35 || round === 55) && !RAID_ENTERING){
     for(let i=0;i<8;i++) spawnMonster();   // 라인클리어 + 보스킬 동시 요구
   }
   state.bossAlive = m;
@@ -4287,6 +4473,8 @@ function spawnBoss(round){
   addLog(`⚠️ <b style="color:var(--danger)">BOSS ${m.name}</b> 출현! (HP ${m.maxHp.toLocaleString()})${quote ? `<br>💬 "${quote}"` : ""}`);
   SFX.bossSpawn();
   // v15aq: 보스 등장 연출 (블러 배경 + 보스 이미지) - 게임 일시정지, bossTimer는 update()가 멈춰있는 동안 같이 안 줄어들어서 공정함
+  // v15gg: 레이드에서도 보스 등장 컷씬은 그대로 나온다. (라운드가 멈춰 있어 보스와 무관한
+  //   스토리 컷씬은 애초에 재생되지 않는다 — 그쪽만 자연히 빠진다)
   playBossIntro(round, m.name, quote);
 }
 function pathPos(d){
@@ -4356,7 +4544,10 @@ function consumeOne(defId){
 const TIER_KEEP_RANK = { overlord:7, ultramaximal:6, hidden:5, supremal:4, absolute:3, origin:2, mythic:1 };
 function tierKeepRank(grade){ return TIER_KEEP_RANK[grade] || 0; }
 function placeResult(defId, preferredSlot){
-  dexRecord(defId);   // v14: 도감 - 획득 즉시 영구 기록
+  dexRecord(defId);   // v14: 도감 - 영구 기록
+  // v15gg: 레이드 중에 랜덤 이벤트·미션 보상 등으로 유닛이 들어오면 참전 6명 규칙이 깨지고
+  //   레이드 화면에 엉뚱한 캐릭터가 배치된다. 레이드 동안은 무조건 보관함으로 보낸다.
+  if(RAID.active){ addToStorage(defId, 1); return "storage"; }
   // v15ag: 자동보관 판정 - 체크박스로 고른 등급 "이하 전체"만 대상 (체크 안 한 상위 등급은 절대 자동보관되지 않음 - 이전엔 태초급 등장 시 몰래 전설까지 확장되던 버그가 있었음)
   //   state.autoStashGrade === null       → 자동보관 없음
   //   "common"(흔)     체크 → 흔함만
@@ -7423,6 +7614,7 @@ function checkRoundAutoPromote(r){
 
 function update(dt){
   state.time += dt;
+  raidTick(dt);
 
   // v15c1: 사망 처리를 프레임 최상단으로 이동 (아래 DEATH_BLOCK_MARKER 참고 주석)
   // 사망 처리 (스왑 제거 + 풀 반환)
@@ -7439,6 +7631,17 @@ function update(dt){
     state.roundKills++;
     if(m.elite) state.roundEliteKills++;
     checkMissionProgress();
+    if(m.boss && m.raid){
+      // v15gg: 레이드 보스 — 골드만 주고(위에서 이미 지급) 필드로 복귀한다.
+      //   라운드 진행·중간클리어·최종보스 연출 같은 본편 흐름은 건드리지 않는다.
+      m.raid = false; m.raidScale = 0;
+      state.banner = { text:`🏆 레이드 클리어! ${m.name} 격파 +${rw}G`, t:3.5 };
+      addLog(`🏆 <b class="win-c">레이드 클리어!</b> ${m.name} 격파 — +${rw}G`);
+      try{ SFX.bossDie(); }catch(e){}
+      removeLapCounted(m); swapRemove(state.monsters, i); poolPut(monsterPool, m);
+      raidEnd(true);
+      continue;
+    }
     if(m.boss){
       state.bossAlive = null;
       stopBossMusic();
@@ -7518,7 +7721,10 @@ function update(dt){
   }
 
   // 라운드 진행 (55라운드에서 고정, 최종 보스 처치까지)
-  state.roundTime -= dt;
+  // v15gg: 레이드 중에는 라운드 시계를 멈춘다. 안 그러면 레이드 화면에 웨이브가 쏟아지고
+  //   라운드까지 넘어가 버린다. 필드는 레이드가 끝난 시점부터 그대로 이어진다.
+  //   여기서 return 하면 안 된다 — 유닛 공격 루프가 이 아래에 있어서 전투가 통째로 멈춘다.
+  if(!RAID.active) state.roundTime -= dt;
   if(state.roundTime <= 0){
     if(state.round < FINAL_ROUND){
       missionOnRoundEnd();
@@ -7561,7 +7767,7 @@ function update(dt){
 
   // 웨이브 스폰: 라운드의 85% 동안 waveCount만큼 꾸준히 스폰 (몹이 끊기지 않게)
   // v15bb: 보스 라운드에는 일반 몬스터를 스폰하지 않음 (보스에만 집중, R35/55는 spawnBoss()에서 8마리 별도 고정 스폰)
-  if(!BOSSES[state.round]){
+  if(!BOSSES[state.round] && !RAID.active){   // v15gg: 레이드 중에는 웨이브를 뽑지 않는다
     const wc = waveCount(state.round);
     if(state.spawnedThisRound < wc){
       state.spawnTimer -= dt;
@@ -7632,9 +7838,10 @@ function update(dt){
   }
 
   state.eventCd -= dt;
-  if(state.eventCd <= 0 && state.round >= 4){
+  // v15gg: 레이드 중에는 필드 랜덤 이벤트를 발동하지 않는다 (레이드 화면과 무관하고 참전 인원을 흔든다)
+  if(state.eventCd <= 0 && state.round >= 4 && !RAID.active){
     triggerEvent();
-    state.eventCd = 50 + Math.random()*40;
+    state.eventCd = 50 + Math.random()*40;   // v15gg: 레이드 중에는 아래 gate 로 발동 자체를 막는다
   }
 
   // 유닛 공격 + 초월 스킬
@@ -8865,6 +9072,7 @@ document.getElementById("muteBtn").addEventListener("click", function(){
 });
 document.getElementById("pauseBtn").addEventListener("click", togglePause);
 document.getElementById("speedBtn").addEventListener("click", cycleGameSpeed);   // v15dj: 테스트용 빨리감기
+document.getElementById("raidBtn").addEventListener("click", openRaidPanel);      // v15gg: 보스 레이드
 document.querySelectorAll("#diffBtns button").forEach(btn=>{
   btn.addEventListener("click", ()=>{
     SFX.init(); SFX.start();
