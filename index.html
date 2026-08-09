@@ -2019,7 +2019,7 @@ function drawShadow(c, x, y, w){
 //  등록된 캐릭터는 AI 픽셀아트 원형 토큰으로, 나머지는 코드 치비로 표시
 // =========================================================
 // v15dn: 분리된 이미지 에셋 목록 (패치 시 자동 생성). 게임 시작 전 전량 프리로드한다.
-const PRELOAD_ASSETS = ["assets/img/004e67071e47.png", "assets/img/006f79520842.png", "assets/img/00875d71a494.png", "assets/img/00a97068b6f7.jpg", "assets/img/00c12e2cc7c7.jpg", "assets/img/014b865afa6e.png", "assets/img/015a6525a86c.jpg", "assets/img/01c08357b77e.png", "assets/img/021541eb2763.png", "assets/img/021ef5198f26.jpg", "assets/img/022d69c0bfea.png", "assets/img/035ca7b3734d.png", "assets/img/045cb17ab57b.jpg", "assets/img/053894260f95.png", "assets/img/057b80ec00cb.jpg", "assets/img/05bfb72b94e1.jpg", "assets/img/08b59fa972a4.jpg", "assets/img/09008c2f430b.png", "assets/img/09489cd25297.jpg", "assets/img/0bf39f8e7c9b.png", "assets/img/0ce916577126.png", "assets/img/0e4481fd512f.png", "assets/img/0e86c9af1a46.jpg", "assets/img/0eb7823f010f.jpg", "assets/img/0f9c45b9dbde.jpg", "assets/img/0feb135732b8.jpg", "assets/img/117b9414f489.jpg", "assets/img/11898415458d.jpg", "assets/img/118c27c4974e.jpg", "assets/img/12b48f4ddd48.png", "assets/img/15ca5f7daa3d.jpg", "assets/img/17f37adbb638.jpg", "assets/img/183015193538.png", "assets/img/188be6a96ed6.jpg", "assets/img/18d98d1e1352.jpg", "assets/img/18f9db059968.jpg", "assets/img/1a199371cace.png", "assets/img/1c4b08f43b31.jpg", "assets/img/1dad5bb47b00.jpg", "assets/img/1f9e60ed5fe2.jpg", "assets/img/1fdfe3198781.jpg", "assets/img/2018781b23af.jpg", "assets/img/20a8df8353ff.jpg", "assets/img/2114c5d4386d.jpg", "assets/img/2336d7eabaaa.jpg", "assets/img/243c5f78979e.jpg", "assets/img/24c2af74e5bd.jpg", "assets/img/284619ab69e7.jpg", "assets/img/28bb0e99c897.jpg", "assets/img/28dafe336c05.jpg", "assets/img/2934af8ad7f3.jpg", "assets/img/2a1b2b410f5c.jpg", "assets/img/2a45ebb2b484.jpg", "assets/img/2ae10e9607b4.jpg", "assets/img/2b5a3881255d.png", "assets/img/2b9657f51881.jpg", "assets/img/2c9b07b415c7.png", "assets/img/2c9c682263cd.jpg", "assets/img/2da789635802.jpg", "assets/img/2f20a2dc5a5a.jpg", "assets/img/2ffc05901356.png", "assets/img/301f2cac6022.jpg", "assets/img/306a6e71f279.jpg", "assets/img/30e0bc34fee2.png", "assets/img/32ac7b864bef.jpg", "assets/img/332f7bffc664.jpg", "assets/img/334dad3150ab.jpg", "assets/img/33bed01fe5df.jpg", "assets/img/34f1c66b1d2c.png", "assets/img/350db9f754fb.jpg", "assets/img/369675c6202d.jpg", "assets/img/369e1bb259a4.jpg", "assets/img/3a7937400697.jpg", "assets/img/3c5a4476db0e.png", "assets/img/3cabb986641d.jpg", "assets/img/3e2cd69e245e.jpg", "assets/img/3e368c0716ca.jpg", "assets/img/3ef354922ae1.jpg", "assets/img/3ef764d664da.jpg", "assets/img/40dfc9ef3b1e.jpg", "assets/img/4115eb3a7886.jpg", "assets/img/413213fec2de.jpg", "assets/img/4204803eedf2.png", "assets/img/43f3f9b508d1.png", "assets/img/4514699b7680.jpg", "assets/img/4578a6a65452.jpg", "assets/img/459e334d6b50.jpg", "assets/img/45d1bc218c14.jpg", "assets/img/47440e6ea977.jpg", "assets/img/47c2cdd69449.jpg", "assets/img/480394a2a7b9.jpg", "assets/img/483fb210596b.png", "assets/img/489424610072.png", "assets/img/49ccd2a3e086.jpg", "assets/img/49f93cbbcfe5.jpg", "assets/img/4c9e81f2c773.jpg", "assets/img/4f21e8354548.jpg", "assets/img/5039f69ffbc4.jpg", "assets/img/5099b4b143ed.jpg", "assets/img/51765cc4c9fb.jpg", "assets/img/526dea67517b.jpg", "assets/img/52a228ab2da2.jpg", "assets/img/53b3778a92aa.png", "assets/img/53d210160900.jpg", "assets/img/546ed47f6153.png", "assets/img/55bf024c031d.jpg", "assets/img/5641361f4e3c.png", "assets/img/56b029cdcb9a.jpg", "assets/img/56e38cfc4248.jpg", "assets/img/592b87e837d2.png", "assets/img/59799cdbb3b8.jpg", "assets/img/5a53d9bdc30a.png", "assets/img/5a7ea550a7a9.png", "assets/img/5ab136d026b7.jpg", "assets/img/5c3a22ff1726.jpg", "assets/img/5cbd55c45c2a.jpg", "assets/img/5da1ce2fd424.png", "assets/img/5e5048c18846.png", "assets/img/5e631b3bfecd.png", "assets/img/5e8fad514cbb.jpg", "assets/img/5f836948eb42.jpg", "assets/img/6001b506c85f.png", "assets/img/6017da9ca0ef.jpg", "assets/img/61a25415cf10.jpg", "assets/img/62c5901434d6.jpg", "assets/img/631ca703c48a.jpg", "assets/img/639d71999b5f.jpg", "assets/img/663b0e9b87b3.jpg", "assets/img/67608dad3545.png", "assets/img/696cc69a2b64.png", "assets/img/6ac911c14bd3.jpg", "assets/img/6acffa00c80a.jpg", "assets/img/6bf1da3ad9b8.png", "assets/img/6ce607d25f71.png", "assets/img/6d08d74b28ff.jpg", "assets/img/6d7b1a8a92d4.jpg", "assets/img/6dd0db2ba5a2.jpg", "assets/img/6e62be47e9eb.jpg", "assets/img/6ee34f92a3c0.jpg", "assets/img/6f35c3dd11c0.png", "assets/img/6f3eaded7563.png", "assets/img/6f86764d39a7.jpg", "assets/img/6fb8bd4efafa.png", "assets/img/7089b6ff4940.png", "assets/img/70e96312ea40.png", "assets/img/71a333c7f60f.jpg", "assets/img/729b3348c9b5.jpg", "assets/img/749daeedc1e9.png", "assets/img/75b48fc0b85a.jpg", "assets/img/786d1e9ad3b6.jpg", "assets/img/78ab15294211.jpg", "assets/img/79e9b8579cb5.jpg", "assets/img/7a3f9cd145a2.jpg", "assets/img/7c262c685b41.jpg", "assets/img/7ca8eb1612b7.jpg", "assets/img/7f218ae9d1f2.jpg", "assets/img/7f62ff60d0cd.jpg", "assets/img/80471628d268.jpg", "assets/img/815443799ac2.jpg", "assets/img/827781ef8d62.png", "assets/img/8297f4a4ca00.jpg", "assets/img/83d48576ffb7.png", "assets/img/862dc49eefde.png", "assets/img/87adb6b35f6c.png", "assets/img/8826aeba1213.jpg", "assets/img/8b3602b3557b.png", "assets/img/8b3a0cf76973.jpg", "assets/img/8c786832ffbf.jpg", "assets/img/8c81035e19c0.jpg", "assets/img/8c95c4dc7693.jpg", "assets/img/8d2a5fadce2c.jpg", "assets/img/8ddf60430034.png", "assets/img/8de75d0d1b89.jpg", "assets/img/8e74f45f44fd.jpg", "assets/img/8f396ce6b05e.jpg", "assets/img/8f665d0767d1.jpg", "assets/img/8f726a8f880b.jpg", "assets/img/92bb828180ea.jpg", "assets/img/92c2a4569720.jpg", "assets/img/92ec9444cca1.jpg", "assets/img/9493a5078f97.png", "assets/img/949e2b736e03.jpg", "assets/img/9605267c3ba4.png", "assets/img/96ff7c1e7bda.png", "assets/img/97238020b5d6.png", "assets/img/97a8ed597097.jpg", "assets/img/9aa32ba9924a.jpg", "assets/img/9ad7ed67d6cc.jpg", "assets/img/9b66c306299e.jpg", "assets/img/9b850b68e478.jpg", "assets/img/9bcfee950983.jpg", "assets/img/9caf5a9833be.png", "assets/img/9d1ce115739d.jpg", "assets/img/9d8cae710e6f.png", "assets/img/9eff4aad67fe.png", "assets/img/9f0f72b7126f.jpg", "assets/img/a0a77f7d49f4.jpg", "assets/img/a0fd649642c7.png", "assets/img/a2adec13cc42.jpg", "assets/img/a40ef7d0eb6f.jpg", "assets/img/a5fec4dcc9c0.jpg", "assets/img/a653466280ae.jpg", "assets/img/a6a843fb2542.jpg", "assets/img/a7e8c2f432ef.jpg", "assets/img/a8ab976aa53b.jpg", "assets/img/adf50639b6f4.jpg", "assets/img/ae00327ce32a.jpg", "assets/img/ae5fcc814bbd.png", "assets/img/afffc53b02ee.jpg", "assets/img/b08d304c26cd.jpg", "assets/img/b0d30aa3a942.jpg", "assets/img/b5a310a8dc4b.jpg", "assets/img/b769beab6a48.png", "assets/img/b789a7bb3834.jpg", "assets/img/b7a271fd04e7.jpg", "assets/img/b88af848f4c5.jpg", "assets/img/b8d3dbe7109d.png", "assets/img/b90620b64bdf.jpg", "assets/img/b96cc48906af.jpg", "assets/img/b996d3576f06.jpg", "assets/img/ba998a745b49.jpg", "assets/img/bc2437379084.jpg", "assets/img/bc8d39edc803.jpg", "assets/img/be745b4cc3fa.jpg", "assets/img/be888d5b578d.jpg", "assets/img/bf5a77b8958b.jpg", "assets/img/c094e1e47ba9.jpg", "assets/img/c0a051f50259.jpg", "assets/img/c2b244afd5b6.png", "assets/img/c33165164ae0.jpg", "assets/img/c4a70576ef7f.png", "assets/img/c52fd6cf09d3.jpg", "assets/img/c66d774970c2.jpg", "assets/img/c6d5d857f212.jpg", "assets/img/c7c966778352.jpg", "assets/img/c89426040269.jpg", "assets/img/cbcc4352e2b9.jpg", "assets/img/cbe276becc13.jpg", "assets/img/cce3a06d60f5.jpg", "assets/img/cf29e044b516.jpg", "assets/img/cffe6c922cb3.jpg", "assets/img/d0400b6a55de.jpg", "assets/img/d1531da03496.png", "assets/img/d1990fa1efa2.png", "assets/img/d1deb032f91b.jpg", "assets/img/d1e3f0dd22e0.png", "assets/img/d3540229b27b.jpg", "assets/img/d377ab86e4fc.jpg", "assets/img/d49999875db9.png", "assets/img/d549821f7c50.jpg", "assets/img/d5c9fdf3d721.png", "assets/img/d83aaed0caa7.jpg", "assets/img/d856c69178c8.jpg", "assets/img/d9bedaed4503.jpg", "assets/img/da3d20a492a6.png", "assets/img/db273053feba.jpg", "assets/img/db9bfd649544.jpg", "assets/img/dbbb4eea5352.jpg", "assets/img/dc828893770b.jpg", "assets/img/dc97b8d47688.jpg", "assets/img/dd61fb68100c.jpg", "assets/img/dd97a6b4e1b4.jpg", "assets/img/ddc7f6160cbe.jpg", "assets/img/df301e031128.jpg", "assets/img/dfb0844f6f94.jpg", "assets/img/dfbfa5e1ec54.jpg", "assets/img/e054559e5bde.jpg", "assets/img/e0a34a6df16a.png", "assets/img/e1ce54443450.jpg", "assets/img/e258f7021c55.png", "assets/img/e2d548c85f58.png", "assets/img/e3d11133b2a0.jpg", "assets/img/e537ee49660b.jpg", "assets/img/e5eccf8182ba.jpg", "assets/img/e7e41ebf347f.jpg", "assets/img/e89a96199856.jpg", "assets/img/e94c22b13fb7.png", "assets/img/e95ca99f0133.jpg", "assets/img/eaa406207515.jpg", "assets/img/eba5114e6f09.png", "assets/img/ec118b3aa6e1.jpg", "assets/img/ecb8f50630ec.jpg", "assets/img/ed0bbe3fe56a.jpg", "assets/img/ed285a01a19b.jpg", "assets/img/ed34cc9a60ab.jpg", "assets/img/ed8ec6fb4820.jpg", "assets/img/edaf9ce55deb.jpg", "assets/img/ee62cf9039bf.jpg", "assets/img/f19cf7804bbc.jpg", "assets/img/f1cb64ab46fe.jpg", "assets/img/f2c4c46f0472.jpg", "assets/img/f36c90f4b70f.jpg", "assets/img/f3b1db35d295.png", "assets/img/f5d77d14d77e.jpg", "assets/img/f6519a041835.jpg", "assets/img/f73f19499edc.jpg", "assets/img/f86ec6de6bd5.png", "assets/img/f94bbc83db98.jpg", "assets/img/fa0cb1eab6e0.png", "assets/img/fa374e0d7310.jpg", "assets/img/fa6a2da1c441.jpg", "assets/img/fc884ae8f4be.png", "assets/img/fd0d9392510f.jpg", "assets/img/fdea50835e6b.jpg", "assets/img/fe087a1c7c5a.jpg", "assets/img/fe41849026f7.jpg", "assets/img/ff4586508418.png"];
+const PRELOAD_ASSETS = ["assets/img/004e67071e47.png", "assets/img/006f79520842.png", "assets/img/00875d71a494.png", "assets/img/00a97068b6f7.jpg", "assets/img/00c12e2cc7c7.jpg", "assets/img/014b865afa6e.png", "assets/img/015a6525a86c.jpg", "assets/img/01c08357b77e.png", "assets/img/021541eb2763.png", "assets/img/021ef5198f26.jpg", "assets/img/022d69c0bfea.png", "assets/img/035ca7b3734d.png", "assets/img/045cb17ab57b.jpg", "assets/img/053894260f95.png", "assets/img/057b80ec00cb.jpg", "assets/img/05bfb72b94e1.jpg", "assets/img/08b59fa972a4.jpg", "assets/img/09008c2f430b.png", "assets/img/09489cd25297.jpg", "assets/img/0bf39f8e7c9b.png", "assets/img/0ce916577126.png", "assets/img/0e4481fd512f.png", "assets/img/0e86c9af1a46.jpg", "assets/img/0eb7823f010f.jpg", "assets/img/0f9c45b9dbde.jpg", "assets/img/0feb135732b8.jpg", "assets/img/117b9414f489.jpg", "assets/img/11898415458d.jpg", "assets/img/118c27c4974e.jpg", "assets/img/12b48f4ddd48.png", "assets/img/15ca5f7daa3d.jpg", "assets/img/17f37adbb638.jpg", "assets/img/183015193538.png", "assets/img/188be6a96ed6.jpg", "assets/img/18d98d1e1352.jpg", "assets/img/18f9db059968.jpg", "assets/img/1a199371cace.png", "assets/img/1c4b08f43b31.jpg", "assets/img/1dad5bb47b00.jpg", "assets/img/1f9e60ed5fe2.jpg", "assets/img/1fdfe3198781.jpg", "assets/img/2018781b23af.jpg", "assets/img/20a8df8353ff.jpg", "assets/img/2114c5d4386d.jpg", "assets/img/2336d7eabaaa.jpg", "assets/img/243c5f78979e.jpg", "assets/img/24c2af74e5bd.jpg", "assets/img/284619ab69e7.jpg", "assets/img/28bb0e99c897.jpg", "assets/img/28dafe336c05.jpg", "assets/img/2934af8ad7f3.jpg", "assets/img/2a1b2b410f5c.jpg", "assets/img/2a45ebb2b484.jpg", "assets/img/2ae10e9607b4.jpg", "assets/img/2b5a3881255d.png", "assets/img/2b9657f51881.jpg", "assets/img/2c9b07b415c7.png", "assets/img/2c9c682263cd.jpg", "assets/img/2da789635802.jpg", "assets/img/2f20a2dc5a5a.jpg", "assets/img/2ffc05901356.png", "assets/img/301f2cac6022.jpg", "assets/img/306a6e71f279.jpg", "assets/img/30e0bc34fee2.png", "assets/img/32ac7b864bef.jpg", "assets/img/332f7bffc664.jpg", "assets/img/334dad3150ab.jpg", "assets/img/33bed01fe5df.jpg", "assets/img/34f1c66b1d2c.png", "assets/img/350db9f754fb.jpg", "assets/img/369675c6202d.jpg", "assets/img/369e1bb259a4.jpg", "assets/img/3a7937400697.jpg", "assets/img/3c5a4476db0e.png", "assets/img/3cabb986641d.jpg", "assets/img/3e2cd69e245e.jpg", "assets/img/3e368c0716ca.jpg", "assets/img/3ef354922ae1.jpg", "assets/img/3ef764d664da.jpg", "assets/img/40dfc9ef3b1e.jpg", "assets/img/4115eb3a7886.jpg", "assets/img/413213fec2de.jpg", "assets/img/4204803eedf2.png", "assets/img/43f3f9b508d1.png", "assets/img/4514699b7680.jpg", "assets/img/4578a6a65452.jpg", "assets/img/459e334d6b50.jpg", "assets/img/45d1bc218c14.jpg", "assets/img/47440e6ea977.jpg", "assets/img/47c2cdd69449.jpg", "assets/img/480394a2a7b9.jpg", "assets/img/483fb210596b.png", "assets/img/489424610072.png", "assets/img/49ccd2a3e086.jpg", "assets/img/49f93cbbcfe5.jpg", "assets/img/4c9e81f2c773.jpg", "assets/img/4f21e8354548.jpg", "assets/img/5039f69ffbc4.jpg", "assets/img/5099b4b143ed.jpg", "assets/img/51765cc4c9fb.jpg", "assets/img/526dea67517b.jpg", "assets/img/52a228ab2da2.jpg", "assets/img/53b3778a92aa.png", "assets/img/53d210160900.jpg", "assets/img/546ed47f6153.png", "assets/img/55bf024c031d.jpg", "assets/img/5641361f4e3c.png", "assets/img/56b029cdcb9a.jpg", "assets/img/56e38cfc4248.jpg", "assets/img/592b87e837d2.png", "assets/img/59799cdbb3b8.jpg", "assets/img/5a53d9bdc30a.png", "assets/img/5a7ea550a7a9.png", "assets/img/5ab136d026b7.jpg", "assets/img/5c3a22ff1726.jpg", "assets/img/5cbd55c45c2a.jpg", "assets/img/5da1ce2fd424.png", "assets/img/5e5048c18846.png", "assets/img/5e631b3bfecd.png", "assets/img/5e8fad514cbb.jpg", "assets/img/5f836948eb42.jpg", "assets/img/6001b506c85f.png", "assets/img/6017da9ca0ef.jpg", "assets/img/61a25415cf10.jpg", "assets/img/62c5901434d6.jpg", "assets/img/631ca703c48a.jpg", "assets/img/639d71999b5f.jpg", "assets/img/663b0e9b87b3.jpg", "assets/img/67608dad3545.png", "assets/img/696cc69a2b64.png", "assets/img/6ac911c14bd3.jpg", "assets/img/6acffa00c80a.jpg", "assets/img/6bf1da3ad9b8.png", "assets/img/6ce607d25f71.png", "assets/img/6d08d74b28ff.jpg", "assets/img/6d7b1a8a92d4.jpg", "assets/img/6dd0db2ba5a2.jpg", "assets/img/6e62be47e9eb.jpg", "assets/img/6ee34f92a3c0.jpg", "assets/img/6f35c3dd11c0.png", "assets/img/6f3eaded7563.png", "assets/img/6f86764d39a7.jpg", "assets/img/6fb8bd4efafa.png", "assets/img/7089b6ff4940.png", "assets/img/70e96312ea40.png", "assets/img/71a333c7f60f.jpg", "assets/img/729b3348c9b5.jpg", "assets/img/749daeedc1e9.png", "assets/img/75b48fc0b85a.jpg", "assets/img/786d1e9ad3b6.jpg", "assets/img/78ab15294211.jpg", "assets/img/79e9b8579cb5.jpg", "assets/img/7a3f9cd145a2.jpg", "assets/img/7c262c685b41.jpg", "assets/img/7ca8eb1612b7.jpg", "assets/img/7d875c82ba68.png", "assets/img/7f218ae9d1f2.jpg", "assets/img/7f62ff60d0cd.jpg", "assets/img/80471628d268.jpg", "assets/img/815443799ac2.jpg", "assets/img/827781ef8d62.png", "assets/img/8297f4a4ca00.jpg", "assets/img/83d48576ffb7.png", "assets/img/862dc49eefde.png", "assets/img/87adb6b35f6c.png", "assets/img/8826aeba1213.jpg", "assets/img/8b3602b3557b.png", "assets/img/8b3a0cf76973.jpg", "assets/img/8c786832ffbf.jpg", "assets/img/8c81035e19c0.jpg", "assets/img/8c95c4dc7693.jpg", "assets/img/8d2a5fadce2c.jpg", "assets/img/8ddf60430034.png", "assets/img/8de75d0d1b89.jpg", "assets/img/8e74f45f44fd.jpg", "assets/img/8f396ce6b05e.jpg", "assets/img/8f665d0767d1.jpg", "assets/img/8f726a8f880b.jpg", "assets/img/92bb828180ea.jpg", "assets/img/92c2a4569720.jpg", "assets/img/92ec9444cca1.jpg", "assets/img/9493a5078f97.png", "assets/img/949e2b736e03.jpg", "assets/img/9605267c3ba4.png", "assets/img/96ff7c1e7bda.png", "assets/img/97238020b5d6.png", "assets/img/97a8ed597097.jpg", "assets/img/9aa32ba9924a.jpg", "assets/img/9ad7ed67d6cc.jpg", "assets/img/9b66c306299e.jpg", "assets/img/9b850b68e478.jpg", "assets/img/9bcfee950983.jpg", "assets/img/9caf5a9833be.png", "assets/img/9d1ce115739d.jpg", "assets/img/9d8cae710e6f.png", "assets/img/9eff4aad67fe.png", "assets/img/9f0f72b7126f.jpg", "assets/img/a0a77f7d49f4.jpg", "assets/img/a0fd649642c7.png", "assets/img/a2adec13cc42.jpg", "assets/img/a40ef7d0eb6f.jpg", "assets/img/a5fec4dcc9c0.jpg", "assets/img/a653466280ae.jpg", "assets/img/a6a843fb2542.jpg", "assets/img/a7e8c2f432ef.jpg", "assets/img/a8ab976aa53b.jpg", "assets/img/adf50639b6f4.jpg", "assets/img/ae00327ce32a.jpg", "assets/img/ae5fcc814bbd.png", "assets/img/afffc53b02ee.jpg", "assets/img/b08d304c26cd.jpg", "assets/img/b0d30aa3a942.jpg", "assets/img/b5a310a8dc4b.jpg", "assets/img/b769beab6a48.png", "assets/img/b789a7bb3834.jpg", "assets/img/b7a271fd04e7.jpg", "assets/img/b88af848f4c5.jpg", "assets/img/b8d3dbe7109d.png", "assets/img/b90620b64bdf.jpg", "assets/img/b96cc48906af.jpg", "assets/img/b996d3576f06.jpg", "assets/img/ba998a745b49.jpg", "assets/img/bc2437379084.jpg", "assets/img/bc8d39edc803.jpg", "assets/img/be745b4cc3fa.jpg", "assets/img/be888d5b578d.jpg", "assets/img/bf5a77b8958b.jpg", "assets/img/c094e1e47ba9.jpg", "assets/img/c0a051f50259.jpg", "assets/img/c2b244afd5b6.png", "assets/img/c33165164ae0.jpg", "assets/img/c4a70576ef7f.png", "assets/img/c52fd6cf09d3.jpg", "assets/img/c66d774970c2.jpg", "assets/img/c6d5d857f212.jpg", "assets/img/c7c966778352.jpg", "assets/img/c89426040269.jpg", "assets/img/cbcc4352e2b9.jpg", "assets/img/cbe276becc13.jpg", "assets/img/cce3a06d60f5.jpg", "assets/img/cf29e044b516.jpg", "assets/img/cffe6c922cb3.jpg", "assets/img/d0400b6a55de.jpg", "assets/img/d1531da03496.png", "assets/img/d1990fa1efa2.png", "assets/img/d1deb032f91b.jpg", "assets/img/d1e3f0dd22e0.png", "assets/img/d3540229b27b.jpg", "assets/img/d377ab86e4fc.jpg", "assets/img/d49999875db9.png", "assets/img/d549821f7c50.jpg", "assets/img/d5c9fdf3d721.png", "assets/img/d83aaed0caa7.jpg", "assets/img/d856c69178c8.jpg", "assets/img/d9bedaed4503.jpg", "assets/img/da3d20a492a6.png", "assets/img/db273053feba.jpg", "assets/img/db9bfd649544.jpg", "assets/img/dbbb4eea5352.jpg", "assets/img/dc828893770b.jpg", "assets/img/dc97b8d47688.jpg", "assets/img/dd61fb68100c.jpg", "assets/img/dd97a6b4e1b4.jpg", "assets/img/ddc7f6160cbe.jpg", "assets/img/df301e031128.jpg", "assets/img/dfb0844f6f94.jpg", "assets/img/dfbfa5e1ec54.jpg", "assets/img/e054559e5bde.jpg", "assets/img/e0a34a6df16a.png", "assets/img/e1ce54443450.jpg", "assets/img/e258f7021c55.png", "assets/img/e2d548c85f58.png", "assets/img/e3d11133b2a0.jpg", "assets/img/e537ee49660b.jpg", "assets/img/e5eccf8182ba.jpg", "assets/img/e7e41ebf347f.jpg", "assets/img/e89a96199856.jpg", "assets/img/e94c22b13fb7.png", "assets/img/e95ca99f0133.jpg", "assets/img/eaa406207515.jpg", "assets/img/eba5114e6f09.png", "assets/img/ec118b3aa6e1.jpg", "assets/img/ecb8f50630ec.jpg", "assets/img/ed0bbe3fe56a.jpg", "assets/img/ed285a01a19b.jpg", "assets/img/ed34cc9a60ab.jpg", "assets/img/ed8ec6fb4820.jpg", "assets/img/edaf9ce55deb.jpg", "assets/img/ee62cf9039bf.jpg", "assets/img/f19cf7804bbc.jpg", "assets/img/f1cb64ab46fe.jpg", "assets/img/f2c4c46f0472.jpg", "assets/img/f36c90f4b70f.jpg", "assets/img/f3b1db35d295.png", "assets/img/f5d77d14d77e.jpg", "assets/img/f6519a041835.jpg", "assets/img/f73f19499edc.jpg", "assets/img/f86ec6de6bd5.png", "assets/img/f94bbc83db98.jpg", "assets/img/fa0cb1eab6e0.png", "assets/img/fa374e0d7310.jpg", "assets/img/fa6a2da1c441.jpg", "assets/img/fc884ae8f4be.png", "assets/img/fd0d9392510f.jpg", "assets/img/fdea50835e6b.jpg", "assets/img/fe087a1c7c5a.jpg", "assets/img/fe41849026f7.jpg", "assets/img/ff4586508418.png"];
 const AI_SPRITES = {
   // v15e9: 신규 20명 (단일 이미지 - frame2 등급은 _f1 이 없으면 이 키로 폴백)
   "mythic|백수해적단 킹": "assets/img/b789a7bb3834.jpg",
@@ -3223,12 +3223,12 @@ function bossSpriteFor(name){
 }
 
 function drawMarine(c, m, t){
-  const p = pathPos(m.d);
+  const p = mPos(m);
   const bob = Math.sin(t*6 + m.d*0.05) * 1;
   const rank = MARINE_RANKS[m.rank];
   // v15ba: 보스 크기를 신화 등급 캐릭터 평균 크기(24 * scale~1.49 * CHIBI_SCALE 2.0 ≈ 72px)에 맞게 확대 (기존 34px)
   const R = m.boss ? 72 * (m.raidScale || 1) : (m.elite ? rank.r + 7 : rank.r);
-  if(m.boss || m.midBoss) clampTokenPos(p, R);   // v15f5: 큰 토큰이 캔버스 밖으로 잘리지 않게
+  if((m.boss || m.midBoss) && !m.raid) clampTokenPos(p, R);   // v15f5: 큰 토큰이 캔버스 밖으로 잘리지 않게
   const x = p.x, y = p.y + bob;
   drawShadow(c, p.x, p.y+R+2, R);
 
@@ -3295,12 +3295,12 @@ function drawMarine(c, m, t){
 
 // --- 해적 잔몹 렌더링 (계급군별: 졸개→뿔투구→갑옷→거인→심해악마) ---
 function drawPirate(c, m, t){
-  const p = pathPos(m.d);
+  const p = mPos(m);
   const bob = Math.sin(t*6 + m.d*0.05) * 1;
   const rank = MARINE_RANKS[m.rank];
   // v15ba: 보스 크기를 신화 등급 캐릭터 평균 크기(24 * scale~1.49 * CHIBI_SCALE 2.0 ≈ 72px)에 맞게 확대 (기존 34px)
   const R = m.boss ? 72 * (m.raidScale || 1) : (m.elite ? rank.r + 7 : rank.r);
-  if(m.boss || m.midBoss) clampTokenPos(p, R);   // v15f5: 큰 토큰이 캔버스 밖으로 잘리지 않게
+  if((m.boss || m.midBoss) && !m.raid) clampTokenPos(p, R);   // v15f5: 큰 토큰이 캔버스 밖으로 잘리지 않게
   const g = rank.g;   // 0~4 계급군 → 해적 티어
   const x = p.x, y = p.y + bob;
   drawShadow(c, p.x, p.y+R+2, R);
@@ -3482,7 +3482,17 @@ const RAID = {
 };
 let RAID_ENTERING = false;      // spawnBoss 안에서 "레이드용 소환"인지 알리는 플래그
 const RAID_BOSS_SCALE = 3;      // 보스 초상 3배
-const RAID_UNIT_COUNT = 6;      // 참전 인원
+const RAID_BG = "assets/img/7d875c82ba68.png";   // 레이드 전용 배경 (좌측 갑판 / 우측 용암 아레나)
+// 레이드 전용 좌표 — 캔버스 비율 기준이라 PC/모바일 모두 같은 구도가 나온다
+function raidBossPos(){
+  const R = 72 * RAID_BOSS_SCALE;
+  return { x: Math.min(W * 0.74, W - R * 0.55 - 6), y: H * 0.46, r: R };
+}
+function raidUnitPos(i){
+  const n = RAID_UNIT_COUNT;
+  return { x: W * 0.17, y: H * (0.22 + 0.56 * (n === 1 ? 0.5 : i / (n - 1))) };
+}
+const RAID_UNIT_COUNT = 5;      // 참전 인원
 
 // 해금된 보스 = 지금까지 도달한 라운드 이하의 보스 (누적)
 function raidUnlockedRounds(){
@@ -3499,20 +3509,6 @@ function raidPickUnits(){
       return gb - ga || db.dmg - da.dmg;
     })
     .slice(0, RAID_UNIT_COUNT);
-}
-// 경로상에서 가장 오른쪽 지점 (보스 고정 위치)
-function raidBossD(){
-  let bestD = 0, bestScore = -Infinity;
-  for(let d = 0; d < PERIM; d += 4){
-    const p = pathPos(d);
-    const score = p.x - Math.abs(p.y - H/2) * 0.6;
-    if(score > bestScore){ bestScore = score; bestD = d; }
-  }
-  return bestD;
-}
-// 왼쪽 슬롯 6칸 (x 오름차순)
-function raidLeftSlots(){
-  return SLOTS.slice().sort((a,b)=> a.x - b.x || a.y - b.y).slice(0, RAID_UNIT_COUNT);
 }
 
 function raidStart(round){
@@ -3537,11 +3533,12 @@ function raidStart(round){
   SLOTS.forEach(s => s.unit = null);
   state.units = picked;
 
-  // 왼쪽에 6명 배치
-  const left = raidLeftSlots();
+  // 왼쪽 절반에 세로로 배치 (슬롯 격자와 무관한 레이드 전용 좌표)
+  //   u.slot 참조 자체는 건드리지 않는다 — 여러 곳에서 u.slot.side / u.slot.unit 을 읽는다.
+  //   좌표만 옮기고, 슬롯 점유(slot.unit)는 레이드가 끝날 때 복구한다.
   picked.forEach((u, i)=>{
-    const s = left[i] || left[left.length-1];
-    u.slot = s; u.x = s.x; u.y = s.y; s.unit = u;
+    const p = raidUnitPos(i);
+    u.x = p.x; u.y = p.y;
   });
   recalcSynergy();
 
@@ -3553,7 +3550,8 @@ function raidStart(round){
   if(!m){ raidEnd(false); return false; }
   state.monsters.filter(x => x !== m).forEach(x => poolPut(monsterPool, x));
   state.monsters = [m];
-  m.d = raidBossD();
+  const bp = raidBossPos();
+  m.raidX = bp.x; m.raidY = bp.y;   // 경로가 아닌 고정 좌표
   m.spawnD = m.d;
   m.speed = 0;                 // 고정 — 움직이지 않는다
   m.raid = true;
@@ -3578,6 +3576,7 @@ function raidEnd(cleared){
   const sv = RAID.saved;
   RAID.active = false;
   // 남은 레이드 보스는 필드로 따라가지 않게 정리
+  state.monsters.filter(m => m.raid).forEach(m =>{ m.raidX = null; m.raidY = null; });
   state.monsters = state.monsters.filter(m => !m.raid);
   if(sv){
     state.monsters = sv.monsters;
@@ -3673,6 +3672,11 @@ function cellsToPx(cells){ return Math.round(cells * CELL); }
 //   가로는 n*CELL_W, 세로는 n*CELL_H 로 "각각" 비교한다 → 어느 방향이든 정확히 n칸.
 //   (두 축을 더하는 진짜 타원식이면 대각선 n칸이 빠져서 "어느 방향이든"이 깨진다)
 //   ellipseNorm 이 1 이하이면 사거리 안. 값 자체는 가까운 대상 고르기에도 쓴다.
+// v15gh: 몬스터의 화면 좌표. 레이드 보스만 경로(pathPos)가 아니라 고정 좌표를 쓴다.
+//   레이드는 경로 자체가 없는 별도 맵이라 m.d 로는 원하는 자리에 세울 수 없다.
+function mPos(m){
+  return (m && m.raidX != null) ? { x: m.raidX, y: m.raidY } : pathPos(m.d);
+}
 function ellipseNorm(dx, dy, cells){
   // v15gg: 보스 레이드는 보스가 오른쪽에 고정되고 유닛은 왼쪽에 서므로
   //   평소 사거리(2~4칸)로는 절대 닿지 않는다. 레이드 중에는 사거리 판정을 통과시킨다.
@@ -3745,6 +3749,9 @@ function bestFreeSlot(def){
 // v15z: 자동배치(1.2초마다)는 손으로 옮겨 고정(locked)한 유닛은 절대 건드리지 않는다 — 수동 배치를 존중.
 // "무조건 사이드로" 강제는 사용자가 직접 누르는 "필드 재정렬" 버튼(manualRearrangeField)에서만 적용된다.
 function autoArrangeField(){
+  // v15gh: 레이드 중에는 슬롯 격자를 쓰지 않는다. 자동배치가 돌면 레이드 전용 좌표를
+  //   슬롯 좌표로 덮어써서 캐릭터가 화면 여기저기로 튄다.
+  if(RAID.active) return;
   const movable = state.units.filter(u=>!u.locked);
   // v15bl: 빈 사이드 자리가 여럿을 못 채울 만큼 부족할 때 고티어부터 채워지도록 정렬
   const misplacedMelee = movable.filter(u=>
@@ -3772,6 +3779,7 @@ function autoArrangeField(){
 // (보관함은 건드리지 않음. v15y: 손으로 옮겨 고정(locked)한 유닛이라도 "근접인데 중앙"이면 강제로 사이드로 옮긴다 —
 //  근접 캐릭터는 중앙에 있으면 사거리가 안 닿아 공격 자체를 못 하므로, 위치 고정보다 "공격 가능"이 항상 우선한다.)
 function manualRearrangeField(silent){
+  if(RAID.active) return;   // v15gh: 레이드 중에는 재정렬하지 않는다
   if(!state.started || state.over) return;
   if(state.units.length === 0){ if(!silent) addLog("필드에 유닛이 없습니다."); return; }
 
@@ -3874,7 +3882,7 @@ const DIFFS = {
 // v15f6: 배포된 빌드를 콘솔에서 바로 식별하기 위한 표식.
 //   Netlify 가 옛 빌드를 서빙하고 있는데 코드 문제로 오해해 한참 헤맨 적이 있어서 넣었다.
 //   브라우저 콘솔에 BUILD_ID 를 쳐서 지금 떠 있는 빌드가 무엇인지 즉시 확인할 수 있다.
-const BUILD_ID = "2026-08-06 RAID2";
+const BUILD_ID = "2026-08-06 RAID4";
 console.log("[원랜디] BUILD_ID =", BUILD_ID);
 // v15g2: 난이도별로 총 라운드가 달랐는데(75/80/85/90) 전부 95 로 통일한다.
 //   최종 보스(암흑황제 검은수염)도 90 이 아니라 95 라운드에 등장한다.
@@ -6174,7 +6182,7 @@ function applyStunAOE(cx, cy, value, duration, cells){
   if(!(value > 0)) return;   // v15fo: 스턴 없는 등급은 펄스를 만들지 않는다
   const _r = cells || STUN_FREEZE_CELLS;   // v15g5: 확산 범위를 호출부에서 지정 가능
   state.monsters.forEach(m=>{
-    const p = pathPos(m.d);
+    const p = mPos(m);
     const _dx = p.x-cx, _dy = p.y-cy;
     if(inCells(_dx, _dy, _r)){   // v15g0: 격자 타원
       if(!m.stunPulses) m.stunPulses = [];
@@ -6888,7 +6896,7 @@ function fireSkill(u, def, sk){
     // v15g0: 고유기도 격자 타원 판정
     const _ultCells = (sk.radius >= 9999) ? 9999 : (sk.radiusCells || cellsOfPx(sk.radius || 400));
     const inR = ()=> state.monsters.filter(m=>{
-      const p = pathPos(m.d);
+      const p = mPos(m);
       return inCells(p.x - u.x, p.y - u.y, _ultCells);
     });
     const _ultWide = (sk.radius >= 9999) || ((sk.radiusCells || 0) >= WIDE_RANGE_CELLS);
@@ -6972,7 +6980,9 @@ function fireSkill(u, def, sk){
           // placeUnit 은 등장 연출/TTS/일시정지를 동반하므로 소환에는 쓰지 않는다.
           // v15gc: 소환주가 사라지면 소환수도 사라지는 규칙은 모든 소환에 공통이다.
           //   여기만 summonOwner 를 안 남겨서 니카 루피의 복제만 필드에 계속 남아 있었다.
-          const nu = { defId:src.defId, x:slot.x, y:slot.y, cd:0, skillCd:1, skillCd2:2, skillCd3:99999,
+          const _sx = RAID.active ? Math.min(W * 0.34, u.x + 96) : slot.x;
+          const _sy = RAID.active ? u.y : slot.y;
+          const nu = { defId:src.defId, x:_sx, y:_sy, cd:0, skillCd:1, skillCd2:2, skillCd3:99999,
                        slot, locked:false, tempUntil: state.time + (sk.dur || 12), summonOwner: u };
           slot.unit = nu; state.units.push(nu); recalcSynergy();
           _ultFx(slot.x, slot.y, sk.color, "summon", ULT_FX_DUR, true);   // 소환 위치에 이펙트
@@ -6996,7 +7006,10 @@ function fireSkill(u, def, sk){
         const slot = SLOTS.find(s=>!s.unit);
         if(slot){
           // placeUnit 은 등장 연출/TTS/일시정지를 동반하므로 소환에는 쓰지 않는다.
-          const nu = { defId:(sk.summonId || SUMMON_SHANKS_ID), x:slot.x, y:slot.y, cd:0, skillCd:99999, skillCd2:99999, skillCd3:99999,
+          // v15gh: 레이드에서는 슬롯 격자가 없으므로 소환주 오른쪽 옆에 세운다
+          const _sx = RAID.active ? Math.min(W * 0.34, u.x + 96) : slot.x;
+          const _sy = RAID.active ? u.y : slot.y;
+          const nu = { defId:(sk.summonId || SUMMON_SHANKS_ID), x:_sx, y:_sy, cd:0, skillCd:99999, skillCd2:99999, skillCd3:99999,
                        slot, locked:false, tempUntil: state.time + dur, summonOwner: u };
           slot.unit = nu; state.units.push(nu); recalcSynergy();
           _ultFx(slot.x, slot.y, sk.color, sk.ult, ULT_FX_DUR, true);
@@ -7021,7 +7034,7 @@ function fireSkill(u, def, sk){
           const c = pathPos(Math.random() * PERIM);
           const _mCells = cellsOfPx(rr);
           state.monsters.forEach(m=>{
-            const p = pathPos(m.d);
+            const p = mPos(m);
             if(inCells(p.x - c.x, p.y - c.y, _mCells)){
               applyCombatDmg(def, m, _ultDmg(def, m, sk.mult));
               _ultStun(m, 1, sk.stun || 1.5);
@@ -7039,7 +7052,7 @@ function fireSkill(u, def, sk){
           let best = null, bd = Infinity;
           for(const m of state.monsters){
             if(hit.has(m)) continue;
-            const p = pathPos(m.d), dx = p.x - cur.x, dy = p.y - cur.y, d2 = dx*dx + dy*dy;
+            const p = mPos(m), dx = p.x - cur.x, dy = p.y - cur.y, d2 = dx*dx + dy*dy;
             if(d2 < bd){ bd = d2; best = m; }
           }
           if(!best) break;
@@ -7074,7 +7087,7 @@ function fireSkill(u, def, sk){
 
   const _defCells = def.rangeCells || cellsOfPx(def.range);
   const inRange = state.monsters.filter(m=>{
-    const p = pathPos(m.d);
+    const p = mPos(m);
     return inCells(p.x-u.x, p.y-u.y, _defCells);   // v15g0: 격자 타원 판정
   });
   if(inRange.length === 0) return false;
@@ -7103,7 +7116,7 @@ function fireSkill(u, def, sk){
   if(sk.kind === "haki"){
     // 패왕색: 광역 스턴 + %딜, 화면 흔들림
     inRange.forEach(m=>{
-      const p = pathPos(m.d);
+      const p = mPos(m);
       if(inCells(p.x-u.x, p.y-u.y, _skCells)){   // v15g0: 격자 타원
         const dealt = Math.round((skillDmgBase * state.synDmg * (1+state.aura.atk) * (1+state.aura.skillDmg) * sk.mult + pctMaxHpDmg(m, pctOf(m))) * (1+state.aura.dmgTaken) * combatDmgMult(def, m));
         applyCombatDmg(def, m, dealt);
@@ -7120,7 +7133,7 @@ function fireSkill(u, def, sk){
     // v15d0: 시전자 발밑이 아니라 "겨냥한 몬스터 위치"에 설치 (경로 위에 깔려야 의미가 있음)
     let bz = null, bzDist = Infinity;
     inRange.forEach(m=>{
-      const p = pathPos(m.d);
+      const p = mPos(m);
       const _dx = p.x-u.x, _dy = p.y-u.y, dist2 = _dx*_dx + _dy*_dy;
       if(dist2 < bzDist){ bzDist = dist2; bz = m; }
     });
@@ -7134,7 +7147,7 @@ function fireSkill(u, def, sk){
     // 이제는 사거리 내에서 겨냥할 몬스터 1기를 고르고, 그 "명중 지점 주변"에만 스플래시 딜이 들어감.
     let epi = null, epiDist = Infinity;
     inRange.forEach(m=>{
-      const p = pathPos(m.d);
+      const p = mPos(m);
       const _dx = p.x-u.x, _dy = p.y-u.y, dist2 = _dx*_dx + _dy*_dy;
       if(dist2 < epiDist){ epiDist = dist2; epi = m; }
     });
@@ -7142,7 +7155,7 @@ function fireSkill(u, def, sk){
       const ep = pathPos(epi.d);
       fx.x = ep.x; fx.y = ep.y;   // 폭발 이펙트도 명중 지점에서 터지게
       state.monsters.forEach(m=>{
-        const p = pathPos(m.d);
+        const p = mPos(m);
         if(inCells(p.x-ep.x, p.y-ep.y, _skCells)){   // v15g0: 격자 타원
           const dealt = Math.round((skillDmgBase * state.synDmg * (1+state.aura.atk) * (1+state.aura.skillDmg) * sk.mult + pctMaxHpDmg(m, pctOf(m))) * (1+state.aura.dmgTaken) * combatDmgMult(def, m));
           applyCombatDmg(def, m, dealt);
@@ -7158,14 +7171,14 @@ function fireSkill(u, def, sk){
     fx.kind = "ring";
     let ndTarget = null, ndBestDist = Infinity;
     inRange.forEach(m=>{
-      const p = pathPos(m.d);
+      const p = mPos(m);
       const nrm = ellipseNorm(p.x-u.x, p.y-u.y, _skCells);   // v15g0: 격자 타원
       if(nrm <= 1 && nrm < ndBestDist){ ndBestDist = nrm; ndTarget = m; }
     });
     if(ndTarget){
       const dealt = Math.round((skillDmgBase * state.synDmg * (1+state.aura.atk) * (1+state.aura.skillDmg) * sk.mult + pctMaxHpDmg(ndTarget, pctOf(ndTarget))) * (1+state.aura.dmgTaken) * combatDmgMult(def, ndTarget));
       applyCombatDmg(def, ndTarget, dealt);
-      const tp = pathPos(ndTarget.d);
+      const tp = mPos(ndTarget);
       // v15g5: 히든 스킬 스턴도 평타와 같은 기준으로 스킬 반경 전체에 적용
       applyStunAOE(tp.x, tp.y, stunPowerOf(def), STUN_PULSE_DUR, (def.grade === "hidden") ? (sk.radiusCells || def.rangeCells) : STUN_FREEZE_CELLS);
     }
@@ -7228,7 +7241,7 @@ function fireSkill(u, def, sk){
     fx.lines = targets.map(m=>{
       const dealt = Math.round((skillDmgBase * state.synDmg * (1+state.aura.atk) * (1+state.aura.skillDmg) * sk.mult + pctMaxHpDmg(m, pctOf(m))) * (1+state.aura.dmgTaken) * combatDmgMult(def, m));
       applyCombatDmg(def, m, dealt);
-      const p = pathPos(m.d);
+      const p = mPos(m);
       return [u.x, u.y-8, p.x, p.y];
     });
     fx.dur = 0.35;
@@ -7550,16 +7563,16 @@ function startRound(r){
     if(arc.quote){ addLog(`💬 "${arc.quote}"`); SFX.talk(arc.quote, 1.1); }
     state.banner = { text:`📍 ${themeOf(r).name} — "${arc.quote||""}"`, t:4 };
   }
-  if(r >= 12 && !BOSSES[r]) spawnMidBoss(r);
+  if(r >= 12) spawnMidBoss(r);   // v15gh: 라운드 보스가 없어져 조건 단순화
   const prevRank = rankOf(r-1), newRank = rankOf(r);
   if(r > 1 && newRank !== prevRank){
     const mr = MARINE_RANKS[newRank];
     state.banner = { text:`⚠ ${mr.name} 부대 투입! (방어 ${Math.round(mr.armor*state.diff.armor)})`, t:3 };
     addLog(`⚠️ <b>${mr.name}</b> 부대 투입! 방어력 ${Math.round(mr.armor*state.diff.armor)}`);
   }
-  if(BOSSES[r]) spawnBoss(r);
-  // v15s: 브금은 1/10/20/30/40라운드 시작 시 + 보스 처치 직후 다음 라운드 시작 시에만 재생
-  else if([1,10,20,30,40].includes(r) || BOSSES[r-1]) playBgm();
+  // v15gh: 라운드 보스 자동 등장 제거 — 보스는 이제 "보스 레이드" 버튼으로만 만난다.
+  //   (5/10/15... 라운드는 일반 웨이브 라운드가 된다)
+  if([1,10,20,30,40].includes(r)) playBgm();
   checkRoundAutoPromote(r);
 }
 // 라운드 도달 시 재료 부족으로 막혀있으면 최상위 캐릭터 1명 무상 자동 승급
@@ -7679,10 +7692,10 @@ function update(dt){
     }
     // v15f2: 연쇄폭발 지속 중이면 처치 지점 주변에 추가 피해
     if(_chainBoomUntil && state.time < _chainBoomUntil){
-      const cp = pathPos(m.d), CR = 220, _cCells = cellsOfPx(CR);
+      const cp = mPos(m), CR = 220, _cCells = cellsOfPx(CR);
       state.monsters.forEach(o=>{
         if(o === m) return;
-        const p = pathPos(o.d);
+        const p = mPos(o);
         if(inCells(p.x - cp.x, p.y - cp.y, _cCells)) o.hp -= Math.round(o.maxHp * 0.015 * _chainBoomMult);
       });
       _ultFx(cp.x, cp.y, "#ffb02e", "chain_boom", ULT_FX_DUR_POINT, true);   // 처치 위치마다 폭발 이펙트
@@ -7726,6 +7739,8 @@ function update(dt){
   //   여기서 return 하면 안 된다 — 유닛 공격 루프가 이 아래에 있어서 전투가 통째로 멈춘다.
   if(!RAID.active) state.roundTime -= dt;
   if(state.roundTime <= 0){
+    // v15gh: 최종 보스가 라운드에 안 나오므로, 마지막 라운드를 버텨내면 클리어다.
+    if(state.round >= FINAL_ROUND){ gameClear(); return; }
     if(state.round < FINAL_ROUND){
       missionOnRoundEnd();
       const waveBonus = Math.round((25 + state.round*9) * state.diff.gold);
@@ -7767,7 +7782,7 @@ function update(dt){
 
   // 웨이브 스폰: 라운드의 85% 동안 waveCount만큼 꾸준히 스폰 (몹이 끊기지 않게)
   // v15bb: 보스 라운드에는 일반 몬스터를 스폰하지 않음 (보스에만 집중, R35/55는 spawnBoss()에서 8마리 별도 고정 스폰)
-  if(!BOSSES[state.round] && !RAID.active){   // v15gg: 레이드 중에는 웨이브를 뽑지 않는다
+  if(!RAID.active){   // v15gh: 라운드 보스가 사라져 모든 라운드가 웨이브 라운드다 (레이드 중에는 정지)
     const wc = waveCount(state.round);
     if(state.spawnedThisRound < wc){
       state.spawnTimer -= dt;
@@ -7809,7 +7824,7 @@ function update(dt){
     const z = state.zones[i];
     z.t -= dt;
     state.monsters.forEach(m=>{
-      const p = pathPos(m.d);
+      const p = mPos(m);
       const _dx = p.x-z.x, _dy = p.y-z.y;
       if(inCells(_dx, _dy, cellsOfPx(z.r))){   // v15g0: 격자 타원
         m.hp -= z.dps * dt + pctMaxHpDmg(m, z.pct * dt);   // v15do: 장판 %딜도 총량 제한 대상
@@ -7888,7 +7903,7 @@ function update(dt){
     // v15g0: 원형 대신 격자 타원으로 판정 (가로 n*CELL_W / 세로 n*CELL_H)
     const _rc = def.rangeCells || cellsOfPx(def.range);
     for(const m of state.monsters){
-      const p = pathPos(m.d);
+      const p = mPos(m);
       const _dx = p.x-u.x, _dy = p.y-u.y;
       const nrm = ellipseNorm(_dx, _dy, _rc);
       if(nrm > 1) continue;
@@ -7918,7 +7933,7 @@ function update(dt){
       applyCombatDmg(def, target, dealt);
       dealt = Math.max(0, dealt);
       sfxHit();
-      const tp = pathPos(target.d);
+      const tp = mPos(target);
       // v15fn: 평타 스턴은 히든 전용이다.
       //   히든 = 스턴 전문 등급이므로 평타마다 부여(0.8~1.0).
       //   그 외 등급은 "스킬에 스턴이 붙은 캐릭터"만 스킬 발동 시 스턴을 준다.
@@ -8080,6 +8095,17 @@ function draw(){
   // 단색 배경 기반 (맵 색 급변 제거)
   ctx.fillStyle = "#0d1828";
   ctx.fillRect(0,0,W,H);
+  // v15gh: 레이드는 디펜스 필드가 아니라 전용 아레나 배경을 쓴다 (경로·슬롯 없음)
+  if(RAID.active){
+    const rim = getImg(RAID_BG);
+    if(rim){
+      const s = Math.max(W / rim.width, H / rim.height);
+      const dw = rim.width * s, dh = rim.height * s;
+      ctx.save(); ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(rim, (W - dw) / 2, (H - dh) / 2, dw, dh);
+      ctx.restore();
+    }
+  }
   const bgSp = AI_BG[th.name];
   const bgIm = bgSp ? getImg(bgSp.url || bgSp) : null;
   if(bgIm){
@@ -8107,7 +8133,8 @@ function draw(){
   }
   ctx.globalAlpha = 1;
 
-  // 트랙 (지역색 항로)
+  // 트랙 (지역색 항로) — 레이드에는 경로가 없다
+  if(!RAID.active){
   ctx.strokeStyle = th.wood;
   ctx.lineWidth = 40;
   ctx.strokeRect(PATH.x, PATH.y, PATH.w, PATH.h);
@@ -8137,6 +8164,33 @@ function draw(){
     ctx.stroke();
     ctx.setLineDash([]);
   });
+  }   // v15gh: 경로/슬롯 렌더 끝 (레이드에서는 통째로 생략)
+
+  // v15gh: 레이드 상단 보스 HP 바
+  if(RAID.active && RAID.boss){
+    const b = RAID.boss, bw = W * 0.86, bx = (W - bw) / 2, by = 16, bh = 26;
+    const ratio = Math.max(0, b.hp) / b.maxHp;
+    ctx.save();
+    ctx.fillStyle = "rgba(6,10,18,.82)";
+    ctx.fillRect(bx - 4, by - 4, bw + 8, bh + 30);
+    ctx.fillStyle = "#2a1520";
+    ctx.fillRect(bx, by, bw, bh);
+    const grd = ctx.createLinearGradient(bx, 0, bx + bw, 0);
+    grd.addColorStop(0, "#ff3b30"); grd.addColorStop(1, "#ff9a3c");
+    ctx.fillStyle = grd;
+    ctx.fillRect(bx, by, bw * ratio, bh);
+    ctx.strokeStyle = "#ff8fa6"; ctx.lineWidth = 2;
+    ctx.strokeRect(bx, by, bw, bh);
+    ctx.fillStyle = "#fff";
+    ctx.font = "bold 15px system-ui, sans-serif";
+    ctx.textAlign = "left";
+    ctx.fillText(`⚔ ${b.name}`, bx + 6, by + bh + 19);
+    ctx.textAlign = "right";
+    ctx.fillText(`${Math.max(0, Math.round(b.hp)).toLocaleString()} / ${b.maxHp.toLocaleString()}  ·  ${Math.ceil(Math.max(0, RAID.timer))}s`,
+                 bx + bw - 6, by + bh + 19);
+    ctx.textAlign = "left";
+    ctx.restore();
+  }
 
   // 평타 빔
   state.beams.forEach(b=>{
