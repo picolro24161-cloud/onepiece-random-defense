@@ -3511,12 +3511,26 @@ function raidPickUnits(){
     .slice(0, RAID_UNIT_COUNT);
 }
 
+// v15gi: 레이드 진입 = 버튼 클릭 → (영상/스토리 컷씬) → 보스 등장 컷씬 → 전투.
+//   라운드 전환에서 떼어낸 보스 컷씬을 여기로 옮겨 왔다.
 function raidStart(round){
   if(!state || !state.started || state.over || RAID.active) return false;
   if(!BOSSES[round]) return false;
   if(!raidUnlockedRounds().includes(round)){ addLog("아직 해금되지 않은 보스입니다."); return false; }
   const picked = raidPickUnits();
   if(!picked.length){ addLog("레이드에 내보낼 캐릭터가 없습니다."); return false; }
+
+  // 이 보스에 딸린 컷씬이 있으면 먼저 보여주고, 끝난 뒤에 실제 레이드를 시작한다
+  if(!RAID._cutsceneDone){
+    const videoKey = BOSS_VIDEO_ROUNDS[round];
+    const cutsceneKey = CUTSCENE_ROUND_MAP[round - 1];
+    const resume = ()=>{ RAID._cutsceneDone = true; raidStart(round); RAID._cutsceneDone = false; };
+    if(videoKey){ playVideoCutscene(videoKey, resume); return true; }
+    if(cutsceneKey && CUTSCENE_DATA[cutsceneKey] && CUTSCENE_DATA[cutsceneKey].lines
+       && CUTSCENE_DATA[cutsceneKey].lines.length){
+      playCutscene(cutsceneKey, resume); return true;
+    }
+  }
 
   // ---- 필드 상태 통째로 저장 ----
   RAID.saved = {
@@ -3882,7 +3896,7 @@ const DIFFS = {
 // v15f6: 배포된 빌드를 콘솔에서 바로 식별하기 위한 표식.
 //   Netlify 가 옛 빌드를 서빙하고 있는데 코드 문제로 오해해 한참 헤맨 적이 있어서 넣었다.
 //   브라우저 콘솔에 BUILD_ID 를 쳐서 지금 떠 있는 빌드가 무엇인지 즉시 확인할 수 있다.
-const BUILD_ID = "2026-08-06 RAID4";
+const BUILD_ID = "2026-08-06 RAID5";
 console.log("[원랜디] BUILD_ID =", BUILD_ID);
 // v15g2: 난이도별로 총 라운드가 달랐는데(75/80/85/90) 전부 95 로 통일한다.
 //   최종 보스(암흑황제 검은수염)도 90 이 아니라 95 라운드에 등장한다.
@@ -7750,21 +7764,10 @@ function update(dt){
       state.tickets += 6;
       addLog(`⚔️ 라운드 ${state.round} 시작! 소환권 +6장.`);
       state.roundTime = roundLen(state.round);
-      // v15af: 보스 라운드 직전이면 스토리 컷씬 재생 후 라운드 시작 (게임 일시정지)
-      // v15c6: 지정된 보스 직전 라운드는 영상 컷씬을 먼저 재생 (영상이 있으면 같은 라운드의 텍스트 컷씬은 중복 연출이라 생략)
-      // v15e5: 라운드→컷씬 매핑표를 따른다. 매핑에 없으면 그 라운드는 컷씬 없음.
-      const cutsceneKey = CUTSCENE_ROUND_MAP[state.round - 1];
-      const videoKey = BOSS_VIDEO_ROUNDS[state.round];
-      if(videoKey){
-        playVideoCutscene(videoKey, ()=>{ startRound(state.round); refreshUI(); });
-        return;
-      }
-      // lines 가 빈 placeholder 는 재생하지 않고 그냥 진행한다
-      if(cutsceneKey && CUTSCENE_DATA[cutsceneKey] && CUTSCENE_DATA[cutsceneKey].lines
-         && CUTSCENE_DATA[cutsceneKey].lines.length){
-        playCutscene(cutsceneKey, ()=>{ startRound(state.round); refreshUI(); });
-        return;
-      }
+      // v15gi: 보스 컷씬/영상은 라운드 전환에서 더 이상 자동 재생하지 않는다.
+      //   보스가 라운드에 안 나오는데 컷씬만 뜨면 앞뒤가 안 맞고, 컷씬이 게임을 멈추는 바람에
+      //   라운드가 안 넘어가서 같은 아크 몹만 계속 나오는 것처럼 보였다.
+      //   이 컷씬들은 이제 "보스 레이드" 진입 시에만 재생된다(raidStart 참고).
       // v15f0: 중간보스 라운드면 GIF 연출 후 중간보스를 소환한다 (기존 보스 라운드와 무관)
       if(MIDBOSS[state.round] && !_midBossDone[state.round]){
         _midBossDone[state.round] = true;
