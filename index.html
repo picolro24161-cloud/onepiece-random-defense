@@ -3987,7 +3987,7 @@ const DIFFS = {
 // v15f6: 배포된 빌드를 콘솔에서 바로 식별하기 위한 표식.
 //   Netlify 가 옛 빌드를 서빙하고 있는데 코드 문제로 오해해 한참 헤맨 적이 있어서 넣었다.
 //   브라우저 콘솔에 BUILD_ID 를 쳐서 지금 떠 있는 빌드가 무엇인지 즉시 확인할 수 있다.
-const BUILD_ID = "2026-08-06 RAID9";
+const BUILD_ID = "2026-08-06 HALFLAP";
 console.log("[원랜디] BUILD_ID =", BUILD_ID);
 // v15g2: 난이도별로 총 라운드가 달랐는데(75/80/85/90) 전부 95 로 통일한다.
 //   최종 보스(암흑황제 검은수염)도 90 이 아니라 95 라운드에 등장한다.
@@ -4227,8 +4227,10 @@ function monsterStats(round){
   };
 }
 // v15c3: 필드 카운트 규칙(최종 확정)
+// v15gm: 완주 기준을 한 바퀴에서 반 바퀴로 변경 (난이도 상향)
+const LAP_COUNT_RATIO = 0.5;   // 경로의 이 비율만큼 진행하면 완주로 친다
 // ① 스폰 시점: 카운트 변화 없음
-// ② 몬스터가 경로를 1바퀴 완주하는 순간: +1 (같은 몬스터가 계속 돌아도 중복 카운트 없음 - m.lapCounted 가드)
+// ② 몬스터가 경로를 반 바퀴 통과하는 순간: +1 (같은 몬스터가 계속 돌아도 중복 카운트 없음 - m.lapCounted 가드)
 // ③ 유닛이 몬스터를 처치(제거)하는 순간: -1 (완주 전에 죽으면 애초에 +1이 없었으므로 변화 없음)
 // ④ 이 누적치가 난이도별 상한(state.diff.field, 기본 330)에 도달하면 즉시 패배 (별도 유예 없음)
 function fieldWeight(){
@@ -4245,7 +4247,7 @@ function spawnMonster(){
   // v15c2: 스폰 지점을 왼쪽 위 게이트(0) 하나로 통일 - 아래쪽에서 나오던 두 번째 스폰 지점 제거
   const gate = 0;
   m.d = gate + Math.random() * PERIM * 0.12;
-  m.spawnD = m.d; m.lapCounted = false;   // v15bs: 완주(1바퀴) 판정 기준점
+  m.spawnD = m.d; m.lapCounted = false;   // v15gm: 완주(반 바퀴) 판정 기준점
   m.hp=s.hp; m.maxHp=s.hp; m.speed=s.speed; m.reward=s.reward;
   m.armor=s.armor; m.rank=s.rank; m.boss=false; m.slow=0; m.stun=0;
   m.stunPulses = null; m.slowStrongUntil = 0; m._armorSave = null; m._armorCurseUntil = 0;
@@ -4479,7 +4481,7 @@ function spawnBoss(round){
   //   가로·세로 양쪽으로 동시에 잘려 "왼쪽 위에 이상하게 뭉개진 큰 원"으로 보였다.
   //   위쪽 변 안쪽으로 충분히 들여서 모서리 겹침을 피한다(잡몹 스폰 산포 범위 안이라 어색하지 않다).
   m.d = BOSS_SPAWN_D;
-  m.spawnD = m.d; m.lapCounted = false;   // v15bs: 완주(1바퀴) 판정 기준점
+  m.spawnD = m.d; m.lapCounted = false;   // v15gm: 완주(반 바퀴) 판정 기준점
   // 보스 체력은 필드 혼잡도(dynK) 영향을 받지 않는 독립 기준값 사용 (몹 많다고 보스 약해지는 버그 수정)
   // v15g2: 하드는 초반 보스가 지옥에 가까울 만큼 셌다(R5 기준 지옥의 97%). 보스만 완화한다.
   //   R1~50 은 20%, R51 이상은 15% 낮춘다. 다른 난이도와 잡몹은 건드리지 않는다.
@@ -6128,7 +6130,7 @@ function spawnMidBoss(round){
   const [name, mul] = arc.mid[Math.floor(Math.random()*arc.mid.length)];
   const m = poolGet(monsterPool);
   m.d = 0;   // v15c2: 스폰 지점을 왼쪽 위 게이트 하나로 통일
-  m.spawnD = m.d; m.lapCounted = false;   // v15bs: 완주(1바퀴) 판정 기준점
+  m.spawnD = m.d; m.lapCounted = false;   // v15gm: 완주(반 바퀴) 판정 기준점
   m.maxHp = m.hp = Math.round(s.hp * 14 * mul * 1.25);   // v15k: 중간보스 25% 강화
   m.speed = s.speed * 0.68;
   m.armor = Math.round(s.armor * 2.8 * 1.25);             // v15k: 중간보스 25% 강화
@@ -7919,8 +7921,10 @@ function update(dt){
       if(m._armorSave != null) m.armor = m._armorSave;
       m._armorSave = null; m._armorCurseUntil = 0;
     }
-    // v15bs: 필드 카운트는 이제 "현재 필드에 있는 수"가 아니라 "경로를 1바퀴 완주한 수" 기준 - 처치되면 반영 안 됨
-    if(!m.lapCounted && (m.d - (m.spawnD||0)) >= PERIM){
+    // v15bs: 필드 카운트는 "현재 필드에 있는 수"가 아니라 "경로를 완주한 수" 기준 - 처치되면 반영 안 됨
+    // v15gm: 완주 판정을 한 바퀴 → 반 바퀴로 바꿨다. 같은 몬스터가 계속 돌아도
+    //   중복 카운트되지 않는 건 그대로다(lapCounted 가드).
+    if(!m.lapCounted && (m.d - (m.spawnD||0)) >= PERIM * LAP_COUNT_RATIO){
       m.lapCounted = true;
       state.lapBreaches++;
     }
