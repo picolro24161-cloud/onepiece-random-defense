@@ -3561,7 +3561,9 @@ function raidRoundArmorMul(round){ return 1 + 0.6 * raidPower(round); }   // R5 
 //   그만큼 안 오른다. 상수 하나로는 양끝을 못 맞춰서 실측 기반 표로 보간한다.
 //   (초반은 체력을 크게 올리고, 후반으로 갈수록 크게 깎는다)
 const RAID_HP_TRIM_TABLE = [   // [라운드, 기본 체력에 곱할 배수]
-  [5, 30], [10, 8], [15, 4], [20, 2], [25, 0.5],
+  // v15h1: R5~R20 을 "잘 큰 로스터" 기준으로 잡아서 초반 보스가 불가능해졌었다.
+  //   그 라운드에 실제로 가질 법한 전력(전설~신화) 기준으로 되돌린다.
+  [5, 0.9], [10, 0.8], [15, 0.7], [20, 0.6], [25, 0.5],
   [30, 0.25], [40, 0.15], [50, 0.07], [70, 0.030], [95, 0.020],
 ];
 function raidHpTrim(round){
@@ -4024,16 +4026,16 @@ const ROUND_LEN_CUT_RATIO = (40 - ROUND_LEN) / 40;   // 0.25
 //   적은 절반인데 자금은 2배 이상이라 화력 성장이 적 성장을 크게 앞질렀다.
 //   세 축을 같이 조여서 하드로 가는 경사를 완만하게 만든다(하드/지옥은 손대지 않음).
 const DIFFS = {
-  easy:   { label:"EASY",   hp:0.72, armor:0.70, gold:0.85, field:330 },
-  normal: { label:"NORMAL", hp:0.90, armor:0.92, gold:0.65, field:310 },
-  hard:   { label:"HARD",   hp:0.9375, armor:1.05, gold:0.50, field:300 },
-  hell:   { label:"HELL",   hp:1.125, armor:1.3, gold:0.45, field:280 },
+  easy:   { label:"EASY",   hp:0.72, armor:0.70, gold:0.85, field:132 },
+  normal: { label:"NORMAL", hp:0.90, armor:0.92, gold:0.65, field:124 },
+  hard:   { label:"HARD",   hp:0.9375, armor:1.05, gold:0.50, field:120 },
+  hell:   { label:"HELL",   hp:1.125, armor:1.3, gold:0.45, field:112 },
 };
 // v15bn: 난이도별 최종 라운드 - 쉬움 60 / 노말 65 / 하드 70 / 지옥 75
 // v15f6: 배포된 빌드를 콘솔에서 바로 식별하기 위한 표식.
 //   Netlify 가 옛 빌드를 서빙하고 있는데 코드 문제로 오해해 한참 헤맨 적이 있어서 넣었다.
 //   브라우저 콘솔에 BUILD_ID 를 쳐서 지금 떠 있는 빌드가 무엇인지 즉시 확인할 수 있다.
-const BUILD_ID = "2026-08-06 AOKIJI-VID";
+const BUILD_ID = "2026-08-06 LATE-EASE";
 console.log("[원랜디] BUILD_ID =", BUILD_ID);
 // v15g2: 난이도별로 총 라운드가 달랐는데(75/80/85/90) 전부 95 로 통일한다.
 //   최종 보스(암흑황제 검은수염)도 90 이 아니라 95 라운드에 등장한다.
@@ -4108,9 +4110,16 @@ function lerpTable(x, pts){
   return yl + (yl-yp)/(xl-xp)*(x-xl);
 }
 // v15bz: R35 이후 몬스터 물량 성장을 완만한 구간별 목표치로 재설계 (골드 과잉 수급의 핵심 원인이던 몬스터 폭증 완화)
+// v15h3: 필드에 뜨는 몬스터 수가 많아 렉이 걸린다는 피드백.
+//   마리 수를 40% 로 줄이고, 대신 한 마리당 체력을 2.5배로 올려
+//   "라운드 전체 체력 총량"은 그대로 유지한다 → 난이도 체감은 지금과 같고 렉만 준다.
+//   필드 패배 상한도 같은 비율로 낮춘다(아래 DIFFS).
+const MOB_COUNT_SCALE = 0.40;
 function waveCount(round){
-  if(round <= 35) return Math.round(Math.min(180, 90 + Math.round(round*1.5)) * waveMult(round));
-  return Math.round(lerpTable(round, [[35,1143],[50,1300],[60,1500],[75,1700]]));
+  const base = (round <= 35)
+    ? Math.round(Math.min(180, 90 + Math.round(round*1.5)) * waveMult(round))
+    : Math.round(lerpTable(round, [[35,1143],[50,1300],[60,1500],[75,1700]]));
+  return Math.max(8, Math.round(base * MOB_COUNT_SCALE));
 }
 // 라운드 시작 기준 "그 시점에 걸맞은 등급 유닛이 약 10번 쏴야 1마리 처치"가 되도록 설계.
 // 기준 공격력: R1 흔함(9) → 라운드당 1.13배 성장 (등급 성장 속도와 동기화)
@@ -4219,8 +4228,13 @@ function fieldAutoDPS(){
   return d;
 }
 // R1~7: 기존 곡선 유지 / R8+: 플레이어가 강해진 만큼 적도 성장 (간당간당 유지, 입구컷 방지)
+// v15h4: R40 이후 전 난이도 20% 완화. 잡몹 전용이라 보스는 영향받지 않는다
+//   (보스는 spawnBoss 가 별도 공식을 쓴다).
+const LATE_EASE_FROM = 40, LATE_EASE_MUL = 0.80;
+function lateEaseOf(round){ return round > LATE_EASE_FROM ? LATE_EASE_MUL : 1; }
 function computeRoundHp(round){
-  const base = refDmg(round) * HP_MULT * diffHpMult(round);
+  // v15h2: 난이도 곡선은 잡몹 "체력"으로 맞춘다 (방어력은 건드리지 않는다)
+  const base = refDmg(round) * HP_MULT * diffHpMult(round) * mobHpDiffMul() * lateEaseOf(round);
   if(round <= 7) return Math.round(base);
   // v14: 후반 독립 난이도 배율 - 플레이어 화력과 무관하게 라운드 자체가 순수하게 더 어려워짐
   // (기존 dynK는 "현재 화력에 딱 맞춰 조정"만 해서 강해질수록 오히려 쉬워지는 역설이 있었음)
@@ -4266,6 +4280,17 @@ const ARMOR_MIDBOSS_MUL = 1.5;    // 중간보스
 const ARMOR_BOSS_MUL    = 2.0;    // 보스
 function roundArmorBase(round){
   return ARMOR_AT_FINAL * Math.pow(Math.max(0, round - 1) / 94, ARMOR_CURVE_POW);
+}
+// v15h2: 난이도별 잡몹 체력 배수. 난이도 곡선을 방어력이 아니라 체력으로 맞춘다.
+//   목표 — 쉬움/보통은 클리어 가능, 어려움 3판 중 1판, 지옥 4판 중 1판.
+//   1차 실측(획득 순서 모델, 95라운드 누적 완주 vs 상한):
+//     쉬움 162/330 생존 · 보통 846/310 · 어려움 2223/300 · 지옥 4142/280
+//   위 비율에서 역산한 1차 값. 실제 플레이로 재확인 필요.
+//   v15h3: 마리 수를 40% 로 줄인 만큼 한 마리 체력을 2.5배로 올려 총량을 유지한다.
+let MOB_HP_DIFF_MUL = { easy: 2.00, normal: 1.25, hard: 0.80, hell: 0.55 };
+function mobHpDiffMul(){
+  const v = MOB_HP_DIFF_MUL[state && state.diffKey];
+  return v != null ? v : 1;
 }
 function monsterStats(round){
   const rank = rankOf(round);
@@ -7152,7 +7177,7 @@ function ultraFxOf(def, sk){
 //   같은 유닛이 이미지 이펙트를 내보내는 간격에 최소 3초 하한을 건다.
 //   원래 3초보다 뜸하게 나오던 캐릭터는 이 검사에 걸리지 않아 기존 그대로다.
 //   피해·스턴 같은 실제 효과는 건드리지 않는다 — 보이는 연출만 솎아낸다.
-const ULT_FX_MIN_GAP = 3.0;
+const ULT_FX_MIN_GAP = 5.0;   // v15h3: 3초 -> 5초 (초절대자·패왕 이펙트가 너무 잦음)
 function fxGateOK(u){
   if(!u) return true;
   if(state.time - (u._imgFxAt == null ? -999 : u._imgFxAt) < ULT_FX_MIN_GAP) return false;
