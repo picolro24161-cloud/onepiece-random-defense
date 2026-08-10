@@ -824,6 +824,9 @@ const PASSIVES = {
   "최강해적 록스D지벡": { critDmg:0.45 },
   "사황 버기": { cdr:0.22 },
   "스코퍼가반": { crit:0.18, critDmg:0.25 },
+  // v15gu: 절대자에도 같은 이름이 생겨서 패시브가 섞이지 않도록 등급 스코프로 분리해 둔다.
+  //   (비워 두면 역할 처리 단계가 여기에 절대자용 값을 채운다)
+  "supremal|스코퍼가반": {},
   "태양신 니카 루피": { atk:0.35, aspd:0.20 },
   "전성기 흰수염": { critDmg:0.55, dmgTaken:0.25 },
   "[필름 레드] 샹크스": { crit:0.30, critDmg:0.50 },
@@ -1070,7 +1073,7 @@ const SUPREMAL_SKILLS = [
   /*검신 미호크*/    [ {type:"흑도 최강참",cd:3.5,mult:6.5,color:"#30ff60",kind:"slash",hits:28},{type:"세계 양단 최종",cd:6.0,mult:4.0,color:"#80ffa0",kind:"ring",radius:460} ],
   /*전성기 아카이누*/    [ {type:"멸살의 용암권",cd:3.5,mult:5.5,color:"#ff5030",kind:"bolt",hits:20},{type:"절대 정의",cd:5.0,mult:5.5,color:"#ff8050",kind:"ring",radius:460} ],
   /*명왕 레일리*/    [ {type:"명왕 참격",cd:3.5,mult:6.0,color:"#e0e0ff",kind:"slash",hits:24},{type:"패왕색 개방",cd:5.0,mult:4.5,color:"#ff2040",kind:"haki",radius:480,stun:2.5} ],
-  /*좌익왕 가반*/    [ {type:"황금 도끼",cd:3.8,mult:5.5,color:"#ffd700",kind:"slash",hits:18},{type:"비창 폭풍",cd:5.0,mult:4.5,color:"#80a0ff",kind:"ring",radius:440} ],
+  /*스코퍼가반(절대자)*/ [ {type:"황금 도끼",cd:3.8,mult:5.5,color:"#ffd700",kind:"slash",hits:18},{type:"비창 폭풍",cd:5.0,mult:4.5,color:"#80a0ff",kind:"ring",radius:440} ],
   /*천룡왕 샴록*/    [ {type:"천룡 낙뢰",cd:3.5,mult:5.5,color:"#80c0ff",kind:"bolt",hits:20},{type:"왕의 은총",cd:5.5,mult:4.0,color:"#ffd700",kind:"haki",radius:480,stun:2.5} ],
   /*대지신 워큐리*/  [ {type:"대지 진동",cd:3.5,mult:5.5,color:"#a06030",kind:"ring",radius:500},{type:"거인의 발구름",cd:5.0,mult:4.5,color:"#c08040",kind:"haki",radius:460,stun:2.0} ],
   /*화성신 마즈*/    [ {type:"화성 붕괴",cd:3.5,mult:6.0,color:"#ff3010",kind:"bolt",hits:22},{type:"업화의 심판",cd:5.0,mult:4.0,color:"#ff6020",kind:"burn",radius:440,dur:8} ],
@@ -1390,7 +1393,7 @@ supremal: [
  ["검신 미호크",   {hair:"#141414",hat:"cowboy",hatC:"#141414",top:"#141414",btm:"#141414",w:"bigsword",scale:1.85,f:{beard:"#141414",yellowEyes:1},aura:"rgba(60,220,90,.85)"}],
  ["전성기 아카이누",   {hair:"#1f1f1f",hat:"marine",hatC:"#f5f0e8",top:"#8c2f39",btm:"#8c2f39",scale:1.85,f:{scarL:1},aura:"rgba(255,80,40,.85)"}],
  ["명왕 레일리",   {hair:"#d0d0d0",top:"#1a1a22",btm:"#282836",w:"sword",scale:1.85,f:{glasses:1,scarL:1},aura:"rgba(220,220,255,.85)"}],
- ["좌익왕 가반",   {hair:"#2a3040",hat:"bandana",hatC:"#4a5060",top:"#3a4050",btm:"#2a3040",w:"sword",scale:1.8,aura:"rgba(80,120,200,.85)"}],
+ ["스코퍼가반",   {hair:"#2a3040",hat:"bandana",hatC:"#4a5060",top:"#3a4050",btm:"#2a3040",w:"sword",scale:1.8,aura:"rgba(80,120,200,.85)"}],
  ["천룡왕 샴록",   {hair:"#a0c0ff",top:"#0a1840",btm:"#0a1020",hat:"crown",hatC:"#ffd700",scale:1.8,aura:"rgba(100,160,255,.9)"}],
  ["대지신 워큐리", {hair:"#806040",hs:"long",top:"#604020",btm:"#402010",scale:2.0,aura:"rgba(180,120,40,.85)"}],
  ["화성신 마즈",   {hair:"#ff4010",top:"#600010",btm:"#400008",scale:1.85,f:{glowEyes:1},aura:"rgba(255,60,10,.9)"}],
@@ -2329,7 +2332,7 @@ const AI_SPRITES = {
   "supremal|대해적왕 흰수염": {url:"assets/img/6ce607d25f71.png",cols:3,rows:2,c:0,r:1},
   "supremal|검신 미호크":     {url:"assets/img/6ce607d25f71.png",cols:3,rows:2,c:1,r:1},
   "supremal|전성기 아카이누": {url:"assets/img/75b48fc0b85a.jpg",cols:1,rows:1,c:0,r:0},
-  "supremal|좌익왕 가반":     "assets/img/2b0c7c432130.jpg",   // v15ft: 원피스와 무관한 그림이라 전용 이미지로 교체
+  "supremal|스코퍼가반":     "assets/img/2b0c7c432130.jpg",   // v15ft: 원피스와 무관한 그림이라 전용 이미지로 교체
   "supremal|명왕 레일리":     {url:"assets/img/749daeedc1e9.png",cols:3,rows:2,c:1,r:0},
   "supremal|천룡왕 샴록": "assets/img/f86ec6de6bd5.png",
   "supremal|다이아몬드 조즈": "assets/img/ae00327ce32a.jpg",
@@ -3518,12 +3521,14 @@ const RAID_UNIT_COUNT = 5;      // 참전 인원
 // 해금된 보스 = 지금까지 도달한 라운드 이하의 보스 (누적)
 function raidUnlockedRounds(){
   const reached = state ? (state.round || 0) : 0;
-  return Object.keys(BOSSES).map(Number).sort((a,b)=>a-b).filter(r => r <= reached);
+  const done = (state && state.raidCleared) || {};
+  // v15gy: 이미 잡은 보스는 목록에서 뺀다
+  return Object.keys(BOSSES).map(Number).sort((a,b)=>a-b).filter(r => r <= reached && !done[r]);
 }
 // 참전 6명 — 등급 높은 순, 같으면 공격력 높은 순 (소환수는 제외)
 function raidPickUnits(){
   return state.units
-    .filter(u => !isSummonedUnit(u))
+    .filter(u => !isSummonCreature(u))   // v15gz: 소환수만 제외 (조합 금지 캐릭터는 참전 가능)
     .sort((a,b)=>{
       const da = UNIT_DEFS[a.defId], db = UNIT_DEFS[b.defId];
       const ga = GRADE_ORDER.indexOf(da.grade), gb = GRADE_ORDER.indexOf(db.grade);
@@ -3552,12 +3557,32 @@ const RAID_DIFF_HP    = { easy: 1.00, normal: 1.20, hard: 1.45, hell: 1.80 };
 const RAID_DIFF_ARMOR = { easy: 1.00, normal: 1.10, hard: 1.20, hell: 1.40 };
 function raidRoundHpMul(round){    return 1 + 1.4 * raidPower(round); }   // R5 x1.0 → R95 x2.4
 function raidRoundArmorMul(round){ return 1 + 0.6 * raidPower(round); }   // R5 x1.0 → R95 x1.6
+// v15gy: 보스 체력 배수. 기본 체력 곡선이 R5→R95 로 87,000배 오르는데 플레이어 전력은
+//   그만큼 안 오른다. 상수 하나로는 양끝을 못 맞춰서 실측 기반 표로 보간한다.
+//   (초반은 체력을 크게 올리고, 후반으로 갈수록 크게 깎는다)
+const RAID_HP_TRIM_TABLE = [   // [라운드, 기본 체력에 곱할 배수]
+  [5, 30], [10, 8], [15, 4], [20, 2], [25, 0.5],
+  [30, 0.25], [40, 0.15], [50, 0.07], [70, 0.030], [95, 0.020],
+];
+function raidHpTrim(round){
+  const T = RAID_HP_TRIM_TABLE;
+  if(round <= T[0][0]) return T[0][1];
+  if(round >= T[T.length-1][0]) return T[T.length-1][1];
+  for(let i=1;i<T.length;i++){
+    if(round <= T[i][0]){
+      const [r0,v0] = T[i-1], [r1,v1] = T[i];
+      return v0 + (v1 - v0) * ((round - r0) / (r1 - r0));
+    }
+  }
+  return T[T.length-1][1];
+}
 function raidTuneBoss(m, round){
   const dh = RAID_DIFF_HP[state.diffKey]    != null ? RAID_DIFF_HP[state.diffKey]    : 1;
   const da = RAID_DIFF_ARMOR[state.diffKey] != null ? RAID_DIFF_ARMOR[state.diffKey] : 1;
-  m.maxHp = m.hp = Math.round(m.maxHp * dh * raidRoundHpMul(round));
-  m.armor = Math.round(m.armor * da * raidRoundArmorMul(round));
+  m.maxHp = m.hp = Math.max(1, Math.round(m.maxHp * dh * raidRoundHpMul(round) * raidHpTrim(round)));
+  m.armor = Math.max(0, Math.round(m.armor * da * raidRoundArmorMul(round)));
 }
+// 패널 버튼 — 조정값을 바꾸고, 진행 중인 보스에도 즉시 반영한다
 const RAID_DEBUFF_KINDS = ["aspd", "atk", "heal", "armor"];
 const RAID_DEBUFF_DIFF_MUL = { easy: 0.6, normal: 0.8, hard: 1.0, hell: 1.25 };
 // 시전 간격도 라운드가 높을수록 짧아진다 (초반 14초 → 후반 7초)
@@ -4008,7 +4033,7 @@ const DIFFS = {
 // v15f6: 배포된 빌드를 콘솔에서 바로 식별하기 위한 표식.
 //   Netlify 가 옛 빌드를 서빙하고 있는데 코드 문제로 오해해 한참 헤맨 적이 있어서 넣었다.
 //   브라우저 콘솔에 BUILD_ID 를 쳐서 지금 떠 있는 빌드가 무엇인지 즉시 확인할 수 있다.
-const BUILD_ID = "2026-08-06 RAIDTUNE";
+const BUILD_ID = "2026-08-06 RAIDPICK";
 console.log("[원랜디] BUILD_ID =", BUILD_ID);
 // v15g2: 난이도별로 총 라운드가 달랐는데(75/80/85/90) 전부 95 로 통일한다.
 //   최종 보스(암흑황제 검은수염)도 90 이 아니라 95 라운드에 등장한다.
@@ -4228,6 +4253,20 @@ function midRoundHpSync(){
     state.roundHp = Math.round(Math.max(target, state.roundHp * 0.75, 1)); // 과부하 → 신규 몹 완화
   }
 }
+// v15gt: 방어력 수치 체계 재설계.
+//   기존 방어력은 R95 에 51만까지 치솟아 감쇠 곡선(0~1200 대역)에서 의미가 없었다.
+//   라운드에 따라 0 → 1200 으로 완만하게 오르는 곡선으로 통일한다.
+//   난이도 계수와 개체 종류(잡몹/중간보스/보스)로만 차등을 준다.
+// v15gw: 지수를 1.5 -> 2.0 으로 올려 후반 방어력을 더 가파르게 만든다.
+//   중반(R47)은 350 대를 유지하면서, 후반에 상위 티어 방감이 "깎을 거리"를 남긴다.
+//   지수만 올리면 후반이 낮아지므로 최댓값도 함께 올린다.
+const ARMOR_AT_FINAL = 1462;      // R95 기준 (R47 은 350 대로 유지됨)
+const ARMOR_CURVE_POW = 2.0;
+const ARMOR_MIDBOSS_MUL = 1.5;    // 중간보스
+const ARMOR_BOSS_MUL    = 2.0;    // 보스
+function roundArmorBase(round){
+  return ARMOR_AT_FINAL * Math.pow(Math.max(0, round - 1) / 94, ARMOR_CURVE_POW);
+}
 function monsterStats(round){
   const rank = rankOf(round);
   return {
@@ -4243,13 +4282,18 @@ function monsterStats(round){
     // v15ai: EASY는 R25 이후 붙는 2차 가중치(방어력 급증의 핵심 원인)를 절반으로 완화 (보스는 미적용)
     // v15am: NORMAL/HARD도 방어력 20% 완화 (보스는 monsterStats를 안 거치므로 미적용)
     // v15bg: R30 이후부터 전 난이도 공통 방어력 추가 10% 감소 (보스 제외)
-    armor: Math.round((MARINE_RANKS[rank].armor + Math.max(0, round-7)*5 + Math.max(0, round-25)*Math.max(0, round-25)*(state.diffKey==="easy"?0.21:0.42)) * state.diff.armor * 0.9 * nonBossEaseOf(round) * (1 + Math.pow(Math.max(0, round-30), 1.75) * 0.014) * Math.pow(1.04, Math.max(0, round-40))),   // v15db: 라인 방어력에도 R40 이후 라운드당 +4% 복리 추가 (R41 x2.01 / R55 x8.8 / R70 x32.1)
+    armor: Math.round(roundArmorBase(round) * state.diff.armor),   // v15gt: 감쇠 곡선 대역으로 통일
     rank,
   };
 }
 // v15c3: 필드 카운트 규칙(최종 확정)
 // v15gm: 완주 기준을 한 바퀴에서 반 바퀴로 변경 (난이도 상향)
-const LAP_COUNT_RATIO = 0.5;   // 경로의 이 비율만큼 진행하면 완주로 친다
+// v15gy: 완주 기준을 난이도별로 나눈다. 한 바퀴(1.0)는 너무 쉽고 반 바퀴(0.5)는 너무 빡빡했다.
+const LAP_COUNT_RATIO_BY_DIFF = { easy: 0.95, normal: 0.85, hard: 0.75, hell: 0.65 };
+function lapCountRatio(){
+  const v = LAP_COUNT_RATIO_BY_DIFF[state && state.diffKey];
+  return v != null ? v : 0.85;
+}
 // ① 스폰 시점: 카운트 변화 없음
 // ② 몬스터가 경로를 반 바퀴 통과하는 순간: +1 (같은 몬스터가 계속 돌아도 중복 카운트 없음 - m.lapCounted 가드)
 // ③ 유닛이 몬스터를 처치(제거)하는 순간: -1 (완주 전에 죽으면 애초에 +1이 없었으므로 변화 없음)
@@ -4513,7 +4557,7 @@ function spawnBoss(round){
   // v15bp: 보스 속도가 라운드 무관 고정값이었음 - 라운드가 높을수록 점진적으로 빨라지도록 수정 (최대 46+30=76)
   m.speed = Math.min(76, 46 + round*0.4);
   m.reward = Math.round((750 + round*95) * state.diff.gold);   // 보스 보상 대폭 증가
-  m.armor = Math.round((MARINE_RANKS[rankOf(round)].armor + Math.max(0, round-7)*4 + Math.max(0, round-25)*Math.max(0, round-25)*0.3) * state.diff.armor * 2.6 * hardBossEase);
+  m.armor = Math.round(roundArmorBase(round) * state.diff.armor * ARMOR_BOSS_MUL * hardBossEase);   // v15gt
   m.rank = rankOf(round);
   m.boss = true; m.slow = 0; m.stun = 0; m.elite = false; m.faction = "marine";
   m.stunPulses = null; m.slowStrongUntil = 0; m._armorSave = null; m._armorCurseUntil = 0;
@@ -4575,7 +4619,7 @@ function spawnBoss(round){
   //   잡몹 방어력(state.diff.armor)은 건드리지 않으므로 하드 잡몹은 그대로다.
   let _bossArmorMul = state.diff.armor * hardBossEase;
   if(state.diffKey === "hard") _bossArmorMul = Math.max(_bossArmorMul, DIFFS.normal.armor * 1.08);
-  m.armor = Math.round(tier.armor * _bossArmorMul);
+  m.armor = Math.round(roundArmorBase(state.round) * _bossArmorMul * ARMOR_MIDBOSS_MUL / 2.6);   // v15gt
   }
   // v15w: 보스가 너무 쉽게 죽어서(3초 순삭) 체력 전체 3배 상향, 방어력은 그대로 유지
   m.maxHp = m.hp = Math.round(m.maxHp * 3);
@@ -4633,6 +4677,14 @@ function freeSlot(){ return SLOTS.find(s=>!s.unit) || null; }
 //   tempUntil 이 붙은 임시 유닛은 니카 루피의 복제 소환도 포함되므로 함께 걸러진다.
 function isSummonedUnit(u){
   return !!(u && (u.tempUntil || isCraftLockedId(u.defId)));
+}
+// v15gz: "진짜 소환수인가"만 보는 판정.
+//   isSummonedUnit 은 조합 금지 표식(craftLocked)까지 함께 보기 때문에,
+//   조합에만 못 쓰는 캐릭터(우타)가 레이드 선발에서도 통째로 빠지는 문제가 있었다.
+//   레이드 참전 선발처럼 "소환수만 빼야 하는" 곳은 이 함수를 쓴다.
+function isSummonCreature(u){
+  const d = u && UNIT_DEFS[u.defId];
+  return !!(u && (u.tempUntil || (d && d.summonOnly)));
 }
 // v15gb: 조합 계통에서 제외할 defId 판정 (소환 전용 캐릭터 + 조합재료 금지 캐릭터)
 //   summonOnly  = 소환으로만 등장하는 캐릭터 (샹크스/코비) — 뽑기·조합 결과에도 안 나온다
@@ -5797,7 +5849,7 @@ const ENTRANCE_QUOTES = {
   "검신 미호크":        { q:"이 검이 세상 최강이라는 것을 증명하지.", p:0.80 },
   "전성기 아카이누":        { q:"정의에 흔들림은 없다.", p:0.73 },
   "명왕 레일리":        { q:"황금시대를 함께한 남자... 아직 죽을 수 없어.", p:0.82 },
-  "좌익왕 가반":        { q:"록스 해적단의 좌익왕이 나섰다.", p:0.75 },
+  "스코퍼가반":        { q:"록스 해적단의 좌익왕이 나섰다.", p:0.75 },
   "천룡왕 샴록":        { q:"세상의 법칙이란 내가 만드는 것이다.", p:0.72 },
   "대지신 워큐리":      { q:"대지는 내 발아래 있다.", p:0.68 },
   "화성신 마즈":        { q:"불꽃이 모든 것을 태운다.", p:0.78 },
@@ -6242,7 +6294,7 @@ const ROLE_TAGS = {
   // 절대자
   "태양신 조이보이":"원거리범위딜", "니드호그":"근접범위딜", "암흑신 티치":"서포터", "해적신 로저":"근접단일딜",
   "패왕 록스":"끝딜", "혁명왕 드래곤":"서포터", "최강생물 카이도":"근접범위딜", "대해적왕 흰수염":"근접범위딜",
-  "전성기 아카이누":"서포터", "명왕 레일리":"서포터", "좌익왕 가반":"근접단일딜", "천룡왕 샴록":"원거리단일딜",
+  "전성기 아카이누":"서포터", "명왕 레일리":"서포터", "천룡왕 샴록":"원거리단일딜",
   "대지신 워큐리":"원거리범위딜", "화성신 마즈":"원거리단일딜", "다이아몬드 조즈":"근접범위딜", "검신 누스즈로":"근접단일딜",
   "역병신 새턴":"끝딜", "심판신 쥬 피터":"원거리단일딜",
   // 초절대자
@@ -6778,6 +6830,86 @@ function scopeOf(sk){
   console.log(`[원랜디] 패왕 스킬 20% 상향 — ${nSk}개 스킬 / ${nVal}개 수치`);
 })();
 
+// =========================================================
+//  v15gr: 방감(armorRed) 규모 재조정
+// =========================================================
+// 방어력이 평타·스킬 모두에서 그대로 차감되고 최소 피해 바닥도 사라지면서,
+// "방어력을 못 뚫으면 피해 0" 이 됐다. 그런데 기존 방감은 방어력과 자릿수가
+// 완전히 달랐다 — 팀 방감 최대 417 vs R95 몹 방어 516,955 (1,240배 차이).
+// 그대로 두면 R50 이후로는 아무도 딜이 안 들어가 게임이 진행 불가다.
+//
+// 그래서 각 티어의 방감을 "그 티어가 활약하는 라운드의 적 방어력" 기준으로 맞춘다.
+// 목표: 같은 티어 5명 팀의 방감 합계가 그 라운드 적 방어력의 약 50%.
+//   → 방어력이 절반으로 깎이고, 남은 절반은 공격력으로 뚫는 구도가 된다.
+// v15gt: 새 방어력 대역(0~1200)에 맞춘 방감 목표.
+//   각 티어가 활약하는 라운드의 잡몹 방어력의 약 55% 를 팀 5명이 깎도록 잡는다.
+const TIER_ARMOR_RED_TARGET = {   // 캐릭터 1인당 평균 방감 (팀 5명이면 x5)
+  // 목표: 팀 5명의 방감으로 "남은 방어력"을 약 160 까지 낮춘다.
+  //   그러면 라운드가 올라가도 피해배율이 55% 안팎으로 일정하게 유지된다.
+  //   (방어력이 커질수록 방감이 차지해야 할 몫도 커지므로 상위 티어일수록 크게 뛴다)
+  // v15gv: 절대자 상향 + 상위 티어 격차 확대.
+  //   팀5 방감이 그 라운드 방어력에서 차지하는 비율이 티어마다 확실히 벌어지게 잡는다.
+  //   신화 55% → 태초 62% → 절대 68% → 히든 72% → 절대자 80% → 초절대자 90% → 패왕 100%
+  //   목표 비율(팀5 방감 / 그 라운드 방어력):
+  //     신화 55% → 태초 62% → 절대 68% → 히든 72% → 절대자 80% → 초절대자 90% → 패왕 100%
+  mythic:       13,      // R30  → 팀5 방감이 방어의 55%
+  origin:       22,      // R40  → 62%
+  absolute:     43,      // R50  → 68%
+  hidden:       97,      // R55  → 72%
+  supremal:     61,      // R65  → 80%   (절대자 상향)
+  ultramaximal:101,      // R80  → 90%   (초절대자 확실히 위)
+  overlord:    231,      // R95  → 100%  (패왕 확실히 위)
+};
+// 방감이 아예 없는 캐릭터로만 팀을 짜면 피해가 0 이 되어 게임이 막힌다.
+// 그래서 해당 티어 전원이 최소한의 방감을 갖게 하되, 역할에 따라 차등을 둔다.
+// v15gt: 역할 가중치 — 게임 설계 의도를 방감 배분에 반영한다.
+//   필드에서는 서포터와 라인클리어(범위딜)가, 레이드에서는 보스딜(원거리단일딜)이 핵심이다.
+const ARMOR_RED_ROLE_W = {
+  "서포터":      1.70,   // 필드 핵심 — 팀 전체 방감을 책임진다
+  "원거리단일딜": 1.35,   // 레이드 핵심 — 보스딜 역할
+  "근접범위딜":   1.05,   // 필드 라인클리어
+  "원거리범위딜": 1.05,   // 필드 라인클리어
+  "근접단일딜":   0.85,
+  "끝딜":        0.80,
+};
+(function rescaleArmorRed(){
+  // 동명이인(예: 태초/절대자 "검신 미호크")은 PASSIVES 항목을 공유한다.
+  //   원본을 먼저 통째로 스냅샷해 두지 않으면 같은 값에 스케일이 중복으로 곱해진다.
+  const ORIG = {};
+  Object.keys(PASSIVES).forEach(k=>{ ORIG[k] = (PASSIVES[k] && PASSIVES[k].armorRed) || 0; });
+  // 상대 비율의 기준이 되는 티어 평균도 원본에서 뽑는다.
+  const avgOf = {};
+  Object.keys(TIER_ARMOR_RED_TARGET).forEach(g=>{
+    const vals = (ROSTER[g] || []).map(e=>{
+      const nm = String(e[0]).replace("★","");
+      return ORIG[g+"|"+nm] || ORIG[nm] || 0;
+    }).filter(v=>v>0);
+    avgOf[g] = vals.length ? vals.reduce((a,b)=>a+b,0)/vals.length : 1;
+  });
+  // 결과는 반드시 "등급|이름" 키에 쓴다. 이름만 쓰면 동명이인(신화 "니카 루피" ↔
+  // 패왕 "태양신 니카 루피" 같은 이름 겹침)이 같은 항목을 공유해서, 낮은 티어가
+  // 상위 티어의 방감을 그대로 물려받는다. passiveOf 가 "등급|이름"을 우선 조회하므로
+  // 등급마다 완전히 분리된 값을 갖게 된다.
+  let n = 0;
+  Object.keys(TIER_ARMOR_RED_TARGET).forEach(g=>{
+    const target = TIER_ARMOR_RED_TARGET[g], avg = avgOf[g];
+    (ROSTER[g] || []).forEach(e=>{
+      const nm = String(e[0]).replace("★","");
+      const k = g + "|" + nm;
+      if(!PASSIVES[k]) PASSIVES[k] = Object.assign({}, PASSIVES[nm] || {});
+      const role = ROLE_TAGS[nm];
+      const w = ARMOR_RED_ROLE_W[role] != null ? ARMOR_RED_ROLE_W[role] : 1.0;
+      const src = ORIG[g+"|"+nm] || ORIG[nm] || 0;
+      // 원래 값이 있으면 티어 내 상대 비율을 살리고(0.5~1.8 로 제한), 없으면 0.6 을 기본으로
+      const rel = src > 0 ? Math.min(1.8, Math.max(0.5, src / avg)) : 0.6;
+      PASSIVES[k].armorRed = Math.max(1, Math.round(target * rel * w));
+      n++;
+    });
+  });
+  console.log(`[원랜디] 방감 규모 재조정 — ${n}명`);
+})();
+
+
 // v15ae: 히든 등급 중 방감 없는 캐릭터(에넬/가프/스튜시/로/샤카/에디슨/릴리스/요크 등) 채워넣기 — 히든은 전원 근접범위 디버프형이라 근접 보너스 포함
 GRADE_POOL.hidden.forEach(id=>{
   const d = UNIT_DEFS[id];
@@ -6823,8 +6955,55 @@ function applyCombatDmg(def, m, dealt){
 //   실측(HARD, 유닛 30): R75 총 DPS 2,547B 중 스킬 %딜이 2,547B - 전체의 99.999%, TTK 5.7초.
 //   → 보스/정예에 한해 "초당 최대체력 비례 피해 총량"을 제한한다. 그러면 체력이 다시 실제 레버가 된다.
 //   사용자 피드백(초반 약간 셈 / 중반 적당 / 45~75 너무 약함)에 맞춰 R41 이후에만 적용한다.
-let PCT_CAP_PER_SEC = 0.0155;   // v15do: 실측 튜닝 확정값 (보스 TTK 목표 25~46초)    // 보스: 초당 최대체력의 2%까지 → %딜 단독으로는 최소 50초 소요
+let PCT_CAP_PER_SEC = 0.0015;   // v15gs: 0.0155 -> 0.0015. %HP딜이 보스 피해의 85% 를 차지해
+                                //   방어력·방감이 아무 의미가 없었다. 비중을 10% 대로 낮춘다.   // v15do: 실측 튜닝 확정값 (보스 TTK 목표 25~46초)    // 보스: 초당 최대체력의 2%까지 → %딜 단독으로는 최소 50초 소요
 const PCT_CAP_FROM_ROUND = 41;
+// v15gr: 방어력을 "진짜 벽"으로 되돌린다.
+//   그동안 방어력은 평타에만, 그것도 최소 10% 바닥이 있어서 사실상 무의미했고
+//   스킬 피해에는 아예 적용되지 않았다(최초 커밋부터). 이제 평타·스킬 모두
+//   방어력을 그대로 차감하고 바닥도 없앤다 — 못 뚫으면 피해 0이다.
+//   그래서 방감(armorRed)이 핵심 스탯이 된다.
+// v15gs: 방어력은 "뺄셈"이 아니라 "비율 감쇠"로 작동한다.
+//   방감이 0이어도 피해가 0이 되지는 않고 최소 비율은 들어가며,
+//   방감을 올려 방어력을 깎을수록 들어가는 비율이 올라간다.
+//
+//     남은방어 = max(0, 방어력 - 방감)          ← 방어관통도 여기서 반영됨
+//     피해배율 = 1 - ARMOR_MAX_CUT x (남은방어 / 방어력)
+//
+//   방감 0        → 남은방어 = 방어력   → 배율 1 - 0.70 = 0.30 (30%)
+//   방감 = 방어 절반 → 배율 1 - 0.35 = 0.65 (65%)
+//   방감 >= 방어력 → 남은방어 0        → 배율 1.00 (100%)
+//
+//   수치가 아니라 비율로 판정하므로 라운드가 올라가 방어력이 커져도
+//   "방감을 얼마나 확보했나"가 그대로 체감된다.
+// v15gt: 방어력 감쇠 곡선. 방어력이 높을수록 피해 비율이 떨어지되 0 이 되지는 않는다.
+//     피해배율 = (K / (K + 남은방어)) ^ P      (남은방어 = max(0, 방어력 - 방감))
+//   K=600, P=2.6 기준 실제 값:
+//     방어    0 → 100%     방어  100 →  67%
+//     방어  500 →  23%     방어 1000 →  10%
+//   방감으로 남은방어를 깎으면 그만큼 배율이 올라간다.
+const ARMOR_K = 600, ARMOR_P = 2.6;
+function armorMult(effArmor){
+  if(effArmor <= 0) return 1;
+  return Math.pow(ARMOR_K / (ARMOR_K + effArmor), ARMOR_P);
+}
+function armorApply(raw, target, def){
+  return raw * armorMult(effArmorOf(target, def));
+}
+function effArmorOf(target, def){
+  let base = target.armor || 0;
+  const role = ROLE_TAGS[def.name.replace("★","")];
+  // 보스딜 특화 역할의 방어관통은 그대로 유지
+  if(role === "원거리단일딜" && (target.boss || target.elite)){
+    base *= (1 - (ROLE_TIER_SCALE.rangedSinglePierce[def.grade] || 0));
+    if(target.boss) base *= (1 - (ROLE_TIER_SCALE.bossOnlyPierce[def.grade] || 0));
+  }
+  return Math.max(0, base - state.aura.armorRed);
+}
+// 스킬 피해에 방어력을 차감한다 (한 대상당 1회)
+function armorCut(raw, target, def){
+  return Math.max(0, Math.round(armorApply(raw, target, def)));
+}
 function pctMaxHpDmg(m, pct){
   const want = m.maxHp * pct;
   if(!(m.boss || m.elite)) return want;                  // 일반 몹은 물량 처리에 필요하므로 현행 유지
@@ -7258,7 +7437,7 @@ function fireSkill(u, def, sk){
     inRange.forEach(m=>{
       const p = mPos(m);
       if(inCells(p.x-u.x, p.y-u.y, _skCells)){   // v15g0: 격자 타원
-        const dealt = Math.round((skillDmgBase * state.synDmg * (1+state.aura.atk) * (1+state.aura.skillDmg) * sk.mult + pctMaxHpDmg(m, pctOf(m))) * (1+state.aura.dmgTaken) * combatDmgMult(def, m));
+        const dealt = armorCut(Math.round((skillDmgBase * state.synDmg * (1+state.aura.atk) * (1+state.aura.skillDmg) * sk.mult + pctMaxHpDmg(m, pctOf(m))) * (1+state.aura.dmgTaken) * combatDmgMult(def, m)), m, def);
         applyCombatDmg(def, m, dealt);
         // v15fn: 예전엔 m.stun(초 단위 완전정지)이라 스턴 축이 둘로 나뉘어 있었다.
         //   같은 누적 스턴 체계로 합친다. 지속은 공용값을 쓴다 —
@@ -7297,7 +7476,7 @@ function fireSkill(u, def, sk){
       state.monsters.forEach(m=>{
         const p = mPos(m);
         if(inCells(p.x-ep.x, p.y-ep.y, _skCells)){   // v15g0: 격자 타원
-          const dealt = Math.round((skillDmgBase * state.synDmg * (1+state.aura.atk) * (1+state.aura.skillDmg) * sk.mult + pctMaxHpDmg(m, pctOf(m))) * (1+state.aura.dmgTaken) * combatDmgMult(def, m));
+          const dealt = armorCut(Math.round((skillDmgBase * state.synDmg * (1+state.aura.atk) * (1+state.aura.skillDmg) * sk.mult + pctMaxHpDmg(m, pctOf(m))) * (1+state.aura.dmgTaken) * combatDmgMult(def, m)), m, def);
           applyCombatDmg(def, m, dealt);
           if(sk.slow) applySlow(m, _slowPowerOf(sk.slow));   // v15fm: 최고값 1개만
           // v15fp: ring 계열도 stun 속성이 있으면 스턴을 넣는다(haki 계열만 걸리던 문제)
@@ -7316,7 +7495,7 @@ function fireSkill(u, def, sk){
       if(nrm <= 1 && nrm < ndBestDist){ ndBestDist = nrm; ndTarget = m; }
     });
     if(ndTarget){
-      const dealt = Math.round((skillDmgBase * state.synDmg * (1+state.aura.atk) * (1+state.aura.skillDmg) * sk.mult + pctMaxHpDmg(ndTarget, pctOf(ndTarget))) * (1+state.aura.dmgTaken) * combatDmgMult(def, ndTarget));
+      const dealt = armorCut(Math.round((skillDmgBase * state.synDmg * (1+state.aura.atk) * (1+state.aura.skillDmg) * sk.mult + pctMaxHpDmg(ndTarget, pctOf(ndTarget))) * (1+state.aura.dmgTaken) * combatDmgMult(def, ndTarget)), ndTarget, def);
       applyCombatDmg(def, ndTarget, dealt);
       const tp = mPos(ndTarget);
       // v15g5: 히든 스킬 스턴도 평타와 같은 기준으로 스킬 반경 전체에 적용
@@ -7379,7 +7558,7 @@ function fireSkill(u, def, sk){
       })
       .slice(0, sk.hits);
     fx.lines = targets.map(m=>{
-      const dealt = Math.round((skillDmgBase * state.synDmg * (1+state.aura.atk) * (1+state.aura.skillDmg) * sk.mult + pctMaxHpDmg(m, pctOf(m))) * (1+state.aura.dmgTaken) * combatDmgMult(def, m));
+      const dealt = armorCut(Math.round((skillDmgBase * state.synDmg * (1+state.aura.atk) * (1+state.aura.skillDmg) * sk.mult + pctMaxHpDmg(m, pctOf(m))) * (1+state.aura.dmgTaken) * combatDmgMult(def, m)), m, def);
       applyCombatDmg(def, m, dealt);
       const p = mPos(m);
       return [u.x, u.y-8, p.x, p.y];
@@ -7791,6 +7970,8 @@ function update(dt){
       m.raid = false; m.raidScale = 0;
       state.banner = { text:`🏆 레이드 클리어! ${m.name} 격파 +${rw}G`, t:3.5 };
       addLog(`🏆 <b class="win-c">레이드 클리어!</b> ${m.name} 격파 — +${rw}G`);
+      if(!state.raidCleared) state.raidCleared = {};
+      state.raidCleared[RAID.round] = true;   // v15gy: 목록에서 제외
       try{ SFX.bossDie(); }catch(e){}
       removeLapCounted(m); swapRemove(state.monsters, i); poolPut(monsterPool, m);
       raidEnd(true);
@@ -7945,7 +8126,7 @@ function update(dt){
     // v15bs: 필드 카운트는 "현재 필드에 있는 수"가 아니라 "경로를 완주한 수" 기준 - 처치되면 반영 안 됨
     // v15gm: 완주 판정을 한 바퀴 → 반 바퀴로 바꿨다. 같은 몬스터가 계속 돌아도
     //   중복 카운트되지 않는 건 그대로다(lapCounted 가드).
-    if(!m.lapCounted && (m.d - (m.spawnD||0)) >= PERIM * LAP_COUNT_RATIO){
+    if(!m.lapCounted && (m.d - (m.spawnD||0)) >= PERIM * lapCountRatio()){
       m.lapCounted = true;
       state.lapBreaches++;
     }
@@ -8052,18 +8233,8 @@ function update(dt){
       const synDmg = def.dmg * (def.meleeBonus||1) * state.synDmg * (1 + A.atk) * (1 - raidUnitDebuff("atk"));
       const _role = ROLE_TAGS[def.name.replace("★","")];
       // v15c7: ③ 원거리단일딜 = 보스/특수몹 킬러 — 보스·정예 상대로 티어별 부분 방어무시
-      let _armorBase = target.armor;
-      if(_role === "원거리단일딜" && (target.boss || target.elite)){
-        _armorBase *= (1 - (ROLE_TIER_SCALE.rangedSinglePierce[def.grade] || 0));
-        // v15gj: 보스딜 특화 역할은 "보스에게만" 방어력을 한 겹 더 뚫는다.
-        //   일반 몹은 물론 정예에도 적용하지 않는다 — 다른 역할은 전혀 건드리지 않았다.
-        if(target.boss){
-          _armorBase *= (1 - (ROLE_TIER_SCALE.bossOnlyPierce[def.grade] || 0));
-        }
-      }
-      // v15ak: 방감을 퍼센트 곱셈이 아닌 수치 차감으로 변경 (여러 캐릭터 방감은 합산된 뒤 방어력에서 그대로 차감, 0 미만으로 내려가지 않음)
-      const effArmor = Math.max(0, _armorBase - A.armorRed);
-      let dealt = Math.max(synDmg - effArmor, Math.ceil(synDmg*0.1)) * (1 + A.dmgTaken);
+      // v15gs: 방어력은 비율 감쇠 — 방감을 얼마나 확보했느냐로 피해 비율이 정해진다
+      let dealt = Math.max(0, armorApply(synDmg, target, def)) * (1 + A.dmgTaken);
       // v15c7: ③ 원거리단일딜은 치명타 특화 — 오라 치명타에 더해 자체 치명타 확률 보너스 보유
       const _critChance = A.crit + (_role === "원거리단일딜" ? (ROLE_TIER_SCALE.rangedSingleCrit[def.grade] || 0) : 0);
       if(_critChance > 0 && Math.random() < _critChance) dealt *= (1.5 + A.critDmg);
