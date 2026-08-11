@@ -71,10 +71,8 @@
   @media (min-width:1101px){
     #app{ flex-direction:column; align-items:center; max-width:1500px; }
     #gameArea{ flex:none; width:100%; max-width:1000px; }
-    /* 필드가 화면을 다 먹으면 아래 패널이 화면 밖으로 밀린다.
-       캔버스 높이를 화면의 58% 로 묶어 "필드 + 패널"이 한눈에 들어오게 한다. */
-    #gameWrap{ display:flex; justify-content:center; }
-    canvas#game{ width:auto; max-width:100%; max-height:36vh; }
+    /* v15h6: 필드 크기는 건드리지 않는다 — 작아지면 캐릭터가 안 보여 재미가 없다.
+       패널을 필드 아래로 내리는 것만으로 가로 공간을 활용한다. */
     #panel{
       flex:none; width:100%; max-width:1500px; min-width:0;
       display:grid; grid-template-columns:repeat(3, minmax(300px, 1fr));
@@ -4074,7 +4072,7 @@ const DIFFS = {
 // v15f6: 배포된 빌드를 콘솔에서 바로 식별하기 위한 표식.
 //   Netlify 가 옛 빌드를 서빙하고 있는데 코드 문제로 오해해 한참 헤맨 적이 있어서 넣었다.
 //   브라우저 콘솔에 BUILD_ID 를 쳐서 지금 떠 있는 빌드가 무엇인지 즉시 확인할 수 있다.
-const BUILD_ID = "2026-08-06 LAYOUT2";
+const BUILD_ID = "2026-08-06 LAYOUT3";
 console.log("[원랜디] BUILD_ID =", BUILD_ID);
 // v15g2: 난이도별로 총 라운드가 달랐는데(75/80/85/90) 전부 95 로 통일한다.
 //   최종 보스(암흑황제 검은수염)도 90 이 아니라 95 라운드에 등장한다.
