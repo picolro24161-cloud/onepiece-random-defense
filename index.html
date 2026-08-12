@@ -589,6 +589,7 @@ document.getElementById("introVideo").src = "assets/video/20c96fbfc0f2.mp4";
           <label style="display:flex;align-items:center;gap:2px;cursor:pointer;"><input type="checkbox" class="autoStashCk" data-g="special">특별</label>
           <label style="display:flex;align-items:center;gap:2px;cursor:pointer;"><input type="checkbox" class="autoStashCk" data-g="rare">희귀</label>
           <label style="display:flex;align-items:center;gap:2px;cursor:pointer;"><input type="checkbox" class="autoStashCk" data-g="legend">전설</label>
+          <label style="display:flex;align-items:center;gap:2px;cursor:pointer;" title="초월·영원·불멸·제한"><input type="checkbox" class="autoStashCk" data-g="limit">최상위</label>
           <label style="display:flex;align-items:center;gap:2px;cursor:pointer;"><input type="checkbox" class="autoStashCk" data-g="mythic">신화</label>
         </span>
       </div>
@@ -598,6 +599,7 @@ document.getElementById("introVideo").src = "assets/video/20c96fbfc0f2.mp4";
         <button class="stashG" data-g="special">특별</button>
         <button class="stashG" data-g="rare">희귀</button>
         <button class="stashG" data-g="legend">전설</button>
+        <button class="stashG" data-g="limit" title="초월·영원·불멸·제한">최상위</button>
         <button class="stashG" data-g="mythic">신화</button>
       </span>
       <div id="storageList"><div class="empty-msg">비어 있음 — 필드가 가득 차면 소환 유닛이 여기에 쌓입니다.</div></div>
@@ -4074,7 +4076,7 @@ const DIFFS = {
 // v15f6: 배포된 빌드를 콘솔에서 바로 식별하기 위한 표식.
 //   Netlify 가 옛 빌드를 서빙하고 있는데 코드 문제로 오해해 한참 헤맨 적이 있어서 넣었다.
 //   브라우저 콘솔에 BUILD_ID 를 쳐서 지금 떠 있는 빌드가 무엇인지 즉시 확인할 수 있다.
-const BUILD_ID = "2026-08-06 LAYOUT4";
+const BUILD_ID = "2026-08-06 LATE70B";
 console.log("[원랜디] BUILD_ID =", BUILD_ID);
 // v15g2: 난이도별로 총 라운드가 달랐는데(75/80/85/90) 전부 95 로 통일한다.
 //   최종 보스(암흑황제 검은수염)도 90 이 아니라 95 라운드에 등장한다.
@@ -4269,8 +4271,22 @@ function fieldAutoDPS(){
 // R1~7: 기존 곡선 유지 / R8+: 플레이어가 강해진 만큼 적도 성장 (간당간당 유지, 입구컷 방지)
 // v15h4: R40 이후 전 난이도 20% 완화. 잡몹 전용이라 보스는 영향받지 않는다
 //   (보스는 spawnBoss 가 별도 공식을 쓴다).
+// v15h7: 후반 구간 목표 — 하드 기준
+//   R50+ : 절대2 + 히든1 로 클리어 가능
+//   R70+ : 패왕1 + 히든1  또는  초절대자1 + 절대자2 + 히든1 로 클리어 가능
+//   체력과 방어력만으로 맞춘다(웨이브 수·방감은 건드리지 않음).
 const LATE_EASE_FROM = 40, LATE_EASE_MUL = 0.80;
-function lateEaseOf(round){ return round > LATE_EASE_FROM ? LATE_EASE_MUL : 1; }
+// 측정 결과 후반을 막는 건 체력보다 방어력이었다.
+//   4인 편성(초절대자1+절대자2+히든1) 기준 R70~95 누적 완주가
+//   방어력 x1.0 -> 215, x0.6 -> 4 로 떨어진 반면 체력만 절반으로 줄여도 156 이었다.
+const LATE2_FROM = 70, LATE2_HP = 0.85, LATE2_ARMOR = 0.60;
+function lateEaseOf(round){
+  let m = round > LATE_EASE_FROM ? LATE_EASE_MUL : 1;
+  if(round >= LATE2_FROM) m *= LATE2_HP;
+  return m;
+}
+// 방어력도 후반에 함께 낮춘다 (roundArmorBase 결과에 곱해진다)
+function lateArmorEaseOf(round){ return round >= LATE2_FROM ? LATE2_ARMOR : 1; }
 function computeRoundHp(round){
   // v15h2: 난이도 곡선은 잡몹 "체력"으로 맞춘다 (방어력은 건드리지 않는다)
   const base = refDmg(round) * HP_MULT * diffHpMult(round) * mobHpDiffMul() * lateEaseOf(round);
@@ -4346,7 +4362,7 @@ function monsterStats(round){
     // v15ai: EASY는 R25 이후 붙는 2차 가중치(방어력 급증의 핵심 원인)를 절반으로 완화 (보스는 미적용)
     // v15am: NORMAL/HARD도 방어력 20% 완화 (보스는 monsterStats를 안 거치므로 미적용)
     // v15bg: R30 이후부터 전 난이도 공통 방어력 추가 10% 감소 (보스 제외)
-    armor: Math.round(roundArmorBase(round) * state.diff.armor),   // v15gt: 감쇠 곡선 대역으로 통일
+    armor: Math.round(roundArmorBase(round) * state.diff.armor * lateArmorEaseOf(round)),   // v15h7
     rank,
   };
 }
