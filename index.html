@@ -4076,7 +4076,7 @@ const DIFFS = {
 // v15f6: 배포된 빌드를 콘솔에서 바로 식별하기 위한 표식.
 //   Netlify 가 옛 빌드를 서빙하고 있는데 코드 문제로 오해해 한참 헤맨 적이 있어서 넣었다.
 //   브라우저 콘솔에 BUILD_ID 를 쳐서 지금 떠 있는 빌드가 무엇인지 즉시 확인할 수 있다.
-const BUILD_ID = "2026-08-06 ENDLESS";
+const BUILD_ID = "2026-08-14 SINGLEAOE";
 console.log("[원랜디] BUILD_ID =", BUILD_ID);
 // v15g2: 난이도별로 총 라운드가 달랐는데(75/80/85/90) 전부 95 로 통일한다.
 //   최종 보스(암흑황제 검은수염)도 90 이 아니라 95 라운드에 등장한다.
@@ -4117,7 +4117,7 @@ function initState(diffKey){
     roundHp:0, zones:[], shake:0, originProtectEnd:0, autoStashGrade:null,
     paused:false,
     lapBreaches:0,   // v15bs: 필드 카운트 = 몬스터가 경로를 완주(1바퀴)한 횟수. 처치되면 미반영, 완주하면 영구 반영(감소 없음)
-    eventCd:45, goldRushT:0, assaultT:0,
+    eventCd:45, goldRushT:0, assaultT:0, bossGoldBonus:0,   // v16a
     mission:null, roundKills:0, roundEliteKills:0, roundCrafts:0,
     synDmg:1, synCd:1, synNames:"",
     aura:{atk:0,aspd:0,cdr:0,crit:0,critDmg:0,gold:0,armorRed:0,dmgTaken:0,slow:0,slowBoss:0,skillDmg:0},
@@ -6525,6 +6525,229 @@ const ROLE_TAGS = {
 };
 const EXECUTE_KILL_NAMES = ["지저스 바제스"];   // 체력 50% 이하 대상 처치 확정타
 // v15n: 시전자별로 추적되는 임시 aura 펄스 등록 (같은 캐릭터가 다시 쏘면 자기 펄스만 갱신, 다른 캐릭터 펄스와는 별도로 누적)
+
+// =====================================================================
+//  v16a: 서포터 확장 효과 / 특수 상태이상 / 보스 골드 패시브
+//   - 이펙트는 붙이지 않는다(효과만).
+//   - 티어가 높을수록 수치와 지속시간이 커진다.
+// =====================================================================
+const TIER_IDX = { mythic:0, origin:1, absolute:2, hidden:2, supremal:3, ultramaximal:4, overlord:5 };
+function tierIdxOf(g){ return TIER_IDX[g] != null ? TIER_IDX[g] : 0; }
+// 이름을 안정적인 0~1 값으로 (배분을 매판 고정시키기 위해)
+function _h01(s){ let h = 2166136261; for(let i=0;i<s.length;i++){ h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return ((h>>>0) % 10000) / 10000; }
+
+// ── ① 서포터: 한 등급 위 공격력으로 임시 상향 (최고 티어 중 랜덤 1명) ──
+const GRADE_UP_MUL = [1.35, 1.45, 1.55, 1.70, 1.85, 2.00];   // 티어별 상향 배수
+const GRADE_UP_DUR = [4.0, 4.5, 5.0, 5.5, 6.0, 7.0];
+// ── ② 서포터: 속성 부여 (약한 효과, 상위 4명) ──
+const ELEMENT_MUL  = [0.06, 0.08, 0.10, 0.13, 0.16, 0.20];
+const ELEMENT_DUR  = [5.0, 5.5, 6.0, 6.5, 7.0, 8.0];
+// ── ③ 보스 등장 시 / ④ 웨이브 시작 시 전체 강화 ──
+const ONSPAWN_ATK  = [0.10, 0.14, 0.18, 0.23, 0.28, 0.35];
+const ONSPAWN_ASPD = [0.08, 0.11, 0.14, 0.18, 0.22, 0.28];
+const ONSPAWN_DUR  = [5.0, 6.0, 7.0, 8.0, 9.0, 10.0];
+
+// 유닛 개별 임시 공격 배수 (①②가 여기로 모인다)
+function unitBuffMul(u){
+  let m = 1;
+  if(u._gradeUpUntil && state.time < u._gradeUpUntil) m *= (u._gradeUpMul || 1);
+  if(u._elemUntil    && state.time < u._elemUntil)    m *= (1 + (u._elemMul || 0));
+  return m;
+}
+// 필드 유닛을 티어 높은 순으로
+function _unitsByTier(){
+  return state.units.slice().sort((a,b)=>
+    GRADE_ORDER.indexOf(UNIT_DEFS[b.defId].grade) - GRADE_ORDER.indexOf(UNIT_DEFS[a.defId].grade));
+}
+// ① 본인 등급 이하 중 최고 티어들을 모아 그 중 랜덤 1명
+function applyGradeUp(u, def){
+  const myRank = GRADE_ORDER.indexOf(def.grade);
+  const cands = state.units.filter(x=>GRADE_ORDER.indexOf(UNIT_DEFS[x.defId].grade) <= myRank);
+  if(cands.length === 0) return;
+  const topRank = Math.max(...cands.map(x=>GRADE_ORDER.indexOf(UNIT_DEFS[x.defId].grade)));
+  const top = cands.filter(x=>GRADE_ORDER.indexOf(UNIT_DEFS[x.defId].grade) === topRank);
+  const pick = top[Math.floor(Math.random()*top.length)];
+  const ti = tierIdxOf(def.grade);
+  pick._gradeUpMul = GRADE_UP_MUL[ti];
+  pick._gradeUpUntil = state.time + GRADE_UP_DUR[ti];
+}
+// ② 상위 4명에게 속성 부여
+function applyElement(u, def){
+  const ti = tierIdxOf(def.grade);
+  _unitsByTier().slice(0, 4).forEach(x=>{
+    x._elemMul = ELEMENT_MUL[ti];
+    x._elemUntil = state.time + ELEMENT_DUR[ti];
+  });
+}
+// ③④ 전체 강화 (패시브 자동 발동)
+function supportOnSpawnBuff(kind){
+  state.units.forEach(u=>{
+    const def = UNIT_DEFS[u.defId];
+    const ex = SUPPORT_EXTRA[def.name.replace("★","")];
+    if(!ex || ex.on !== kind) return;
+    const ti = tierIdxOf(def.grade), until = state.time + ONSPAWN_DUR[ti];
+    pulseHiddenBuff(u, "atk",  ONSPAWN_ATK[ti],  until);
+    pulseHiddenBuff(u, "aspd", ONSPAWN_ASPD[ti], until);
+  });
+}
+
+// =====================================================================
+//  특수 상태이상 (태초 이상 · 서포터 제외 · 캐릭터당 1개)
+// =====================================================================
+// 일반 슬로우는 최대 45%, 강화 슬로우는 45~60% 대역. 둘 다 중첩 없이 최고값 1개만.
+const SLOW_NORMAL_CAP = 0.45;
+const SPECIAL_LABEL = { strongSlow:"강화 둔화", freeze:"빙결", fear:"공포",
+                        root:"속박", mark:"표식", vulnerable:"취약", stun:"충격" };
+const SP_KINDS_BASE = ["strongSlow","freeze","fear","root","mark","vulnerable"];
+let _spKindIdx = 0;
+const SPECIAL_PICK_RATE = 0.30;   // 태초 이상 중 특수 효과를 받는 비율
+// =====================================================================
+//  v16f: 히든을 제외한 스턴 스킬 재설계
+//   히든은 "평타 스턴"이라 잦고 소규모다. 나머지 티어는 "스킬 스턴"이므로
+//   쿨을 7.2~11초로 길게 잡는 대신 데미지와 스턴을 함께 준다.
+//   사거리 형태를 네 가지로 나눠 캐릭터마다 성격이 달라지게 한다.
+//     ① point  단일 1기      — 스턴 최강 + 데미지 최고 (보스/강적용)
+//     ② small  2~3칸 원형    — 스턴 중간 + 데미지 중간 (뭉친 몹)
+//     ③ big    4칸 이상 원형 — 스턴 약함 + 데미지 낮음 (넓게 퍼뜨림)
+//     ④ line   가로/세로 한 줄 — 경로 위 몹만 (참격 느낌)
+const STUN_CELL = CELL;   // 1칸 (기기별 실제 칸 크기를 그대로 쓴다)
+const STUN_SHAPES = ["point", "small", "big", "line"];
+const STUN_SHAPE_LABEL = { point:"점", small:"소범위", big:"광역", line:"라인" };
+// 티어 인덱스: 신화0 태초1 절대2 절대자3 초절대자4 패왕5
+const STUN_SK_CD    = [7.2, 7.8, 8.4, 9.2, 10.0, 11.0];   // 쿨타임
+const STUN_SK_TIME   = { point:[2.4,2.7,2.9,3.1,3.3,3.5],  // 스턴 지속(초)
+                         small:[1.9,2.1,2.3,2.5,2.7,2.9],
+                         big:  [1.5,1.6,1.7,1.9,2.0,2.2],
+                         line: [2.0,2.2,2.4,2.6,2.8,3.0] };
+// 스턴 스킬은 CC 를 함께 주므로 순수 딜러 스킬보다 딜이 낮아야 한다.
+//   같은 티어의 일반 공격 스킬 배수(신화 4.3 / 태초 5.2 / 절대 6.0 /
+//   절대자 7.0 / 초절대자 8.1 / 패왕 10.1)를 기준으로 깎는다.
+//     점 77% (단일이라 그나마 높게) / 라인 55% / 소범위 60% / 광역 45%
+const STUN_SK_MULT   = { point:[3.3, 4.0, 4.6, 5.4, 6.2, 7.8],
+                         small:[2.6, 3.1, 3.6, 4.2, 4.9, 6.1],
+                         big:  [1.9, 2.3, 2.7, 3.2, 3.6, 4.5],
+                         line: [2.4, 2.9, 3.3, 3.9, 4.5, 5.6] };
+//   패왕은 최상위답게 범위를 크게 잡는다 (소범위 4.2칸 / 광역 8.6칸 / 라인 13칸)
+const STUN_SK_RADIUS = { point:[140,140,150,150,160,170],        // 반경(px)
+                         small:[2.2*STUN_CELL,2.4*STUN_CELL,2.6*STUN_CELL,2.8*STUN_CELL,3.2*STUN_CELL,4.2*STUN_CELL],
+                         big:  [4.2*STUN_CELL,4.6*STUN_CELL,5.0*STUN_CELL,5.4*STUN_CELL,6.4*STUN_CELL,8.6*STUN_CELL],
+                         line: [7.0*STUN_CELL,7.6*STUN_CELL,8.2*STUN_CELL,8.8*STUN_CELL,10.4*STUN_CELL,13.0*STUN_CELL] };
+const STUN_LINE_HALF = 60;   // 라인형의 두께(중심에서 위아래/좌우 px)
+const STUN_SKILL_INFO = {};  // "등급|이름" -> 모양
+// 라인형은 가로/세로 중 하나만 때린다
+function stunShapeHit(sk, px, py, ex, ey){
+  if(sk.stunShape !== "line") return true;
+  return sk.stunAxis === "v" ? Math.abs(px - ex) <= STUN_LINE_HALF
+                             : Math.abs(py - ey) <= STUN_LINE_HALF;
+}
+const SUPPORT_EXTRA = {};    // "이름" -> { cast, on }
+const SPECIAL_ASSIGN = {};   // "이름" -> kind
+function specialOf(def){
+  if(!def || !def.name) return null;
+  return SPECIAL_ASSIGN[def.name.replace("★","")] || null;
+}
+const SP_SLOW   = [0.45, 0.48, 0.51, 0.54, 0.57, 0.60];
+const SP_DUR    = [1.2, 1.4, 1.6, 1.9, 2.2, 2.6];
+const SP_MARK   = [0.10, 0.14, 0.18, 0.23, 0.28, 0.35];
+const SP_VULN   = [0.20, 0.26, 0.32, 0.40, 0.48, 0.60];
+// 히든 스턴(0.8~1.0)은 "평타"라 매 타격마다 들어가고 범위로 퍼진다.
+//   신규 스턴은 "스킬"이라 쿨마다 한 번, 단일 대상이다. 발동 횟수가 비교가 안 되므로
+//   한 방의 값은 오히려 더 크게 준다. 게다가 기존 스킬 하나를 빼고 넣는 자리다.
+//   임계값(STUN_FREEZE_THRESHOLD)이 3.5 라, 패왕 1.10 이어도 단독으로는 완전 정지가 안 된다.
+//   스킬 쿨이 3.5~6.5초인데 단일 대상 스턴만 넣으면 스킬 한 칸을 쓴 값을 못 한다.
+//   그래서 스턴에 "즉시 추가 피해 + 방어력 붕괴"를 묶고, 상위 티어는 광역과 골드까지 얹는다.
+const SP_STUN_MAX = 1.10;
+const SP_STUNV       = [0.30, 0.35, 0.45, 0.60, 0.85, 1.10];   // 스턴 수치
+const SP_STUN_BURST  = [0.9, 1.3, 1.8, 2.5, 3.4, 4.5];         // 즉시 추가 피해 (스킬 기본딜 배수)
+const SP_STUN_SHRED  = [12, 18, 26, 36, 50, 70];               // 방어력 붕괴 수치
+const SP_STUN_SHREDT = [2.0, 2.2, 2.5, 2.8, 3.2, 3.6];         // 붕괴 지속(초)
+const SP_STUN_SPLASH = [0, 0, 0, 120, 180, 240];               // 절대자부터 주변까지 스턴 확산(px)
+const SP_STUN_GOLD   = [2, 3, 5, 8, 12, 18];                   // 골드형이 받는 보상
+const SP_STUN_VULN   = [0.18, 0.24, 0.30, 0.38, 0.46, 0.58];   // 취약형: 받는 피해 증가
+const SP_STUN_SLOW   = [0.30, 0.34, 0.38, 0.42, 0.46, 0.50];   // 둔화형
+// 스턴 캐릭터마다 붙는 부가 효과는 딱 하나. 캐릭터별로 다르게 배분한다.
+const STUN_VARIANTS = ["burst", "shred", "vuln", "splash", "gold", "slow"];
+const STUN_VARIANT_LABEL = { burst:"충격 · 강타", shred:"충격 · 방어붕괴", vuln:"충격 · 균열",
+                             splash:"충격 · 확산", gold:"충격 · 현상금", slow:"충격 · 결박" };
+const STUN_VARIANT = {};   // "이름" -> variant
+let _stunVarIdx = 0;       // 해시가 한쪽으로 쏠려서 순번으로 고르게 돌린다
+function applySpecialEffect(def, m, dmgBase){
+  const kind = specialOf(def);
+  if(!kind || !m || m.hp <= 0) return;
+  const ti = tierIdxOf(def.grade), now = state.time, dur = SP_DUR[ti];
+  if(kind === "strongSlow"){
+    applySlow(m, SP_SLOW[ti], dur * 1.6);
+  }else if(kind === "freeze"){
+    if(!(m._freezeImmuneUntil && now < m._freezeImmuneUntil)){
+      m.stun = Math.max(m.stun || 0, dur);
+      m._freezeImmuneUntil = now + dur + 2.0;
+    }
+  }else if(kind === "root"){
+    m._rootUntil = Math.max(m._rootUntil || 0, now + dur);
+  }else if(kind === "fear"){
+    m._fearUntil = Math.max(m._fearUntil || 0, now + dur);
+  }else if(kind === "mark"){
+    m._markMul = Math.max(m._markMul || 0, SP_MARK[ti]);
+    m._markUntil = now + dur * 2.5;
+  }else if(kind === "vulnerable"){
+    m._vulnMax = Math.max(m._vulnMax || 0, SP_VULN[ti]);
+    m._vulnUntil = now + dur * 2.5;
+  }else if(kind === "stun"){
+    // 스턴은 공통, 부가 효과는 캐릭터마다 딱 하나만 붙는다.
+    _pushStun(m, Math.min(SP_STUN_MAX, SP_STUNV[ti]), STUN_PULSE_DUR);
+    const v = STUN_VARIANT[def.name.replace("★","")] || "burst";
+    if(v === "burst"){
+      if(dmgBase > 0) applyCombatDmg(def, m, armorCut(Math.round(dmgBase * SP_STUN_BURST[ti]), m, def));
+    }else if(v === "shred"){
+      if(!m._armorCurseUntil || now >= m._armorCurseUntil) m._armorSave = m.armor;
+      m.armor = Math.max(0, (m._armorSave != null ? m._armorSave : m.armor) - SP_STUN_SHRED[ti]);
+      m._armorCurseUntil = now + SP_STUN_SHREDT[ti];
+    }else if(v === "vuln"){
+      m._markMul = Math.max(m._markMul || 0, SP_STUN_VULN[ti]);
+      m._markUntil = now + SP_STUN_SHREDT[ti];
+    }else if(v === "splash"){
+      const sr = 100 + ti * 30, sr2 = sr * sr, c = mPos(m);
+      state.monsters.forEach(o=>{
+        if(o === m || o.hp <= 0) return;
+        const p = mPos(o), dx = p.x - c.x, dy = p.y - c.y;
+        if(dx*dx + dy*dy <= sr2) _pushStun(o, Math.min(SP_STUN_MAX, SP_STUNV[ti]) * 0.5, STUN_PULSE_DUR);
+      });
+    }else if(v === "gold"){
+      const g = SP_STUN_GOLD[ti];
+      state.gold += g; state.goldEarned += g;
+    }else if(v === "slow"){
+      applySlow(m, SP_STUN_SLOW[ti], SP_STUN_SHREDT[ti]);
+    }
+  }
+}
+// 표식 / 취약으로 늘어나는 피해 배수
+function specialDmgMult(m){
+  if(!m) return 1;
+  let mult = 1;
+  if(m._markUntil && state.time < m._markUntil) mult *= (1 + (m._markMul || 0));
+  if(m._vulnUntil && state.time < m._vulnUntil && m.maxHp > 0){
+    const missing = 1 - Math.max(0, m.hp) / m.maxHp;
+    mult *= (1 + (m._vulnMax || 0) * missing);
+  }
+  return mult;
+}
+
+// =====================================================================
+//  보스 처치 골드 패시브 (합산 아님 — 더 높은 값으로 교체)
+// =====================================================================
+function bossGoldBonusFor(round){
+  const step = Math.max(1, Math.floor(round / 5));            // R5 = 1 ... R90 = 18
+  const pct  = 2 + (Math.min(18, step) - 1) * (18 / 17);      // R5 2% ... R90 20%
+  return pct / 100;
+}
+function onBossKilledGold(round){
+  const v = bossGoldBonusFor(round);
+  if(v > (state.bossGoldBonus || 0)){
+    state.bossGoldBonus = v;
+    addLog(`💰 보스 처치 보상 — 골드 획득량 <b>+${Math.round(v*100)}%</b> (교체 적용)`);
+  }
+}
+
 function pulseHiddenBuff(u, key, value, until){
   if(!state.hiddenBuff[key]) state.hiddenBuff[key] = [];
   state.hiddenBuff[key] = state.hiddenBuff[key].filter(p=>p.src!==u);
@@ -6555,6 +6778,8 @@ const SLOW_DEFAULT_DUR = 3.0;
 function _slowPowerOf(v){ return v >= 1 ? 0.5 : v; }
 function applySlow(m, power, dur){
   if(!(power > 0)) return;
+  // v16b: 일반 슬로우는 45% 상한. 강화 슬로우(45~60%)만 그 위를 쓴다.
+  if(power < SLOW_NORMAL_CAP) power = Math.min(power, SLOW_NORMAL_CAP);
   const now = state.time;
   const cur = (m.slowUntil && now < m.slowUntil) ? (m.slowPower || 0) : 0;
   if(power >= cur){                       // 더 강한 것만 덮어쓴다
@@ -6732,6 +6957,16 @@ Object.keys(ROLE_TAGS).forEach(nm=>{
     if(!ROLE_GRADES.includes(grade) || grade === "hidden") return;   // v15n: 신화 이상(히든 제외)만 적용, 낮은 등급 동명 캐릭터는 건드리지 않음
     const isSingle = role==="근접단일딜" || role==="원거리단일딜" || role==="끝딜";
     const isSupport = role==="서포터";
+    // v16b: 태초 이상, 서포터 제외, 캐릭터당 1개 (이름 해시 고정)
+    //   · 스턴은 전체의 약 20% 만 선발 (히든이 스턴 전문이라 신규 부여는 소수)
+    //   · 속박은 스턴과 성격이 겹쳐 히든에게는 주지 않는다
+    //   히든은 스턴 전문 등급이라 원래 스킬을 그대로 둔다 (특수 효과 부여 대상에서 제외)
+    if(!isSupport && grade !== "hidden" && GRADE_ORDER.indexOf(grade) >= GRADE_ORDER.indexOf("origin") && !SPECIAL_ASSIGN[nm]){
+      const r = _h01(nm + "@sp");
+      // v16d: 전원에게 주면 특수 효과가 특수하지 않다. 태초 이상 중 약 30% 만 선발한다.
+      //   (스턴 부여는 롤백 — 여기 안 걸린 캐릭터는 원래 스킬을 그대로 둔다)
+      if(r < SPECIAL_PICK_RATE) SPECIAL_ASSIGN[nm] = SP_KINDS_BASE[_spKindIdx++ % SP_KINDS_BASE.length];
+    }
     const _pk = passiveKeyOf(grade, nm);   // v15gb: 동명이인 등급 분리
     // v15v: 평타 사거리 — 원거리는 근접/범위 구분 없이 필드 15칸(480px) 통일, 근접은 140 고정
     if(role === "근접단일딜") def.range = 140;
@@ -6760,7 +6995,24 @@ Object.keys(ROLE_TAGS).forEach(nm=>{
         if(sk && sk.kind!=="near_debuff" && sk.kind!=="ally_buff" && sk.kind!=="cdr_buff") sk.radius = 130;
       });
     }
+    // v16b: 특수 상태이상은 기존 스킬 하나를 대체한다 (두 번째 스킬 슬롯).
+    if(!isSupport && grade !== "hidden" && SPECIAL_ASSIGN[nm]){
+      const _tsk = def.skill2 || def.skill;
+      if(_tsk && !_tsk.special){
+        _tsk.special = SPECIAL_ASSIGN[nm];
+        _tsk.type = (SPECIAL_ASSIGN[nm] === "stun" && STUN_VARIANT[nm])
+                    ? (STUN_VARIANT_LABEL[STUN_VARIANT[nm]] || _tsk.type)
+                    : (SPECIAL_LABEL[SPECIAL_ASSIGN[nm]] || _tsk.type);
+      }
+    }
     if(isSupport){
+      // v16a: 서포터 확장 효과 배분 — 이름 해시로 고정, 한 캐릭터에 1~2개, 같은 효과 중복 금지
+      if(!SUPPORT_EXTRA[nm]){
+        const _f = _h01(nm + "@sx"), _g2 = _h01(nm + "@sx2");
+        const ex = { cast: (_f < 0.5 ? "gradeUp" : "element") };
+        if(_g2 < 0.62) ex.on = (_g2 < 0.31 ? "onBoss" : "onWave");
+        SUPPORT_EXTRA[nm] = ex;
+      }
       // v15bc: 아군 버프는 필드 전체 범위 (사거리 제한 없이 항상 전체 적용)
       [def.skill, def.skill2, def.skill3].forEach(sk=>{
         if(sk && (sk.kind==="ally_buff"||sk.kind==="cdr_buff")) sk.radius = 9999;
@@ -7057,22 +7309,21 @@ function scopeOf(sk){
 //   → 방어력이 절반으로 깎이고, 남은 절반은 공격력으로 뚫는 구도가 된다.
 // v15gt: 새 방어력 대역(0~1200)에 맞춘 방감 목표.
 //   각 티어가 활약하는 라운드의 잡몹 방어력의 약 55% 를 팀 5명이 깎도록 잡는다.
-const TIER_ARMOR_RED_TARGET = {   // 캐릭터 1인당 평균 방감 (팀 5명이면 x5)
-  // 목표: 팀 5명의 방감으로 "남은 방어력"을 약 160 까지 낮춘다.
-  //   그러면 라운드가 올라가도 피해배율이 55% 안팎으로 일정하게 유지된다.
-  //   (방어력이 커질수록 방감이 차지해야 할 몫도 커지므로 상위 티어일수록 크게 뛴다)
-  // v15gv: 절대자 상향 + 상위 티어 격차 확대.
-  //   팀5 방감이 그 라운드 방어력에서 차지하는 비율이 티어마다 확실히 벌어지게 잡는다.
-  //   신화 55% → 태초 62% → 절대 68% → 히든 72% → 절대자 80% → 초절대자 90% → 패왕 100%
-  //   목표 비율(팀5 방감 / 그 라운드 방어력):
-  //     신화 55% → 태초 62% → 절대 68% → 히든 72% → 절대자 80% → 초절대자 90% → 패왕 100%
-  mythic:       13,      // R30  → 팀5 방감이 방어의 55%
-  origin:       22,      // R40  → 62%
-  absolute:     43,      // R50  → 68%
-  hidden:       97,      // R55  → 72%
-  supremal:     61,      // R65  → 80%   (절대자 상향)
-  ultramaximal:101,      // R80  → 90%   (초절대자 확실히 위)
-  overlord:    231,      // R95  → 100%  (패왕 확실히 위)
+const TIER_ARMOR_RED_TARGET = {   // 캐릭터 1인당 평균 방감
+  // v16e: 방감이 방어력 대역을 완전히 넘어서 있었다. 사황 버기 혼자 420 인데
+  //   하드 최종 라운드 잡몹 방어력이 230, 보스가 460 이다. 한 명이 시스템을 무력화했다.
+  //   패왕 최고치를 110~150 에 맞추고, 아래 티어를 그 비율로 정렬한다.
+  //   서포터 가중치가 1.70 이므로 "티어 상한 = 평균 x 1.70" 이 된다.
+  //     태초 18 / 절대 28 / 히든 40 / 절대자 60 / 초절대자 95 / 패왕 150
+  //   특수 캐릭터(버기·세계군주 등)가 자기 티어 꼭대기에 서더라도
+  //   바로 위 티어의 상한을 넘지 않는다.
+  mythic:        7,      // 상한 약 12
+  origin:       11,      // 상한 약 18
+  absolute:     16,      // 상한 약 28
+  hidden:       24,      // 상한 약 40
+  supremal:     35,      // 상한 약 60
+  ultramaximal: 56,      // 상한 약 95
+  overlord:     88,      // 상한 약 150
 };
 // 방감이 아예 없는 캐릭터로만 팀을 짜면 피해가 0 이 되어 게임이 막힌다.
 // 그래서 해당 티어 전원이 최소한의 방감을 갖게 하되, 역할에 따라 차등을 둔다.
@@ -7086,6 +7337,90 @@ const ARMOR_RED_ROLE_W = {
   "근접단일딜":   0.85,
   "끝딜":        0.80,
 };
+// v16g: 절대자 일반 스킬 배수가 한 단계 아래인 절대(평균 6.0)보다도 낮았다(5.2).
+//   등급 서열이 뒤집혀 있어서, 절대자만 위로 끌어올려 단조 증가를 회복한다.
+//   목표 평균 7.0 — 절대(6.0)와 초절대자(8.1) 사이.
+(function fixSupremalSkillMult(){
+  const vals = [];
+  Object.values(UNIT_DEFS).forEach(d=>{
+    if(d.grade !== "supremal") return;
+    [d.skill, d.skill2, d.skill3].forEach(s=>{ if(s && s.mult > 0) vals.push(s.mult); });
+  });
+  if(!vals.length) return;
+  const avg = vals.reduce((a,b)=>a+b,0) / vals.length;
+  const k = 7.0 / avg;
+  if(!(k > 0) || Math.abs(k - 1) < 0.02) return;
+  Object.values(UNIT_DEFS).forEach(d=>{
+    if(d.grade !== "supremal") return;
+    [d.skill, d.skill2, d.skill3].forEach(s=>{
+      if(s && s.mult > 0) s.mult = +(s.mult * k).toFixed(2);
+    });
+  });
+})();
+// v16i: 단일딜 역할은 역할 처리에서 모든 스킬 반경이 140/130 으로 눌려서
+//   스킬이 전부 단일이 됐다. 단일 특화는 유지하되, 스킬 하나는 범위로 열어준다.
+//   (범위가 된 스킬은 광역이 된 만큼 배수를 75% 로 낮춘다)
+const SINGLE_AOE_CELLS = [2.2, 2.4, 2.6, 2.8, 3.1, 3.6];   // 티어별 반경(칸)
+(function giveSingleRoleOneAoE(){
+  const SINGLE = ["근접단일딜", "원거리단일딜"];
+  Object.values(UNIT_DEFS).forEach(d=>{
+    const nm = (d.name || "").replace("★", "");
+    if(!SINGLE.includes(ROLE_TAGS[nm])) return;
+    const ti = tierIdxOf(d.grade);
+    if(ti == null) return;
+    const sks = [d.skill, d.skill2, d.skill3].filter(Boolean);
+    if(!sks.length) return;
+    // 이미 넓은 범위 스킬이 있으면 건드리지 않는다
+    const wide = Math.round(SINGLE_AOE_CELLS[ti] * STUN_CELL);
+    if(sks.some(s => s.radius && s.radius >= wide * 0.9)) return;
+    // 스턴 스킬은 규격이 따로 있으니 피하고, 두 번째 스킬을 우선 고른다
+    const pick = sks.filter(s => !s.stunShape)[1] || sks.filter(s => !s.stunShape)[0];
+    if(!pick) return;
+    pick.kind = "ring";
+    pick.radius = wide;
+    pick.hits = undefined;
+    if(pick.mult > 0) pick.mult = +(pick.mult * 0.75).toFixed(2);
+    pick.singleAoE = true;
+  });
+})();
+// v16h: 패왕의 범위 스킬을 최상위답게 넓힌다. 역할 처리에서 사거리가 등급과
+//   무관하게 통일돼 버려서, 패왕도 초절대자와 같은 반경을 쓰고 있었다.
+(function widenOverlordAoE(){
+  const AOE = ["ring", "haki", "burn"];
+  Object.values(UNIT_DEFS).forEach(d=>{
+    if(d.grade !== "overlord") return;
+    [d.skill, d.skill2, d.skill3].forEach(s=>{
+      if(!s || s.stunShape) return;              // 스턴 스킬은 위 표에서 따로 잡는다
+      if(!AOE.includes(s.kind)) return;
+      if(!s.radius || s.radius >= 9000) return;  // 전체 범위는 그대로
+      s.radius = Math.round(s.radius * 1.45);
+    });
+  });
+})();
+// v16f: 히든을 제외한 스턴 스킬 재설계.
+//   역할 처리(사거리·배수 통일)가 끝난 뒤에 덮어써야 값이 살아남는다.
+(function rebuildStunSkills(){
+  Object.values(UNIT_DEFS).forEach(def=>{
+    const grade = def.grade;
+    if(grade === "hidden") return;                 // 히든은 평타 스턴이라 그대로 둔다
+    if(tierIdxOf(grade) == null) return;
+    const nm = def.name.replace("★","");
+    [def.skill, def.skill2, def.skill3].forEach((sk, si)=>{
+      if(!sk || !sk.stun || sk.stunShape) return;
+      const ti = tierIdxOf(grade);
+      const shape = STUN_SHAPES[Math.floor(_h01(nm + "@shape" + si) * STUN_SHAPES.length) % STUN_SHAPES.length];
+      sk.stunShape = shape;
+      if(shape === "line") sk.stunAxis = (_h01(nm + "@axis" + si) < 0.5) ? "h" : "v";
+      sk.cd     = STUN_SK_CD[ti];
+      sk.stun   = STUN_SK_TIME[shape][ti];
+      sk.mult   = STUN_SK_MULT[shape][ti];
+      sk.radius = Math.round(STUN_SK_RADIUS[shape][ti]);
+      sk.kind   = (shape === "point") ? "bolt" : "ring";
+      if(shape === "point") sk.hits = 1;
+      STUN_SKILL_INFO[grade+"|"+nm] = shape;
+    });
+  });
+})();
 (function rescaleArmorRed(){
   // 동명이인(예: 태초/절대자 "검신 미호크")은 PASSIVES 항목을 공유한다.
   //   원본을 먼저 통째로 스냅샷해 두지 않으면 같은 값에 스케일이 중복으로 곱해진다.
@@ -7219,7 +7554,8 @@ function effArmorOf(target, def){
 }
 // 스킬 피해에 방어력을 차감한다 (한 대상당 1회)
 function armorCut(raw, target, def){
-  return Math.max(0, Math.round(armorApply(raw, target, def)));
+  // v16b: 특수 상태이상은 단일 대상이라 여기서 걸지 않는다(광역 전체에 퍼지던 문제).
+  return Math.max(0, Math.round(armorApply(raw, target, def) * specialDmgMult(target)));
 }
 function pctMaxHpDmg(m, pct){
   const want = m.maxHp * pct;
@@ -7649,6 +7985,33 @@ function fireSkill(u, def, sk){
   const _uxSrc = (ultraFxPerSkill(def) || sk === (def.skill3 || def.skill2 || def.skill)) ? ultraFxOf(def, sk) : null;
   if(_uxSrc && fxGateOK(u)) _ultraFx(u.x, u.y, sk.color, _uxSrc, fx.wide);
 
+  // v16b: 특수 상태이상은 이 스킬 시전 시 "가장 가까운 1기"에게만 (단일 대상)
+  // v16f: 재설계된 스턴 스킬 — 명중 범위 안의 몹에게 스턴을 건다
+  if(sk.stunShape && inRange.length){
+    let _ep = null, _ed = Infinity;
+    inRange.forEach(m=>{ const p = mPos(m); const dx=p.x-u.x, dy=p.y-u.y, d2=dx*dx+dy*dy;
+      if(d2 < _ed){ _ed = d2; _ep = m; } });
+    if(_ep){
+      const c = mPos(_ep), R = sk.radius, R2 = R*R;
+      const one = (sk.stunShape === "point");
+      state.monsters.forEach(m=>{
+        if(m.hp <= 0) return;
+        if(one){ if(m !== _ep) return; }
+        else {
+          const p = mPos(m), dx = p.x-c.x, dy = p.y-c.y;
+          if(dx*dx + dy*dy > R2) return;
+          if(!stunShapeHit(sk, p.x, p.y, c.x, c.y)) return;
+        }
+        _pushStun(m, stunPowerOf(def) || 0.6, sk.stun);
+      });
+    }
+  }
+  if(sk.special && inRange.length){
+    let _st = null, _sd = Infinity;
+    inRange.forEach(m=>{ const p = mPos(m); const dx=p.x-u.x, dy=p.y-u.y, d2=dx*dx+dy*dy;
+      if(d2 < _sd){ _sd = d2; _st = m; } });
+    if(_st) applySpecialEffect(def, _st, skillDmgBase * state.synDmg * (1+state.aura.atk) * (1+state.aura.skillDmg));
+  }
   if(sk.kind === "haki"){
     // 패왕색: 광역 스턴 + %딜, 화면 흔들림
     inRange.forEach(m=>{
@@ -7692,7 +8055,7 @@ function fireSkill(u, def, sk){
       fx.x = ep.x; fx.y = ep.y;   // 폭발 이펙트도 명중 지점에서 터지게
       state.monsters.forEach(m=>{
         const p = mPos(m);
-        if(inCells(p.x-ep.x, p.y-ep.y, _skCells)){   // v15g0: 격자 타원
+        if(inCells(p.x-ep.x, p.y-ep.y, _skCells) && stunShapeHit(sk, p.x, p.y, ep.x, ep.y)){   // v16f: 라인형은 한 줄만
           const dealt = armorCut(Math.round((skillDmgBase * state.synDmg * (1+state.aura.atk) * (1+state.aura.skillDmg) * sk.mult + pctMaxHpDmg(m, pctOf(m))) * (1+state.aura.dmgTaken) * combatDmgMult(def, m)), m, def);
           applyCombatDmg(def, m, dealt);
           if(sk.slow) applySlow(m, _slowPowerOf(sk.slow));   // v15fm: 최고값 1개만
@@ -8174,13 +8537,15 @@ function update(dt){
     // v15d4: 골드 패시브(+15~20%)가 상시 적용이라 후반 자금이 과도하게 불어나던 문제.
     // 이제 라운드마다 "첫 10초 동안만" 발동한다. (합산 아님 - 여러 명이 있어도 최고값 1개만 적용되는 건 기존과 동일)
     const goldWindowActive = state.roundTime > (roundLen(state.round) - GOLD_PASSIVE_WINDOW);
-    const rw = Math.round((state.goldRushT > 0 ? m.reward*2 : m.reward) * (1 + (goldWindowActive ? state.aura.gold : 0)));
+    // v16a: 보스 처치 골드 패시브는 상시 적용 (합산 아님 — 최고값 1개)
+    const rw = Math.round((state.goldRushT > 0 ? m.reward*2 : m.reward) * (1 + (goldWindowActive ? state.aura.gold : 0)) * (1 + (state.bossGoldBonus || 0)));
     state.gold += rw;
     state.goldEarned += rw;
     state.kills++;
     state.roundKills++;
     if(m.elite) state.roundEliteKills++;
     checkMissionProgress();
+    if(m.boss) onBossKilledGold(m.bossRound || state.round);   // v16a
     if(m.boss && m.raid){
       // v15gg: 레이드 보스 — 골드만 주고(위에서 이미 지급) 필드로 복귀한다.
       //   라운드 진행·중간클리어·최종보스 연출 같은 본편 흐름은 건드리지 않는다.
@@ -8349,7 +8714,13 @@ function update(dt){
     const slowAura = m.boss ? state.aura.slowBoss : state.aura.slow;
     const slowMult = (1 - monsterSlowPower(m)) * (1 - slowAura);
     const bossSpeedMult = (m.speedBoost && m.hp <= m.maxHp*m.speedBoostThresh) ? m.speedBoostMult : 1;
-    m.d += m.speed * bossSpeedMult * stunMult * slowMult * dt;
+    // v16a: 속박은 이동만 막고, 공포는 반대 방향으로 밀어낸다
+    if(m._rootUntil && state.time < m._rootUntil){ /* 이동 정지 */ }
+    else if(m._fearUntil && state.time < m._fearUntil){
+      m.d -= m.speed * bossSpeedMult * stunMult * slowMult * dt * 0.6;
+      if(m.d < 0) m.d += PERIM;
+    }
+    else m.d += m.speed * bossSpeedMult * stunMult * slowMult * dt;
     // v15f2: 방어력 저주 만료 시 원래 방어력 복구
     if(m._armorCurseUntil && state.time >= m._armorCurseUntil){
       if(m._armorSave != null) m.armor = m._armorSave;
@@ -8462,7 +8833,7 @@ function update(dt){
       const _targetedAspd = (u.tempAspdUntil && state.time < u.tempAspdUntil) ? u.tempAspdVal : 0;
       // v15gj: 레이드 보스 디버프 — 공속 감소는 쿨을 늘리고, 공격력 감소는 딜을 깎는다
       u.cd = def.cd * state.synCd * (1 - A.aspd) * (1 - _targetedAspd) / Math.max(0.2, 1 - raidUnitDebuff("aspd"));
-      const synDmg = def.dmg * (def.meleeBonus||1) * state.synDmg * (1 + A.atk) * (1 - raidUnitDebuff("atk"));
+      const synDmg = def.dmg * (def.meleeBonus||1) * state.synDmg * (1 + A.atk) * (1 - raidUnitDebuff("atk")) * unitBuffMul(u);
       const _role = ROLE_TAGS[def.name.replace("★","")];
       // v15c7: ③ 원거리단일딜 = 보스/특수몹 킬러 — 보스·정예 상대로 티어별 부분 방어무시
       // v15gs: 방어력은 비율 감쇠 — 방감을 얼마나 확보했느냐로 피해 비율이 정해진다
